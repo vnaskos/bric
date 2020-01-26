@@ -88,6 +88,7 @@ public class ImageProcessHandlerTest {
         Assertions.assertEquals("/original/path/img.jpg", actual);
     }
 
+    @Test
     public void applyFileNameMask_GivenOriginalDirectoryModifierAndSlash_ShouldReturnOriginalImagePathAndNameWithOutputExtension() {
         String filepath = "^P/";
 
