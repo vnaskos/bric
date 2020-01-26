@@ -266,7 +266,7 @@ public class ImageProcessHandler {
     
     public String applyFileNameMasks(String filepath, ImportedImage currentImage) {
 
-        if (outputPath.substring(outputPath.lastIndexOf(Utils.FS) + 1).equals("")) {
+        if (filepath.substring(filepath.lastIndexOf(Utils.FS) + 1).equals("")) {
             filepath = (filepath.lastIndexOf(Utils.FS) == filepath.length() - 1) ? filepath : filepath + Utils.FS;
             filepath = filepath + "%F";
         }
