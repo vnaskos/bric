@@ -149,7 +149,7 @@ public class ImageProcessHandler {
                         return;
                     }
                     String inputExtension = ((ImportedImage) model.get(i)).getImageType();
-                    
+
                     if (inputExtension.equalsIgnoreCase("pdf")) {
                         if(outputExtension.equalsIgnoreCase("same as first")){
                             generateSeparatePDF(i);
@@ -159,7 +159,7 @@ public class ImageProcessHandler {
                     } else {
                         bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
                     }
-                    
+
                     progressBar.showProgress(((ImportedImage) model.get(i)).getPath());
                     progressBar.updateValue(true);
                 }
@@ -263,7 +263,7 @@ public class ImageProcessHandler {
         return extension;
     }
     
-    private String applyFileNameMasks(String filepath, ImportedImage currentImage) {
+    public String applyFileNameMasks(String filepath, ImportedImage currentImage) {
 
         if (outputPath.substring(outputPath.lastIndexOf(Utils.FS) + 1).equals("")) {
             filepath = (filepath.lastIndexOf(Utils.FS) == filepath.length() - 1) ? filepath : filepath + Utils.FS;
