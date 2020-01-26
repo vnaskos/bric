@@ -26,7 +26,7 @@ public class ImageProcessHandlerTest {
     }
 
     @Test
-    public void applyFileNameMask_GivenFixedPath_ShouldOnlyApplyExtension() {
+    public void applyFileNameMask_GivenFixedPath_ShouldOnlyAppendExtension() {
         String filepath = "/test/123";
         String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH);
 
