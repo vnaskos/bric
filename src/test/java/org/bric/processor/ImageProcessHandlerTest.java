@@ -10,9 +10,10 @@ import java.util.Stack;
 
 public class ImageProcessHandlerTest {
 
-    private static final String JPG_EXTENSION = "jpg";
+    private static final String JPG_OUTPUT_TYPE = "jpg";
+    private static final String SAME_AS_FIRST_OUTPUT_TYPE = "same as first";
     private static final String AN_OUTPUT_PATH = "/output";
-    private static final ImportedImage AN_IMAGE = new ImportedImage("/an/image/path/imported-image.jpg");
+    private static final ImportedImage A_JPG_IMAGE_PATH = new ImportedImage("/an/image/path/imported-image.jpg");
 
     private ImageProcessHandler imageProcessHandler;
 
@@ -21,15 +22,38 @@ public class ImageProcessHandlerTest {
         DefaultListModel<ImportedImage> fakeModel = new DefaultListModel<>();
         imageProcessHandler = new ImageProcessHandler(fakeModel);
         imageProcessHandler.outputPath = AN_OUTPUT_PATH;
-        imageProcessHandler.outputExtension = JPG_EXTENSION;
+        imageProcessHandler.outputExtension = JPG_OUTPUT_TYPE;
     }
 
     @Test
     public void applyFileNameMask_GivenFixedPath_ShouldOnlyApplyExtension() {
         String filepath = "/test/123";
-        String actual = imageProcessHandler.applyFileNameMasks(filepath, AN_IMAGE);
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH);
 
         Assertions.assertEquals(filepath.concat(".jpg"), actual);
+    }
+
+    @Test
+    public void applyFileNameMask_GivenSameAsFirstOutputType_ShouldOnlyAppendInitialExtension() {
+        imageProcessHandler.outputExtension = SAME_AS_FIRST_OUTPUT_TYPE;
+
+        String filepath = "/test/123";
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH);
+
+        Assertions.assertEquals(filepath.concat(".jpg"), actual);
+    }
+
+    @Test
+    public void applyFileNameMask_GivenSameAsFirstOutputTypeWithUnsupportedExtension_ShouldAppendDefaultExtension() {
+        imageProcessHandler.outputExtension = SAME_AS_FIRST_OUTPUT_TYPE;
+
+        String filepath = "/test/123";
+        String actual = imageProcessHandler.applyFileNameMasks(filepath,
+                new ImportedImage("/image/path/img.UNSUPPORTED_EXT"));
+
+        String defaultExtension = "." + ImageProcessHandler.DEFAULT_OUTPUT_TYPE;
+
+        Assertions.assertEquals(filepath.concat(defaultExtension), actual);
     }
 
     @Test
@@ -39,7 +63,7 @@ public class ImageProcessHandlerTest {
 
         String filepath = "/test/123_#";
         String expected = "/test/123_0.jpg";
-        String actual = imageProcessHandler.applyFileNameMasks(filepath, AN_IMAGE);
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH);
 
         Assertions.assertEquals(expected, actual);
     }

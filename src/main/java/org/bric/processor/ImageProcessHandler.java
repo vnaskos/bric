@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 
 public class ImageProcessHandler {
 
+    public static final String DEFAULT_OUTPUT_TYPE = "jpg";
     DefaultListModel model;
     
     ResizeParameters resizeParameters;
@@ -296,7 +297,7 @@ public class ImageProcessHandler {
                     extension = currentImage.getImageType();
                     break;
                 } else {
-                    extension = Utils.prefs.get("defaultFileType", "jpg");
+                    extension = Utils.prefs.get("defaultFileType", DEFAULT_OUTPUT_TYPE);
                 }
             }
         }
