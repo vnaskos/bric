@@ -67,4 +67,14 @@ public class ImageProcessHandlerTest {
 
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    public void applyFileNameMask_GivenOutputPathWithoutFilenameMask_ShouldPlaceOriginalImageName() {
+        String filepath = "/test/";
+        imageProcessHandler.outputPath = filepath;
+
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, new ImportedImage("/path/original.png"));
+
+        Assertions.assertEquals(filepath.concat("original.jpg"), actual);
+    }
 }
