@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
+import java.util.Stack;
 
 public class ImageProcessHandlerTest {
 
@@ -19,16 +20,27 @@ public class ImageProcessHandlerTest {
     public void setup() {
         DefaultListModel<ImportedImage> fakeModel = new DefaultListModel<>();
         imageProcessHandler = new ImageProcessHandler(fakeModel);
+        imageProcessHandler.outputPath = AN_OUTPUT_PATH;
+        imageProcessHandler.outputExtension = JPG_EXTENSION;
     }
 
     @Test
     public void applyFileNameMask_GivenFixedPath_ShouldOnlyApplyExtension() {
-        imageProcessHandler.outputPath = AN_OUTPUT_PATH;
-        imageProcessHandler.outputExtension = JPG_EXTENSION;
-
         String filepath = "/test/123";
         String actual = imageProcessHandler.applyFileNameMasks(filepath, AN_IMAGE);
 
         Assertions.assertEquals(filepath.concat(".jpg"), actual);
+    }
+
+    @Test
+    public void applyFileNameMask_GivenRespectiveNumberingModifier_ShouldReplaceModifierWithNumber() {
+        imageProcessHandler.numsStack = new Stack<>();
+        imageProcessHandler.numsStack.push(0); // TODO: unsafe
+
+        String filepath = "/test/123_#";
+        String expected = "/test/123_0.jpg";
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, AN_IMAGE);
+
+        Assertions.assertEquals(expected, actual);
     }
 }
