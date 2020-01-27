@@ -99,6 +99,17 @@ public class ImageProcessHandlerTest {
     }
 
     @Test
+    public void applyFileNameMask_GivenMultipleNumberingModifiers_ShouldReplaceThemAll() {
+        String filepath = "/path/*_*";
+        int anInitialNumberingValue = 11;
+
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH,
+                anInitialNumberingValue, JPG_OUTPUT_TYPE);
+
+        Assertions.assertEquals("/path/11_11.jpg", actual);
+    }
+
+    @Test
     public void applyFileNameMask_GivenOriginalDirectoryAndNumberingModifier_ShouldReturnOriginalImagePathWithNumberingAndOutputExtension() {
         String filepath = "^P*";
         String originalImagePath = "/original/path/img.png";

@@ -270,7 +270,7 @@ public class ImageProcessHandler {
         generatedFilepath = ensureFilepathEndingWithPathModifierContainsSlash(generatedFilepath);
         generatedFilepath = ensureFilepathContainsFilename(generatedFilepath);
 
-        generatedFilepath = generatedFilepath.replaceAll("\\*", Integer.toString(numberingIndex));
+        generatedFilepath = generatedFilepath.replace("*", Integer.toString(numberingIndex));
 
         Calendar cal = Calendar.getInstance();
         generatedFilepath = generatedFilepath.replaceAll("%D", cal.get(Calendar.DATE) + "");
