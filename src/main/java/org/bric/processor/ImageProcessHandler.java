@@ -35,7 +35,8 @@ import java.util.logging.Logger;
 
 public class ImageProcessHandler {
 
-    public static final String DEFAULT_OUTPUT_TYPE = "jpg";
+    private FileNameService fileNameService;
+
     DefaultListModel<ImportedImage> model;
 
     ResizeParameters resizeParameters;
@@ -45,8 +46,6 @@ public class ImageProcessHandler {
     ProgressBarFrame progressBar;
 
     int modelSize;
-
-    Stack<Integer> numsStack;
 
     private boolean preview = false;
     private int duplicateAction = Utils.NOT_SET;
@@ -66,6 +65,8 @@ public class ImageProcessHandler {
 
         this.model = model;
         modelSize = model.size();
+
+        this.fileNameService = new FileNameService(outputPath, outputExtension, outputParameters.getNumberingStartIndex(), model.size());
     }
 
     public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
@@ -105,7 +106,6 @@ public class ImageProcessHandler {
         progressBar = new ProgressBarFrame();
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
-        initNumsStack();
 
         int processors;
         if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
@@ -125,20 +125,7 @@ public class ImageProcessHandler {
         }
     }
 
-    private void initNumsStack() {
-        numsStack = new Stack<>();
-        if(outputPath.contains("#")){
-            HashSet<Integer> existingNumsHash = Utils.getExistingNumsHash(outputPath);
-            for(int i = outputParameters.getNumberingStartIndex(); true; i++){
-                if(!existingNumsHash.contains(i)){
-                    numsStack.add(i);
-                }
-                if(numsStack.size() == modelSize){
-                    break;
-                }
-            }
-        }
-    }
+
 
     public void startNewThread(final ProgressBarFrame progressBar, final int from, final int step) {
         new Thread(() -> {
@@ -187,7 +174,7 @@ public class ImageProcessHandler {
         if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
             addImageToPDF(currentImage);
         } else {
-            save(currentImage, applyFileNameMasks(outputPath, model.get(imageNumber), numberingIndex.getAndIncrement(), outputExtension));
+            save(currentImage, fileNameService.applyFileNameMasks(model.get(imageNumber)));
         }
     }
 
@@ -203,7 +190,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(applyFileNameMasks(outputPath, model.get(i), numberingIndex.getAndIncrement(), outputExtension));
+        openDocument(fileNameService.applyFileNameMasks(model.get(i)));
 
         pdfProcess(resizer, rotator, watermarker, i);
 
@@ -215,7 +202,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(applyFileNameMasks(outputPath, model.get(0), numberingIndex.getAndIncrement(), outputExtension));
+        openDocument(fileNameService.applyFileNameMasks(model.get(0)));
 
         String inputExtension;
         for (int i = 0; i < modelSize; i++) {
@@ -257,57 +244,6 @@ public class ImageProcessHandler {
 
     private String getExtension(String filename) {
         return filename.substring(filename.lastIndexOf(".") + 1);
-    }
-
-    public String applyFileNameMasks(String outputFilepath, ImportedImage currentImage, int numberingIndex, String outputExtension) {
-        String generatedFilepath = outputFilepath;
-
-        generatedFilepath = ensureFilepathContainsSlashIfEndsWithPathModifier(generatedFilepath);
-        generatedFilepath = ensureFilepathContainsFilename(generatedFilepath);
-
-        generatedFilepath = generatedFilepath.replace("*", Integer.toString(numberingIndex));
-
-        Calendar cal = Calendar.getInstance();
-        generatedFilepath = generatedFilepath.replace("%D", cal.get(Calendar.DATE) + "");
-        generatedFilepath = generatedFilepath.replace("%M", (cal.get(Calendar.MONTH) + 1) + "");
-        generatedFilepath = generatedFilepath.replace("%Y", cal.get(Calendar.YEAR) + "");
-
-        generatedFilepath = generatedFilepath.replace("%F", currentImage.getName());
-        generatedFilepath = generatedFilepath.replace("^P", currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));
-
-        String extension = outputExtension;
-        if (outputExtension.equals("same as first")) {
-            for(String ext : Utils.supportedOutputExtensions){
-                if(ext.equalsIgnoreCase(currentImage.getImageType())){
-                    extension = currentImage.getImageType();
-                    break;
-                } else {
-                    extension = Utils.prefs.get("defaultFileType", DEFAULT_OUTPUT_TYPE);
-                }
-            }
-        }
-
-        if (generatedFilepath.contains("#")) {
-            generatedFilepath = generatedFilepath.replaceAll("#", String.valueOf(numsStack.pop()));
-        }
-
-        generatedFilepath += '.' + extension;
-
-        return generatedFilepath;
-    }
-
-    private String ensureFilepathContainsSlashIfEndsWithPathModifier(String filepath) {
-        if (filepath.endsWith("^P")) {
-            return filepath + Utils.FS;
-        }
-        return filepath;
-    }
-
-    private String ensureFilepathContainsFilename(String filepath) {
-        if (filepath.endsWith(Utils.FS)) {
-            return filepath + "%F";
-        }
-        return filepath;
     }
 
     private String applySpecialFileMask(String filepath, String extension){
