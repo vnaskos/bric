@@ -267,18 +267,8 @@ public class ImageProcessHandler {
     public String applyFileNameMasks(String outputFilepath, ImportedImage currentImage, int numberingIndex, String outputExtension) {
         String generatedFilepath = outputFilepath;
 
-        if (generatedFilepath.endsWith(Utils.FS)) {
-            generatedFilepath = generatedFilepath + "%F";
-        }
-
-        if (generatedFilepath.contains("^P")) {
-            if (!generatedFilepath.contains("^P" + Utils.FS)) {
-                generatedFilepath = generatedFilepath.replace("^P", "^P" + Utils.FS);
-            }
-            if (!generatedFilepath.contains("%") && !generatedFilepath.contains("*") && !generatedFilepath.contains("#")) {
-                generatedFilepath = generatedFilepath + "%F";
-            }
-        }
+        generatedFilepath = ensureFilepathEndingWithPathModifierContainsSlash(generatedFilepath);
+        generatedFilepath = ensureFilepathContainsFilename(generatedFilepath);
 
         generatedFilepath = generatedFilepath.replaceAll("\\*", Integer.toString(numberingIndex));
 
@@ -311,7 +301,21 @@ public class ImageProcessHandler {
 
         return generatedFilepath;
     }
-    
+
+    private String ensureFilepathEndingWithPathModifierContainsSlash(String filepath) {
+        if (filepath.endsWith("^P")) {
+            return filepath + Utils.FS;
+        }
+        return filepath;
+    }
+
+    private String ensureFilepathContainsFilename(String filepath) {
+        if (filepath.endsWith(Utils.FS)) {
+            return filepath + "%F";
+        }
+        return filepath;
+    }
+
     private String applySpecialFileMask(String filepath, String extension){
         int index = outputParameters.getNumberingStartIndex();
         String filepathBackup = filepath;
