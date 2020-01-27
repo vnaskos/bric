@@ -28,7 +28,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +43,7 @@ public class ImageProcessHandler {
 
     private FileNameService fileNameService;
 
-    DefaultListModel<ImportedImage> model;
+    private Queue<ImportedImage> inputQueue;
 
     ResizeParameters resizeParameters;
     RotateParameters rotateParameters;
@@ -63,8 +69,12 @@ public class ImageProcessHandler {
         outputExtension = outputParameters.getOutputFormat().toLowerCase();
         outputPath = outputParameters.getOutputPath();
 
-        this.model = model;
         modelSize = model.size();
+
+        inputQueue = new ConcurrentLinkedQueue<>();
+        for (int i=0; i<model.getSize(); i++) {
+            inputQueue.add(model.get(i));
+        }
 
         this.fileNameService = new FileNameService(outputPath, outputExtension, outputParameters.getNumberingStartIndex(), model.size());
     }
@@ -97,7 +107,11 @@ public class ImageProcessHandler {
 
     public void start() {
         if(preview){
-            if (model.get(0).getImageType().equalsIgnoreCase("pdf")) {
+            ImportedImage firstItem = inputQueue.poll();
+            if (firstItem == null) {
+                return;
+            }
+            if (firstItem.getImageType().equalsIgnoreCase("pdf")) {
                 JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
                 return;
             }
@@ -107,57 +121,58 @@ public class ImageProcessHandler {
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
 
-        int processors;
-        if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
-            processors = Runtime.getRuntime().availableProcessors();
-        } else {
-            processors = Utils.prefs.getInt("exportNumThreads", 1);
-        }
-
-        final int step = (int) Math.ceil((double) modelSize / processors);
-
         if (outputExtension.equalsIgnoreCase("pdf")) {
             generatePDF();
         } else {
-            for (int j = 0; j < modelSize; j += step) {
-                startNewThread(progressBar, j, step);
+            ExecutorService executorService;
+            if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
+                executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
+            } else {
+                executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
+            }
+
+            for (int i = 0; i < modelSize; i++) {
+                executorService.submit(task(progressBar));
             }
         }
     }
 
 
 
-    public void startNewThread(final ProgressBarFrame progressBar, final int from, final int step) {
-        new Thread(() -> {
+    public Callable<Void> task(final ProgressBarFrame progressBar) {
+        return () -> {
+            ImportedImage importedImage = inputQueue.poll();
+
+            if (!progressBar.isVisible() || importedImage == null) {
+                return null;
+            }
+
             ResizeProcessor resizer = new ResizeProcessor(resizeParameters);
             RotateProcessor rotator = new RotateProcessor(rotateParameters);
             WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-            for (int i = from; i < from + step; i++) {
-                if (!progressBar.isVisible() || i >= modelSize) {
-                    return;
-                }
-                String inputExtension = model.get(i).getImageType();
+            String inputExtension = importedImage.getImageType();
 
-                if (inputExtension.equalsIgnoreCase("pdf")) {
-                    if(outputExtension.equalsIgnoreCase("same as first")){
-                        generateSeparatePDF(i);
-                    } else {
-                        pdfProcess(resizer, rotator, watermarker, i);
-                    }
+            if (inputExtension.equalsIgnoreCase("pdf")) {
+                if(outputExtension.equalsIgnoreCase("same as first")){
+                    generateSeparatePDF(importedImage);
                 } else {
-                    bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
+                    pdfProcess(resizer, rotator, watermarker, importedImage);
                 }
-
-                progressBar.showProgress(model.get(i).getPath());
-                progressBar.updateValue(true);
+            } else {
+                bufferedImageProcess(resizer, rotator, watermarker, importedImage, null, false);
             }
-        }).start();
+
+            progressBar.showProgress(importedImage.getPath());
+            progressBar.updateValue(true);
+
+            return null;
+        };
     }
 
-    private void bufferedImageProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, int imageNumber, BufferedImage currentImage, boolean pdfInput) {
+    private void bufferedImageProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, ImportedImage importedImage, BufferedImage currentImage, boolean pdfInput) {
         if (currentImage == null) {
-            currentImage = Utils.loadImage(model.get(imageNumber).getPath());
+            currentImage = Utils.loadImage(importedImage.getPath());
         }
         if (resizeParameters.isEnabled()) {
             currentImage = resizer.process(currentImage);
@@ -174,25 +189,25 @@ public class ImageProcessHandler {
         if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
             addImageToPDF(currentImage);
         } else {
-            save(currentImage, fileNameService.generateFilePath(model.get(imageNumber)));
+            save(currentImage, fileNameService.generateFilePath(importedImage));
         }
     }
 
-    private void pdfProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, int imageNumber) {
-        ArrayList<BufferedImage> extractedImages = (ArrayList<BufferedImage>) PDFToImage.getBImagesFromPDF(model.get(imageNumber).getPath(), 1, Integer.MAX_VALUE);
+    private void pdfProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, ImportedImage importedImage) {
+        ArrayList<BufferedImage> extractedImages = (ArrayList<BufferedImage>) PDFToImage.getBImagesFromPDF(importedImage.getPath(), 1, Integer.MAX_VALUE);
         for (BufferedImage currentImage : extractedImages) {
-            bufferedImageProcess(resizer, rotator, watermarker, imageNumber, currentImage, true);
+            bufferedImageProcess(resizer, rotator, watermarker, importedImage, currentImage, true);
         }
     }
 
-    public void generateSeparatePDF(int i){
+    public void generateSeparatePDF(ImportedImage importedImage){
         ResizeProcessor resizer = new ResizeProcessor(resizeParameters);
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(fileNameService.generateFilePath(model.get(i)));
+        openDocument(fileNameService.generateFilePath(importedImage));
 
-        pdfProcess(resizer, rotator, watermarker, i);
+        pdfProcess(resizer, rotator, watermarker, importedImage);
 
         document.close();
     }
@@ -202,17 +217,21 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(fileNameService.generateFilePath(model.get(0)));
+        ImportedImage firstItem = inputQueue.poll();
+        if (firstItem == null) {
+            return;
+        }
+        openDocument(fileNameService.generateFilePath(firstItem));
 
         String inputExtension;
-        for (int i = 0; i < modelSize; i++) {
-            inputExtension = getExtension(model.get(i).getPath());
+        for (ImportedImage importedImage : inputQueue) {
+            inputExtension = getExtension(importedImage.getPath());
             if (inputExtension.equalsIgnoreCase("pdf")) {
-                pdfProcess(resizer, rotator, watermarker, i);
+                pdfProcess(resizer, rotator, watermarker, importedImage);
             } else {
-                bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
+                bufferedImageProcess(resizer, rotator, watermarker, importedImage, null, false);
             }
-            progressBar.showProgress(model.get(i).getPath());
+            progressBar.showProgress(importedImage.getPath());
             progressBar.updateValue(true);
         }
         document.close();
