@@ -107,7 +107,7 @@ public class ImageProcessHandlerTest {
         String actual = imageProcessHandler.applyFileNameMasks(filepath,
                 new ImportedImage(originalImagePath), anInitialNumberingValue, JPG_OUTPUT_TYPE);
 
-        Assertions.assertEquals("/original/path/12.jpg", actual);
+        Assertions.assertEquals("/original/path12.jpg", actual);
     }
 
     @Test
