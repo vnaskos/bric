@@ -138,32 +138,29 @@ public class ImageProcessHandler {
     }
 
     public void startNewThread(final ProgressBarFrame progressBar, final int from, final int step) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ResizeProcessor resizer = new ResizeProcessor(resizeParameters);
-                RotateProcessor rotator = new RotateProcessor(rotateParameters);
-                WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
+        new Thread(() -> {
+            ResizeProcessor resizer = new ResizeProcessor(resizeParameters);
+            RotateProcessor rotator = new RotateProcessor(rotateParameters);
+            WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-                for (int i = from; i < from + step; i++) {
-                    if (!progressBar.isVisible() || i >= modelSize) {
-                        return;
-                    }
-                    String inputExtension = model.get(i).getImageType();
-
-                    if (inputExtension.equalsIgnoreCase("pdf")) {
-                        if(outputExtension.equalsIgnoreCase("same as first")){
-                            generateSeparatePDF(i);
-                        } else {
-                            pdfProcess(resizer, rotator, watermarker, i, true);
-                        }
-                    } else {
-                        bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
-                    }
-
-                    progressBar.showProgress(model.get(i).getPath());
-                    progressBar.updateValue(true);
+            for (int i = from; i < from + step; i++) {
+                if (!progressBar.isVisible() || i >= modelSize) {
+                    return;
                 }
+                String inputExtension = model.get(i).getImageType();
+
+                if (inputExtension.equalsIgnoreCase("pdf")) {
+                    if(outputExtension.equalsIgnoreCase("same as first")){
+                        generateSeparatePDF(i);
+                    } else {
+                        pdfProcess(resizer, rotator, watermarker, i, true);
+                    }
+                } else {
+                    bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
+                }
+
+                progressBar.showProgress(model.get(i).getPath());
+                progressBar.updateValue(true);
             }
         }).start();
     }
@@ -236,9 +233,7 @@ public class ImageProcessHandler {
             document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream(new File(filepath)));
             document.open();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (DocumentException ex) {
+        } catch (FileNotFoundException | DocumentException ex) {
             Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -252,9 +247,7 @@ public class ImageProcessHandler {
             Image pdfImage = Image.getInstance(iTextImage);
             pdfImage.setAbsolutePosition(0, 0);
             document.add(pdfImage);
-        } catch (DocumentException ex) {
-            Logger.getLogger(ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        } catch (DocumentException | IOException ex) {
             Logger.getLogger(ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -390,11 +383,7 @@ public class ImageProcessHandler {
         if (virtualFile.exists()) {
             duplicatePane(newFilepath);
         }
-        if(duplicateAction == Utils.SKIP || duplicateAction == Utils.SKIP_ALL){
-            return true;
-        }
-        
-        return false;
+        return duplicateAction == Utils.SKIP || duplicateAction == Utils.SKIP_ALL;
     }
     
     public void previewProcess(BufferedImage image){
@@ -456,6 +445,7 @@ public class ImageProcessHandler {
                 Sanselan.writeImage(imageForSave, outputFile, format, null);
             }
         } catch (Exception ex) {
+            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -465,7 +455,7 @@ public class ImageProcessHandler {
             ImageWriter writer = (ImageWriter) iter.next();
             ImageWriteParam iwp = writer.getDefaultWriteParam();
             iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            iwp.setCompressionQuality((float) outputParameters.getQuality());   // a float between 0 and 1
+            iwp.setCompressionQuality(outputParameters.getQuality());   // a float between 0 and 1
             FileImageOutputStream output = new FileImageOutputStream(outputfile);
             writer.setOutput(output);
 
