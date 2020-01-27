@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 public class ImageProcessHandler {
 
     public static final String DEFAULT_OUTPUT_TYPE = "jpg";
-    DefaultListModel model;
+    DefaultListModel<ImportedImage> model;
 
     ResizeParameters resizeParameters;
     RotateParameters rotateParameters;
@@ -57,7 +57,7 @@ public class ImageProcessHandler {
     //pdf
     Document document;
 
-    public ImageProcessHandler(DefaultListModel model) {
+    public ImageProcessHandler(DefaultListModel<ImportedImage> model) {
         this.model = model;
         modelSize = model.size();
 
@@ -69,7 +69,7 @@ public class ImageProcessHandler {
     public ImageProcessHandler(ImportedImage image) {
 
         duplicateAction = Utils.NOT_SET;
-        model = new DefaultListModel();
+        model = new DefaultListModel<>();
         model.addElement(image);
 
         preview = true;
@@ -97,7 +97,7 @@ public class ImageProcessHandler {
 
     public void start() {
         if(preview){
-            if (((ImportedImage) model.get(0)).getImageType().equalsIgnoreCase("pdf")) {
+            if (model.get(0).getImageType().equalsIgnoreCase("pdf")) {
                 JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
                 return;
             }
@@ -106,7 +106,7 @@ public class ImageProcessHandler {
         progressBar = new ProgressBarFrame();
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
-        numsStack = new Stack<Integer>();
+        numsStack = new Stack<>();
         if(outputPath.contains("#")){
             HashSet<Integer> existingNumsHash = Utils.getExistingNumsHash(outputPath);
             for(int i = outputParameters.getNumberingStartIndex(); true; i++){
@@ -149,7 +149,7 @@ public class ImageProcessHandler {
                     if (!progressBar.isVisible() || i >= modelSize) {
                         return;
                     }
-                    String inputExtension = ((ImportedImage) model.get(i)).getImageType();
+                    String inputExtension = model.get(i).getImageType();
 
                     if (inputExtension.equalsIgnoreCase("pdf")) {
                         if(outputExtension.equalsIgnoreCase("same as first")){
@@ -161,7 +161,7 @@ public class ImageProcessHandler {
                         bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
                     }
 
-                    progressBar.showProgress(((ImportedImage) model.get(i)).getPath());
+                    progressBar.showProgress(model.get(i).getPath());
                     progressBar.updateValue(true);
                 }
             }
@@ -170,7 +170,7 @@ public class ImageProcessHandler {
 
     private void bufferedImageProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, int imageNumber, BufferedImage currentImage, boolean pdfInput) {
         if (currentImage == null) {
-            currentImage = Utils.loadImage(((ImportedImage) model.get(imageNumber)).getPath());
+            currentImage = Utils.loadImage(model.get(imageNumber).getPath());
         }
         if (resizeParameters.isEnabled()) {
             currentImage = resizer.process(currentImage);
@@ -187,12 +187,12 @@ public class ImageProcessHandler {
         if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
             addImageToPDF(currentImage);
         } else {
-            save(currentImage, applyFileNameMasks(outputPath, ((ImportedImage) model.get(imageNumber)), numberingIndex, outputExtension));
+            save(currentImage, applyFileNameMasks(outputPath, model.get(imageNumber), numberingIndex, outputExtension));
         }
     }
 
     private void pdfProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, int imageNumber, boolean pdfInput) {
-        ArrayList<BufferedImage> extractedImages = (ArrayList<BufferedImage>) PDFToImage.getBImagesFromPDF(((ImportedImage) model.get(imageNumber)).getPath(), 1, Integer.MAX_VALUE);
+        ArrayList<BufferedImage> extractedImages = (ArrayList<BufferedImage>) PDFToImage.getBImagesFromPDF(model.get(imageNumber).getPath(), 1, Integer.MAX_VALUE);
         for (BufferedImage currentImage : extractedImages) {
             bufferedImageProcess(resizer, rotator, watermarker, imageNumber, currentImage, pdfInput);
         }
@@ -203,7 +203,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(applyFileNameMasks(outputPath, ((ImportedImage) model.get(i)), numberingIndex, outputExtension));
+        openDocument(applyFileNameMasks(outputPath, model.get(i), numberingIndex, outputExtension));
 
         pdfProcess(resizer, rotator, watermarker, i, true);
 
@@ -215,17 +215,17 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(applyFileNameMasks(outputPath, ((ImportedImage) model.get(0)), numberingIndex, outputExtension));
+        openDocument(applyFileNameMasks(outputPath, model.get(0), numberingIndex, outputExtension));
 
         String inputExtension;
         for (int i = 0; i < modelSize; i++) {
-            inputExtension = getExtension(((ImportedImage) model.get(i)).getPath());
+            inputExtension = getExtension(model.get(i).getPath());
             if (inputExtension.equalsIgnoreCase("pdf")) {
                 pdfProcess(resizer, rotator, watermarker, i, true);
             } else {
                 bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
             }
-            progressBar.showProgress(((ImportedImage) model.get(i)).getPath());
+            progressBar.showProgress(model.get(i).getPath());
             progressBar.updateValue(true);
         }
         document.close();
