@@ -187,7 +187,7 @@ public class ImageProcessHandler {
         if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
             addImageToPDF(currentImage);
         } else {
-            save(currentImage, applyFileNameMasks(outputPath, ((ImportedImage) model.get(imageNumber))));
+            save(currentImage, applyFileNameMasks(outputPath, ((ImportedImage) model.get(imageNumber)), numberingIndex, outputExtension));
         }
     }
 
@@ -203,7 +203,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
         
-        openDocument(applyFileNameMasks(outputPath, ((ImportedImage) model.get(i))));
+        openDocument(applyFileNameMasks(outputPath, ((ImportedImage) model.get(i)), numberingIndex, outputExtension));
         
         pdfProcess(resizer, rotator, watermarker, i, true);
         
@@ -215,7 +215,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
         
-        openDocument(applyFileNameMasks(outputPath, ((ImportedImage) model.get(0))));
+        openDocument(applyFileNameMasks(outputPath, ((ImportedImage) model.get(0)), numberingIndex, outputExtension));
 
         String inputExtension;
         for (int i = 0; i < modelSize; i++) {
@@ -264,31 +264,31 @@ public class ImageProcessHandler {
         return extension;
     }
     
-    public String applyFileNameMasks(String filepath, ImportedImage currentImage) {
+    public String applyFileNameMasks(String outputFilepath, ImportedImage currentImage, int numberingIndex, String outputExtension) {
 
-        if (filepath.substring(filepath.lastIndexOf(Utils.FS) + 1).equals("")) {
-            filepath = (filepath.lastIndexOf(Utils.FS) == filepath.length() - 1) ? filepath : filepath + Utils.FS;
-            filepath = filepath + "%F";
+        if (outputFilepath.substring(outputFilepath.lastIndexOf(Utils.FS) + 1).equals("")) {
+            outputFilepath = (outputFilepath.lastIndexOf(Utils.FS) == outputFilepath.length() - 1) ? outputFilepath : outputFilepath + Utils.FS;
+            outputFilepath = outputFilepath + "%F";
         }
 
-        if (filepath.contains("^P")) {
-            if (!filepath.contains("^P" + Utils.FS)) {
-                filepath = filepath.replace("^P", "^P" + Utils.FS);
+        if (outputFilepath.contains("^P")) {
+            if (!outputFilepath.contains("^P" + Utils.FS)) {
+                outputFilepath = outputFilepath.replace("^P", "^P" + Utils.FS);
             }
-            if (!filepath.contains("%") && !filepath.contains("*") && !filepath.contains("#")) {
-                filepath = filepath + "%F";
+            if (!outputFilepath.contains("%") && !outputFilepath.contains("*") && !outputFilepath.contains("#")) {
+                outputFilepath = outputFilepath + "%F";
             }
         }
 
-        filepath = filepath.replaceAll("\\*", Integer.toString(numberingIndex));
+        outputFilepath = outputFilepath.replaceAll("\\*", Integer.toString(numberingIndex));
 
         Calendar cal = Calendar.getInstance();
-        filepath = filepath.replaceAll("%D", cal.get(Calendar.DATE) + "");
-        filepath = filepath.replaceAll("%M", (cal.get(Calendar.MONTH) + 1) + "");
-        filepath = filepath.replaceAll("%Y", cal.get(Calendar.YEAR) + "");
+        outputFilepath = outputFilepath.replaceAll("%D", cal.get(Calendar.DATE) + "");
+        outputFilepath = outputFilepath.replaceAll("%M", (cal.get(Calendar.MONTH) + 1) + "");
+        outputFilepath = outputFilepath.replaceAll("%Y", cal.get(Calendar.YEAR) + "");
 
-        filepath = filepath.replaceAll("%F", currentImage.getName());
-        filepath = filepath.replace("^P", currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));
+        outputFilepath = outputFilepath.replaceAll("%F", currentImage.getName());
+        outputFilepath = outputFilepath.replace("^P", currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));
 
         String extension = outputExtension;
         if (outputExtension.equals("same as first")) {
@@ -302,14 +302,14 @@ public class ImageProcessHandler {
             }
         }
         
-        if (filepath.contains("#")) {
+        if (outputFilepath.contains("#")) {
 //            filepath = applySpecialFileMask(filepath, extension);
-            filepath = filepath.replaceAll("#", String.valueOf(numsStack.pop()));
+            outputFilepath = outputFilepath.replaceAll("#", String.valueOf(numsStack.pop()));
         }
         
-        filepath += '.' + extension;
+        outputFilepath += '.' + extension;
 
-        return filepath;
+        return outputFilepath;
     }
     
     private String applySpecialFileMask(String filepath, String extension){

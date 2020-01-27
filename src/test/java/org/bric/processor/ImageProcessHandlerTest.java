@@ -13,6 +13,7 @@ public class ImageProcessHandlerTest {
     private static final String JPG_OUTPUT_TYPE = "jpg";
     private static final String SAME_AS_FIRST_OUTPUT_TYPE = "same as first";
     private static final String AN_OUTPUT_PATH = "/output";
+    private static final int A_NUMBERING_VALUE = 20;
     private static final ImportedImage A_JPG_IMAGE_PATH = new ImportedImage("/an/image/path/imported-image.jpg");
 
     private ImageProcessHandler imageProcessHandler;
@@ -28,31 +29,29 @@ public class ImageProcessHandlerTest {
     @Test
     public void applyFileNameMask_GivenFixedPath_ShouldOnlyAppendExtension() {
         String filepath = "/test/123";
-        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH);
 
-        Assertions.assertEquals(filepath.concat(".jpg"), actual);
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH, A_NUMBERING_VALUE, JPG_OUTPUT_TYPE);
+
+        Assertions.assertEquals("/test/123.jpg", actual);
     }
 
     @Test
     public void applyFileNameMask_GivenSameAsFirstOutputType_ShouldOnlyAppendInitialExtension() {
-        imageProcessHandler.outputExtension = SAME_AS_FIRST_OUTPUT_TYPE;
-
         String filepath = "/test/123";
-        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH);
 
-        Assertions.assertEquals(filepath.concat(".jpg"), actual);
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH, A_NUMBERING_VALUE, SAME_AS_FIRST_OUTPUT_TYPE);
+
+        Assertions.assertEquals("/test/123.jpg", actual);
     }
 
     @Test
     public void applyFileNameMask_GivenSameAsFirstOutputTypeWithUnsupportedExtension_ShouldAppendDefaultExtension() {
-        imageProcessHandler.outputExtension = SAME_AS_FIRST_OUTPUT_TYPE;
-
         String filepath = "/test/123";
+
         String actual = imageProcessHandler.applyFileNameMasks(filepath,
-                new ImportedImage("/image/path/img.UNSUPPORTED_EXT"));
+                new ImportedImage("/image/path/img.UNSUPPORTED_EXT"), A_NUMBERING_VALUE, SAME_AS_FIRST_OUTPUT_TYPE);
 
         String defaultExtension = "." + ImageProcessHandler.DEFAULT_OUTPUT_TYPE;
-
         Assertions.assertEquals(filepath.concat(defaultExtension), actual);
     }
 
@@ -60,30 +59,30 @@ public class ImageProcessHandlerTest {
     public void applyFileNameMask_GivenRespectiveNumberingModifier_ShouldReplaceModifierWithNumber() {
         imageProcessHandler.numsStack = new Stack<>();
         imageProcessHandler.numsStack.push(0); // TODO: unsafe
-
         String filepath = "/test/123_#";
-        String expected = "/test/123_0.jpg";
-        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH);
 
-        Assertions.assertEquals(expected, actual);
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, A_JPG_IMAGE_PATH, A_NUMBERING_VALUE, JPG_OUTPUT_TYPE);
+
+        Assertions.assertEquals("/test/123_0.jpg", actual);
     }
 
     @Test
     public void applyFileNameMask_GivenOutputPathWithoutFilenameMask_ShouldPlaceOriginalImageName() {
         String filepath = "/test/";
-        imageProcessHandler.outputPath = filepath;
+        String originalImagePath = "/path/original.png";
 
-        String actual = imageProcessHandler.applyFileNameMasks(filepath, new ImportedImage("/path/original.png"));
+        String actual = imageProcessHandler.applyFileNameMasks(filepath, new ImportedImage(originalImagePath), A_NUMBERING_VALUE, JPG_OUTPUT_TYPE);
 
-        Assertions.assertEquals(filepath.concat("original.jpg"), actual);
+        Assertions.assertEquals("/test/original.jpg", actual);
     }
 
     @Test
     public void applyFileNameMask_GivenOriginalDirectoryModifier_ShouldReturnOriginalImagePathAndNameWithOutputExtension() {
         String filepath = "^P";
+        String originalImagePath = "/original/path/img.png";
 
         String actual = imageProcessHandler.applyFileNameMasks(filepath,
-                new ImportedImage("/original/path/img.png"));
+                new ImportedImage(originalImagePath), A_NUMBERING_VALUE, JPG_OUTPUT_TYPE);
 
         Assertions.assertEquals("/original/path/img.jpg", actual);
     }
@@ -91,9 +90,10 @@ public class ImageProcessHandlerTest {
     @Test
     public void applyFileNameMask_GivenOriginalDirectoryModifierAndSlash_ShouldReturnOriginalImagePathAndNameWithOutputExtension() {
         String filepath = "^P/";
+        String originalImagePath = "/original/path/img.png";
 
         String actual = imageProcessHandler.applyFileNameMasks(filepath,
-                new ImportedImage("/original/path/img.png"));
+                new ImportedImage(originalImagePath), A_NUMBERING_VALUE, JPG_OUTPUT_TYPE);
 
         Assertions.assertEquals("/original/path/img.jpg", actual);
     }
@@ -101,20 +101,24 @@ public class ImageProcessHandlerTest {
     @Test
     public void applyFileNameMask_GivenOriginalDirectoryAndNumberingModifier_ShouldReturnOriginalImagePathWithNumberingAndOutputExtension() {
         String filepath = "^P*";
+        String originalImagePath = "/original/path/img.png";
+        int anInitialNumberingValue = 12;
 
         String actual = imageProcessHandler.applyFileNameMasks(filepath,
-                new ImportedImage("/original/path/img.png"));
+                new ImportedImage(originalImagePath), anInitialNumberingValue, JPG_OUTPUT_TYPE);
 
-        Assertions.assertEquals("/original/path/0.jpg", actual);
+        Assertions.assertEquals("/original/path/12.jpg", actual);
     }
 
     @Test
     public void applyFileNameMask_GivenOriginalDirectoryAndSlashAndNumberingModifier_ShouldReturnOriginalImagePathWithNumberingAndOutputExtension() {
         String filepath = "^P/*";
+        String originalImagePath = "/original/path/img.png";
+        int anInitialNumberingValue = 12;
 
         String actual = imageProcessHandler.applyFileNameMasks(filepath,
-                new ImportedImage("/original/path/img.png"));
+                new ImportedImage(originalImagePath), anInitialNumberingValue, JPG_OUTPUT_TYPE);
 
-        Assertions.assertEquals("/original/path/0.jpg", actual);
+        Assertions.assertEquals("/original/path/12.jpg", actual);
     }
 }
