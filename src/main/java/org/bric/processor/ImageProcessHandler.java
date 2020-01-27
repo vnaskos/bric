@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,39 +41,45 @@ public class ImageProcessHandler {
     ResizeParameters resizeParameters;
     RotateParameters rotateParameters;
     WatermarkParameters watermarkParameters;
-    OutputParameters outputParameters;
+    private final OutputParameters outputParameters;
     ProgressBarFrame progressBar;
 
     int modelSize;
 
     Stack<Integer> numsStack;
 
-    static boolean preview = false;
-    static int duplicateAction;
+    private boolean preview = false;
+    private int duplicateAction = Utils.NOT_SET;
 
-    int numberingIndex;
+    AtomicInteger numberingIndex;
     String outputExtension;
     String outputPath;
 
     //pdf
     Document document;
 
-    public ImageProcessHandler(DefaultListModel<ImportedImage> model) {
+    public ImageProcessHandler(OutputParameters outputParameters, DefaultListModel<ImportedImage> model) {
+        this.outputParameters = outputParameters;
+        numberingIndex = new AtomicInteger(outputParameters.getNumberingStartIndex());
+        outputExtension = outputParameters.getOutputFormat().toLowerCase();
+        outputPath = outputParameters.getOutputPath();
+
         this.model = model;
         modelSize = model.size();
-
-        duplicateAction = Utils.NOT_SET;
-
     }
 
-    //preview
-    public ImageProcessHandler(ImportedImage image) {
+    public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
+        DefaultListModel<ImportedImage> previewModel = new DefaultListModel<>();
+        previewModel.addElement(imageToPreview);
 
-        duplicateAction = Utils.NOT_SET;
-        model = new DefaultListModel<>();
-        model.addElement(image);
+        ImageProcessHandler process = new ImageProcessHandler(outputParameters, previewModel);
+        process.setPreview();
 
-        preview = true;
+        return process;
+    }
+
+    private void setPreview() {
+        this.preview = true;
     }
 
     public void setResizeParameters(ResizeParameters resizeParameters) {
@@ -85,14 +92,6 @@ public class ImageProcessHandler {
 
     public void setWatermarkParameters(WatermarkParameters watermarkParameters) {
         this.watermarkParameters = watermarkParameters;
-    }
-
-    public void setOutputParameters(OutputParameters outputParameters) {
-        this.outputParameters = outputParameters;
-
-        numberingIndex = outputParameters.getNumberingStartIndex();
-        outputExtension = outputParameters.getOutputFormat().toLowerCase();
-        outputPath = outputParameters.getOutputPath();
     }
 
     public void start() {
@@ -184,7 +183,7 @@ public class ImageProcessHandler {
         if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
             addImageToPDF(currentImage);
         } else {
-            save(currentImage, applyFileNameMasks(outputPath, model.get(imageNumber), numberingIndex, outputExtension));
+            save(currentImage, applyFileNameMasks(outputPath, model.get(imageNumber), numberingIndex.getAndIncrement(), outputExtension));
         }
     }
 
@@ -200,7 +199,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(applyFileNameMasks(outputPath, model.get(i), numberingIndex, outputExtension));
+        openDocument(applyFileNameMasks(outputPath, model.get(i), numberingIndex.getAndIncrement(), outputExtension));
 
         pdfProcess(resizer, rotator, watermarker, i);
 
@@ -212,7 +211,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(applyFileNameMasks(outputPath, model.get(0), numberingIndex, outputExtension));
+        openDocument(applyFileNameMasks(outputPath, model.get(0), numberingIndex.getAndIncrement(), outputExtension));
 
         String inputExtension;
         for (int i = 0; i < modelSize; i++) {
@@ -285,7 +284,6 @@ public class ImageProcessHandler {
         }
 
         if (generatedFilepath.contains("#")) {
-//            filepath = applySpecialFileMask(filepath, extension);
             generatedFilepath = generatedFilepath.replaceAll("#", String.valueOf(numsStack.pop()));
         }
 
@@ -319,7 +317,7 @@ public class ImageProcessHandler {
         return filepath;
     }
 
-    synchronized public static void duplicatePane(String file) {
+    synchronized public void duplicatePane(String file) {
 
         if (duplicateAction == Utils.NOT_SET || duplicateAction == Utils.OVERWRITE || duplicateAction == Utils.SKIP || duplicateAction == Utils.ADD) {
 
@@ -399,8 +397,6 @@ public class ImageProcessHandler {
             previewProcess(imageForSave);
             return;
         }
-        
-        numberingIndex++;
 
         if (fileExistsCheck(newFilepath)) {
             return;

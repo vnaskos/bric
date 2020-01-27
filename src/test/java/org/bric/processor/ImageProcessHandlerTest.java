@@ -1,5 +1,6 @@
 package org.bric.processor;
 
+import org.bric.imageEditParameters.OutputParameters;
 import org.bric.input.ImportedImage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +21,11 @@ public class ImageProcessHandlerTest {
 
     @BeforeEach
     public void setup() {
+        OutputParameters fakeOutputParameters = new OutputParameters();
+        fakeOutputParameters.setOutputFormat("FAKE");
+        fakeOutputParameters.setOutputPath("FAKE");
         DefaultListModel<ImportedImage> fakeModel = new DefaultListModel<>();
-        imageProcessHandler = new ImageProcessHandler(fakeModel);
+        imageProcessHandler = new ImageProcessHandler(fakeOutputParameters, fakeModel);
         imageProcessHandler.outputPath = AN_OUTPUT_PATH;
         imageProcessHandler.outputExtension = JPG_OUTPUT_TYPE;
     }

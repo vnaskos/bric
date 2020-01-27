@@ -725,15 +725,6 @@ public class BricUI extends JFrame {
 
             @Override
             public void run() {
-                
-                ImageProcessHandler mainProcess;
-                
-                if(!preview){
-                    mainProcess = new ImageProcessHandler(model);
-                } else {
-                    ImportedImage importedImage = (ImportedImage) model.get(jList1.getSelectedIndex());
-                    mainProcess = new ImageProcessHandler(importedImage);
-                }
                 OutputParameters outputParameters = null;
                 ResizeParameters resizeParameters = null;
                 RotateParameters rotateParameters = null;
@@ -752,10 +743,16 @@ public class BricUI extends JFrame {
                     }
                 }
 
+                ImageProcessHandler mainProcess;
+                if(preview){
+                    ImportedImage imageToPreview = (ImportedImage) model.get(jList1.getSelectedIndex());
+                    mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
+                } else {
+                    mainProcess = new ImageProcessHandler(outputParameters, model);
+                }
                 mainProcess.setResizeParameters(resizeParameters);
                 mainProcess.setRotateParameters(rotateParameters);
                 mainProcess.setWatermarkParameters(watermarkParameters);
-                mainProcess.setOutputParameters(outputParameters);
                 
                 mainProcess.start();
                 
