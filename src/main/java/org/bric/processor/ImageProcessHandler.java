@@ -153,7 +153,7 @@ public class ImageProcessHandler {
                     if(outputExtension.equalsIgnoreCase("same as first")){
                         generateSeparatePDF(i);
                     } else {
-                        pdfProcess(resizer, rotator, watermarker, i, true);
+                        pdfProcess(resizer, rotator, watermarker, i);
                     }
                 } else {
                     bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
@@ -188,10 +188,10 @@ public class ImageProcessHandler {
         }
     }
 
-    private void pdfProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, int imageNumber, boolean pdfInput) {
+    private void pdfProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, int imageNumber) {
         ArrayList<BufferedImage> extractedImages = (ArrayList<BufferedImage>) PDFToImage.getBImagesFromPDF(model.get(imageNumber).getPath(), 1, Integer.MAX_VALUE);
         for (BufferedImage currentImage : extractedImages) {
-            bufferedImageProcess(resizer, rotator, watermarker, imageNumber, currentImage, pdfInput);
+            bufferedImageProcess(resizer, rotator, watermarker, imageNumber, currentImage, true);
         }
     }
 
@@ -202,7 +202,7 @@ public class ImageProcessHandler {
 
         openDocument(applyFileNameMasks(outputPath, model.get(i), numberingIndex, outputExtension));
 
-        pdfProcess(resizer, rotator, watermarker, i, true);
+        pdfProcess(resizer, rotator, watermarker, i);
 
         document.close();
     }
@@ -218,7 +218,7 @@ public class ImageProcessHandler {
         for (int i = 0; i < modelSize; i++) {
             inputExtension = getExtension(model.get(i).getPath());
             if (inputExtension.equalsIgnoreCase("pdf")) {
-                pdfProcess(resizer, rotator, watermarker, i, true);
+                pdfProcess(resizer, rotator, watermarker, i);
             } else {
                 bufferedImageProcess(resizer, rotator, watermarker, i, null, false);
             }
