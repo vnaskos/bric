@@ -253,8 +253,7 @@ public class ImageProcessHandler {
     }
 
     private String getExtension(String filename) {
-        String extension = filename.substring(filename.lastIndexOf(".") + 1);
-        return extension;
+        return filename.substring(filename.lastIndexOf(".") + 1);
     }
 
     public String applyFileNameMasks(String outputFilepath, ImportedImage currentImage, int numberingIndex, String outputExtension) {
