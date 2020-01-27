@@ -357,9 +357,6 @@ public class ImageProcessHandler {
                 case 3:
                     duplicateAction = Utils.SKIP_ALL;
                     break;
-                case 4:
-                    duplicateAction = Utils.ADD;
-                    break;
                 case 5:
                     duplicateAction = Utils.ADD_ALL;
                     break;
@@ -450,8 +447,8 @@ public class ImageProcessHandler {
     
     private void saveJPG(BufferedImage imageForSave, File outputfile){
         try {
-            Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
-            ImageWriter writer = (ImageWriter) iter.next();
+            Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+            ImageWriter writer = iter.next();
             ImageWriteParam iwp = writer.getDefaultWriteParam();
             iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             iwp.setCompressionQuality(outputParameters.getQuality());   // a float between 0 and 1
