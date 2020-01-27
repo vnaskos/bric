@@ -267,17 +267,17 @@ public class ImageProcessHandler {
     public String applyFileNameMasks(String outputFilepath, ImportedImage currentImage, int numberingIndex, String outputExtension) {
         String generatedFilepath = outputFilepath;
 
-        generatedFilepath = ensureFilepathEndingWithPathModifierContainsSlash(generatedFilepath);
+        generatedFilepath = ensureFilepathContainsSlashIfEndsWithPathModifier(generatedFilepath);
         generatedFilepath = ensureFilepathContainsFilename(generatedFilepath);
 
         generatedFilepath = generatedFilepath.replace("*", Integer.toString(numberingIndex));
 
         Calendar cal = Calendar.getInstance();
-        generatedFilepath = generatedFilepath.replaceAll("%D", cal.get(Calendar.DATE) + "");
-        generatedFilepath = generatedFilepath.replaceAll("%M", (cal.get(Calendar.MONTH) + 1) + "");
-        generatedFilepath = generatedFilepath.replaceAll("%Y", cal.get(Calendar.YEAR) + "");
+        generatedFilepath = generatedFilepath.replace("%D", cal.get(Calendar.DATE) + "");
+        generatedFilepath = generatedFilepath.replace("%M", (cal.get(Calendar.MONTH) + 1) + "");
+        generatedFilepath = generatedFilepath.replace("%Y", cal.get(Calendar.YEAR) + "");
 
-        generatedFilepath = generatedFilepath.replaceAll("%F", currentImage.getName());
+        generatedFilepath = generatedFilepath.replace("%F", currentImage.getName());
         generatedFilepath = generatedFilepath.replace("^P", currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));
 
         String extension = outputExtension;
@@ -302,7 +302,7 @@ public class ImageProcessHandler {
         return generatedFilepath;
     }
 
-    private String ensureFilepathEndingWithPathModifierContainsSlash(String filepath) {
+    private String ensureFilepathContainsSlashIfEndsWithPathModifier(String filepath) {
         if (filepath.endsWith("^P")) {
             return filepath + Utils.FS;
         }
