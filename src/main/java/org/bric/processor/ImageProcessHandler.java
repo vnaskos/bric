@@ -105,18 +105,7 @@ public class ImageProcessHandler {
         progressBar = new ProgressBarFrame();
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
-        numsStack = new Stack<>();
-        if(outputPath.contains("#")){
-            HashSet<Integer> existingNumsHash = Utils.getExistingNumsHash(outputPath);
-            for(int i = outputParameters.getNumberingStartIndex(); true; i++){
-                if(!existingNumsHash.contains(i)){
-                    numsStack.add(i);
-                }
-                if(numsStack.size() == modelSize){
-                    break;
-                }
-            }
-        }
+        initNumsStack();
 
         int processors;
         if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
@@ -132,6 +121,21 @@ public class ImageProcessHandler {
         } else {
             for (int j = 0; j < modelSize; j += step) {
                 startNewThread(progressBar, j, step);
+            }
+        }
+    }
+
+    private void initNumsStack() {
+        numsStack = new Stack<>();
+        if(outputPath.contains("#")){
+            HashSet<Integer> existingNumsHash = Utils.getExistingNumsHash(outputPath);
+            for(int i = outputParameters.getNumberingStartIndex(); true; i++){
+                if(!existingNumsHash.contains(i)){
+                    numsStack.add(i);
+                }
+                if(numsStack.size() == modelSize){
+                    break;
+                }
             }
         }
     }
