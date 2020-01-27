@@ -174,7 +174,7 @@ public class ImageProcessHandler {
         if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
             addImageToPDF(currentImage);
         } else {
-            save(currentImage, fileNameService.applyFileNameMasks(model.get(imageNumber)));
+            save(currentImage, fileNameService.generateFilePath(model.get(imageNumber)));
         }
     }
 
@@ -190,7 +190,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(fileNameService.applyFileNameMasks(model.get(i)));
+        openDocument(fileNameService.generateFilePath(model.get(i)));
 
         pdfProcess(resizer, rotator, watermarker, i);
 
@@ -202,7 +202,7 @@ public class ImageProcessHandler {
         RotateProcessor rotator = new RotateProcessor(rotateParameters);
         WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-        openDocument(fileNameService.applyFileNameMasks(model.get(0)));
+        openDocument(fileNameService.generateFilePath(model.get(0)));
 
         String inputExtension;
         for (int i = 0; i < modelSize; i++) {

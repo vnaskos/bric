@@ -42,7 +42,7 @@ public class FileNameService {
         }
     }
 
-    public String applyFileNameMasks(ImportedImage currentImage) {
+    public String generateFilePath(ImportedImage currentImage) {
         String generatedFilepath = outputFilepath;
 
         generatedFilepath = ensureFilepathContainsSlashIfEndsWithPathModifier(generatedFilepath);
