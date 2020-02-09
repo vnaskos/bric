@@ -5,11 +5,11 @@ import org.bric.core.model.TabParameters;
 public final class OutputParameters implements TabParameters {
 
     private final String outputPath;
-    private final String outputFormat;
+    private final OutputType outputFormat;
     private final int numberingStartIndex;
     private final float quality;
 
-    public OutputParameters(String outputPath, String outputFormat, int numberingStartIndex, float quality) {
+    public OutputParameters(String outputPath, OutputType outputFormat, int numberingStartIndex, float quality) {
         this.outputPath = outputPath;
         this.outputFormat = outputFormat;
         this.numberingStartIndex = numberingStartIndex;
@@ -20,7 +20,7 @@ public final class OutputParameters implements TabParameters {
         return numberingStartIndex;
     }
 
-    public String getOutputFormat() {
+    public OutputType getOutputType() {
         return outputFormat;
     }
 

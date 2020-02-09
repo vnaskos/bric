@@ -16,6 +16,7 @@ public enum OutputType {
     PPM("PPM"),
     PDF("PDF");
 
+    public static final OutputType DEFAULT = JPG;
     public final String name;
 
     OutputType(String name) {

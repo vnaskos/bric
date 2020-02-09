@@ -178,7 +178,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
     @Override
     public OutputParameters getImageEditParameters() {
         return new OutputParameters(getOutputPathText(),
-                String.valueOf(fileTypeCombo.getSelectedItem()),
+                fileTypeCombo.getItemAt(fileTypeCombo.getSelectedIndex()),
                 numberingModel.getNumber().intValue(),
                 qualitySlider.getValue()/100.0F);
     }
