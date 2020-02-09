@@ -8,8 +8,8 @@ import ij.IJ;
 import ij.ImagePlus;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
+import org.bric.core.model.ImportedImage;
 import org.bric.gui.inputOutput.GenerateThumbnail;
-import org.bric.gui.inputOutput.ImportedImage;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;

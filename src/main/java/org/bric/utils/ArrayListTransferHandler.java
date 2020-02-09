@@ -4,7 +4,7 @@
  */
 package org.bric.utils;
 
-import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.core.model.ImportedImage;
 
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;

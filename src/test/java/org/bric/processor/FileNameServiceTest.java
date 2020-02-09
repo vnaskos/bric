@@ -1,6 +1,6 @@
 package org.bric.processor;
 
-import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.core.model.ImportedImage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

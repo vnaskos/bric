@@ -1,6 +1,6 @@
 package org.bric.processor;
 
-import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.core.model.ImportedImage;
 import org.bric.utils.Utils;
 
 import java.io.File;

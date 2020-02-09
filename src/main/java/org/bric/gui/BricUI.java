@@ -4,7 +4,7 @@
  */
 package org.bric.gui;
 
-import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.core.model.ImportedImage;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.preferences.PreferencesFrame;
 import org.bric.gui.tabs.*;

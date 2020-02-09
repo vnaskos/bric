@@ -7,7 +7,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.sanselan.ImageFormat;
 import org.apache.sanselan.Sanselan;
-import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.core.model.ImportedImage;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.imageEditParameters.OutputParameters;
 import org.bric.imageEditParameters.ResizeParameters;

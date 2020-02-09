@@ -1,17 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.bric.gui.inputOutput;
+package org.bric.core.model;
 
 import org.bric.utils.Utils;
 
 import javax.swing.*;
 
-/**
- *
- * @author vasilis
- */
 public class ImportedImage {
     private ImageIcon thumbnailImageIcon;
     private String path;
