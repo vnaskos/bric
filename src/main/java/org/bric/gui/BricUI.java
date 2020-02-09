@@ -6,6 +6,7 @@ package org.bric.gui;
 
 import org.bric.core.model.ImportedImage;
 import org.bric.core.model.TabParameters;
+import org.bric.core.output.model.OutputParameters;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
@@ -13,7 +14,6 @@ import org.bric.gui.tabs.ImageEditTab;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
-import org.bric.imageEditParameters.OutputParameters;
 import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;
 import org.bric.imageEditParameters.WatermarkParameters;

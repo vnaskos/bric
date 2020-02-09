@@ -1,8 +1,8 @@
 package org.bric.gui.output;
 
+import org.bric.core.output.model.OutputParameters;
 import org.bric.gui.BricUI;
 import org.bric.gui.tabs.ImageEditTab;
-import org.bric.imageEditParameters.OutputParameters;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
@@ -26,16 +26,17 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
     private javax.swing.JSlider qualitySlider;
     private javax.swing.JSpinner startIndexSpinner;
 
+    private SpinnerNumberModel numberingModel;
+
     ResourceBundle bundle;
 
     public OutputTab() {
-        
+
         bundle = ResourceBundle.getBundle("lang/gui/tabs/OutputJPanel");
-        
+
+        this.numberingModel = new SpinnerNumberModel(1, null, null, 1);
+
         initComponents();
-        
-        SpinnerModel numbering = new SpinnerNumberModel(1, null, null, 1);
-        startIndexSpinner.setModel(numbering);
         
         SpinnerModel horizontal = new SpinnerNumberModel(300, 10, 1000, 1);
         SpinnerModel vertical = new SpinnerNumberModel(300, 10, 1000, 1);
@@ -56,7 +57,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         formatLabel = new javax.swing.JLabel();
         fileTypeCombo = new javax.swing.JComboBox<>(OutputType.values());
         numberingLabel = new javax.swing.JLabel();
-        startIndexSpinner = new javax.swing.JSpinner();
+        startIndexSpinner = new javax.swing.JSpinner(numberingModel);
         qualityLabel = new javax.swing.JLabel();
         qualitySlider = new javax.swing.JSlider();
         fileNameMasksScrollPane = new javax.swing.JScrollPane();
@@ -232,11 +233,9 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
 
     @Override
     public OutputParameters getImageEditParameters() {
-        OutputParameters outputParameters = new OutputParameters();
-        outputParameters.setOutputPath(outputPathText.getText());
-        outputParameters.setQuality((float)qualitySlider.getValue()/100);
-        outputParameters.setOutputFormat(String.valueOf(fileTypeCombo.getSelectedItem()));
-        outputParameters.setNumberingStartIndex((Integer)startIndexSpinner.getValue());
-        return outputParameters;
+        return new OutputParameters(getOutputPathText(),
+                String.valueOf(fileTypeCombo.getSelectedItem()),
+                numberingModel.getNumber().intValue(),
+                qualitySlider.getValue()/100.0F);
     }
 }
