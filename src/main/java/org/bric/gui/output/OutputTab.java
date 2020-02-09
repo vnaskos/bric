@@ -72,11 +72,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/OutputJPanel"); // NOI18N
         browseButton.setText(bundle.getString("OutputJPanel.browseButton.text")); // NOI18N
         browseButton.setToolTipText(bundle.getString("OutputJPanel.browseButton.toolTipText")); // NOI18N
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                browseButtonActionPerformed(evt);
-            }
-        });
+        browseButton.addActionListener(evt -> browseButtonActionPerformed());
 
         formatLabel.setText(bundle.getString("OutputJPanel.formatLabel.text")); // NOI18N
 
@@ -91,11 +87,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         qualitySlider.setPaintLabels(true);
         qualitySlider.setPaintTicks(true);
         qualitySlider.setValue(100);
-        qualitySlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                qualitySliderStateChanged(evt);
-            }
-        });
+        qualitySlider.addChangeListener(evt -> qualitySliderStateChanged());
 
         fileNameMasksPane.setEditable(false);
         fileNameMasksPane.setContentType("text/html"); // NOI18N
@@ -178,7 +170,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         );
     }
 
-    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void browseButtonActionPerformed() {
         JFileChooser chooser = new JFileChooser(BricUI.lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
@@ -202,7 +194,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         jSpinner3.setEnabled(qualityEnable);
     }
 
-    private void qualitySliderStateChanged(javax.swing.event.ChangeEvent evt) {
+    private void qualitySliderStateChanged() {
         qualityLabel.setText(String.format(bundle.getString("OutputJPanel.qualityLabel.text") + "%s%%", qualitySlider.getValue()));
     }
 
@@ -243,7 +235,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         OutputParameters outputParameters = new OutputParameters();
         outputParameters.setOutputPath(outputPathText.getText());
         outputParameters.setQuality((float)qualitySlider.getValue()/100);
-        outputParameters.setOutputFormat(fileTypeCombo.getSelectedItem().toString());
+        outputParameters.setOutputFormat(String.valueOf(fileTypeCombo.getSelectedItem()));
         outputParameters.setNumberingStartIndex((Integer)startIndexSpinner.getValue());
         return outputParameters;
     }
