@@ -1,6 +1,7 @@
 package org.bric.gui.output;
 
 import org.bric.core.model.output.OutputParameters;
+import org.bric.core.model.output.OutputType;
 import org.bric.gui.BricUI;
 import org.bric.gui.tabs.ImageEditTab;
 import org.bric.utils.Utils;

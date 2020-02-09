@@ -1,4 +1,4 @@
-package org.bric.gui.output;
+package org.bric.core.model.output;
 
 public enum OutputType {
 
