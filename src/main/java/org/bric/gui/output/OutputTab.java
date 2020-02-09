@@ -14,7 +14,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
     private javax.swing.JLabel dpiLabel;
     private javax.swing.JTextPane fileNameMasksPane;
     private javax.swing.JScrollPane fileNameMasksScrollPane;
-    private javax.swing.JComboBox fileTypeCombo;
+    private javax.swing.JComboBox<OutputType> fileTypeCombo;
     private javax.swing.JLabel formatLabel;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -54,7 +54,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         outputPathText = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
         formatLabel = new javax.swing.JLabel();
-        fileTypeCombo = new javax.swing.JComboBox();
+        fileTypeCombo = new javax.swing.JComboBox<>(OutputType.values());
         numberingLabel = new javax.swing.JLabel();
         startIndexSpinner = new javax.swing.JSpinner();
         qualityLabel = new javax.swing.JLabel();
@@ -80,7 +80,6 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
 
         formatLabel.setText(bundle.getString("OutputJPanel.formatLabel.text")); // NOI18N
 
-        fileTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "SAME AS FIRST", "JPG", "JPEG", "PNG", "GIF", "BMP", "TIF", "TIFF", "PGM", "PBM", "PNM", "PPM", "PDF" }));
         fileTypeCombo.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 fileTypeComboItemStateChanged(evt);
@@ -183,7 +182,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         );
     }
 
-    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
+    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {
         JFileChooser chooser = new JFileChooser(BricUI.lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
@@ -193,7 +192,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         BricUI.lastOpenedDirectory = chooser.getSelectedFile().getPath();
     }
 
-    private void fileTypeComboItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fileTypeComboItemStateChanged
+    private void fileTypeComboItemStateChanged(java.awt.event.ItemEvent evt) {
         boolean qualityEnable = fileTypeCombo.getSelectedIndex() <= 2 ? true : false;
         qualityLabel.setEnabled(qualityEnable);
         qualitySlider.setEnabled(qualityEnable);
@@ -204,7 +203,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         jSpinner3.setEnabled(qualityEnable);
     }
 
-    private void qualitySliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_qualitySliderStateChanged
+    private void qualitySliderStateChanged(javax.swing.event.ChangeEvent evt) {
         qualityLabel.setText(String.format(bundle.getString("OutputJPanel.qualityLabel.text") + "%s%%", qualitySlider.getValue()));
     }
 
