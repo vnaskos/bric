@@ -4,11 +4,13 @@
  */
 package org.bric.imageEditParameters;
 
+import org.bric.core.model.TabParameters;
+
 /**
  *
  * @author vasilis
  */
-public class ResizeParameters implements ImageEditParameters {
+public class ResizeParameters implements TabParameters {
     private boolean enabled;
     private boolean maintainAspectRatio;
     private boolean considerOrientation;

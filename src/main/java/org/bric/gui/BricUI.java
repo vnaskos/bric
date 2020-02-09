@@ -5,6 +5,7 @@
 package org.bric.gui;
 
 import org.bric.core.model.ImportedImage;
+import org.bric.core.model.TabParameters;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
@@ -12,7 +13,10 @@ import org.bric.gui.tabs.ImageEditTab;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
-import org.bric.imageEditParameters.*;
+import org.bric.imageEditParameters.OutputParameters;
+import org.bric.imageEditParameters.ResizeParameters;
+import org.bric.imageEditParameters.RotateParameters;
+import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.processor.ImageProcessHandler;
 import org.bric.utils.ArrayListTransferHandler;
 import org.bric.utils.Utils;
@@ -829,15 +833,15 @@ public class BricUI extends JFrame {
                 WatermarkParameters watermarkParameters = null;
 
                 for (int i = 0; i < editPane.getComponentCount(); i++) {
-                    ImageEditParameters imageEditParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
-                    if (imageEditParameters instanceof OutputParameters) {
-                        outputParameters = (OutputParameters) imageEditParameters;
-                    } else if (imageEditParameters instanceof ResizeParameters) {
-                        resizeParameters = (ResizeParameters) imageEditParameters;
-                    } else if (imageEditParameters instanceof RotateParameters) {
-                        rotateParameters = (RotateParameters) imageEditParameters;
-                    } else if (imageEditParameters instanceof WatermarkParameters) {
-                        watermarkParameters = (WatermarkParameters) imageEditParameters;
+                    TabParameters tabParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
+                    if (tabParameters instanceof OutputParameters) {
+                        outputParameters = (OutputParameters) tabParameters;
+                    } else if (tabParameters instanceof ResizeParameters) {
+                        resizeParameters = (ResizeParameters) tabParameters;
+                    } else if (tabParameters instanceof RotateParameters) {
+                        rotateParameters = (RotateParameters) tabParameters;
+                    } else if (tabParameters instanceof WatermarkParameters) {
+                        watermarkParameters = (WatermarkParameters) tabParameters;
                     }
                 }
 

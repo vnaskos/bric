@@ -4,12 +4,12 @@
  */
 package org.bric.gui.tabs;
 
-import org.bric.imageEditParameters.ImageEditParameters;
+import org.bric.core.model.TabParameters;
 
 /**
  *
  * @author vasilis
  */
 public interface ImageEditTab {
-    public ImageEditParameters getImageEditParameters();
+    public TabParameters getImageEditParameters();
 }

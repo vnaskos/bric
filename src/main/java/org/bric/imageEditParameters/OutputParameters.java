@@ -4,11 +4,13 @@
  */
 package org.bric.imageEditParameters;
 
+import org.bric.core.model.TabParameters;
+
 /**
  *
  * @author vasilis
  */
-public class OutputParameters implements ImageEditParameters{
+public class OutputParameters implements TabParameters {
     private String outputPath;
     private String outputFormat;
     private int numberingStartIndex;
