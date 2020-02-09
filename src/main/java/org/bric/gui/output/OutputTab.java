@@ -80,11 +80,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
 
         formatLabel.setText(bundle.getString("OutputJPanel.formatLabel.text")); // NOI18N
 
-        fileTypeCombo.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                fileTypeComboItemStateChanged(evt);
-            }
-        });
+        fileTypeCombo.addItemListener(evt -> fileTypeComboItemStateChanged());
 
         numberingLabel.setText(bundle.getString("OutputJPanel.numberingLabel.text")); // NOI18N
 
@@ -192,8 +188,11 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         BricUI.lastOpenedDirectory = chooser.getSelectedFile().getPath();
     }
 
-    private void fileTypeComboItemStateChanged(java.awt.event.ItemEvent evt) {
-        boolean qualityEnable = fileTypeCombo.getSelectedIndex() <= 2 ? true : false;
+    private void fileTypeComboItemStateChanged() {
+        OutputType outputType = fileTypeCombo.getItemAt(fileTypeCombo.getSelectedIndex());
+        boolean qualityEnable = outputType == OutputType.SAME_AS_FIRST ||
+                                outputType == OutputType.JPG ||
+                                outputType == OutputType.JPEG;
         qualityLabel.setEnabled(qualityEnable);
         qualitySlider.setEnabled(qualityEnable);
         dpiLabel.setEnabled(qualityEnable);
