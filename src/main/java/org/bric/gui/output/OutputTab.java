@@ -10,17 +10,7 @@ import java.util.ResourceBundle;
 
 public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
 
-    private javax.swing.JButton browseButton;
-    private javax.swing.JLabel dpiLabel;
-    private javax.swing.JTextPane fileNameMasksPane;
-    private javax.swing.JScrollPane fileNameMasksScrollPane;
     private javax.swing.JComboBox<OutputType> fileTypeCombo;
-    private javax.swing.JLabel formatLabel;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JSpinner jSpinner2;
-    private javax.swing.JSpinner jSpinner3;
-    private javax.swing.JLabel numberingLabel;
     private javax.swing.JTextField outputPathText;
     private javax.swing.JLabel qualityLabel;
     private javax.swing.JSlider qualitySlider;
@@ -37,36 +27,20 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         this.numberingModel = new SpinnerNumberModel(1, null, null, 1);
 
         initComponents();
-        
-        SpinnerModel horizontal = new SpinnerNumberModel(300, 10, 1000, 1);
-        SpinnerModel vertical = new SpinnerNumberModel(300, 10, 1000, 1);
-        jSpinner2.setModel(horizontal);
-        jSpinner3.setModel(vertical);
-        
-        dpiLabel.setVisible(false);
-        jLabel7.setVisible(false);
-        jLabel8.setVisible(false);
-        jSpinner2.setVisible(false);
-        jSpinner3.setVisible(false);
     }
 
     private void initComponents() {
 
         outputPathText = new javax.swing.JTextField();
-        browseButton = new javax.swing.JButton();
-        formatLabel = new javax.swing.JLabel();
+        JButton browseButton = new JButton();
+        JLabel formatLabel = new JLabel();
         fileTypeCombo = new javax.swing.JComboBox<>(OutputType.values());
-        numberingLabel = new javax.swing.JLabel();
+        JLabel numberingLabel = new JLabel();
         startIndexSpinner = new javax.swing.JSpinner(numberingModel);
         qualityLabel = new javax.swing.JLabel();
         qualitySlider = new javax.swing.JSlider();
-        fileNameMasksScrollPane = new javax.swing.JScrollPane();
-        fileNameMasksPane = new javax.swing.JTextPane();
-        dpiLabel = new javax.swing.JLabel();
-        jSpinner2 = new javax.swing.JSpinner();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jSpinner3 = new javax.swing.JSpinner();
+        JScrollPane fileNameMasksScrollPane = new JScrollPane();
+        JTextPane fileNameMasksPane = new JTextPane();
 
         outputPathText.setText(System.getProperty("user.home"));
 
@@ -95,12 +69,6 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
         fileNameMasksPane.setText(bundle.getString("OutputJpanel.fileNameMasks.text")); // NOI18N
         fileNameMasksScrollPane.setViewportView(fileNameMasksPane);
 
-        dpiLabel.setText(bundle.getString("OutputJPanel.dpiLabel.text")); // NOI18N
-
-        jLabel7.setText(bundle.getString("OutputJPanel.jLabel7.text")); // NOI18N
-
-        jLabel8.setText(bundle.getString("OutputJPanel.jLabel8.text")); // NOI18N
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -124,18 +92,7 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
                         .addComponent(qualityLabel)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(qualitySlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(fileNameMasksScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(dpiLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel8)
-                        .addGap(18, 18, 18)
-                        .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(fileNameMasksScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -153,15 +110,6 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(numberingLabel)
                     .addComponent(startIndexSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7)
-                    .addComponent(dpiLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
                 .addComponent(qualityLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -188,11 +136,6 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
                                 outputType == OutputType.JPEG;
         qualityLabel.setEnabled(qualityEnable);
         qualitySlider.setEnabled(qualityEnable);
-        dpiLabel.setEnabled(qualityEnable);
-        jLabel7.setEnabled(qualityEnable);
-        jLabel8.setEnabled(qualityEnable);
-        jSpinner2.setEnabled(qualityEnable);
-        jSpinner3.setEnabled(qualityEnable);
     }
 
     private void qualitySliderStateChanged() {
