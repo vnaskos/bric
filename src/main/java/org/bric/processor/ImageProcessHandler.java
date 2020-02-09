@@ -8,7 +8,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.sanselan.ImageFormat;
 import org.apache.sanselan.Sanselan;
 import org.bric.core.model.ImportedImage;
-import org.bric.core.output.model.OutputParameters;
+import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;

@@ -6,7 +6,7 @@ package org.bric.gui;
 
 import org.bric.core.model.ImportedImage;
 import org.bric.core.model.TabParameters;
-import org.bric.core.output.model.OutputParameters;
+import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;

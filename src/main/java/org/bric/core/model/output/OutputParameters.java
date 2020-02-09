@@ -1,4 +1,4 @@
-package org.bric.core.output.model;
+package org.bric.core.model.output;
 
 import org.bric.core.model.TabParameters;
 
