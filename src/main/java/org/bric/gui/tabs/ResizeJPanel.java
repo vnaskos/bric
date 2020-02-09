@@ -4,10 +4,10 @@
  */
 package org.bric.gui.tabs;
 
-import java.awt.Component;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
 import org.bric.imageEditParameters.ResizeParameters;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
@@ -32,28 +32,28 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jCheckBox1 = new javax.swing.JCheckBox();
+        resizeEnableCheckBox = new javax.swing.JCheckBox();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jSpinner2 = new javax.swing.JSpinner();
-        jSpinner3 = new javax.swing.JSpinner();
-        jComboBox2 = new javax.swing.JComboBox();
-        jCheckBox4 = new javax.swing.JCheckBox();
-        jCheckBox5 = new javax.swing.JCheckBox();
+        widthSpinner = new javax.swing.JSpinner();
+        heightSpinner = new javax.swing.JSpinner();
+        unitCombo = new javax.swing.JComboBox();
+        aspectCheckBox = new javax.swing.JCheckBox();
+        orientationCheckBox = new javax.swing.JCheckBox();
         jPanel1 = new javax.swing.JPanel();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        jComboBox1 = new javax.swing.JComboBox();
+        antialisingCheckBox = new javax.swing.JCheckBox();
+        resizeFilterComboBox = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox();
+        renderingComboBox = new javax.swing.JComboBox();
         jLabel3 = new javax.swing.JLabel();
-        jComboBox4 = new javax.swing.JComboBox();
+        sharpenComboBox = new javax.swing.JComboBox();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/Bundle"); // NOI18N
-        jCheckBox1.setText(bundle.getString("ResizeJPanel.jCheckBox1.text")); // NOI18N
-        jCheckBox1.addItemListener(new java.awt.event.ItemListener() {
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/ResizeJPanel"); // NOI18N
+        resizeEnableCheckBox.setText(bundle.getString("ResizeJPanel.resizeEnableCheckBox.text")); // NOI18N
+        resizeEnableCheckBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jCheckBox1ItemStateChanged(evt);
+                resizeEnableCheckBoxItemStateChanged(evt);
             }
         });
 
@@ -63,57 +63,57 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
         jLabel7.setText(bundle.getString("ResizeJPanel.jLabel7.text")); // NOI18N
         jLabel7.setEnabled(false);
 
-        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
-        jSpinner2.setEnabled(false);
-        jSpinner2.addChangeListener(new javax.swing.event.ChangeListener() {
+        widthSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        widthSpinner.setEnabled(false);
+        widthSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSpinner2StateChanged(evt);
+                widthSpinnerStateChanged(evt);
             }
         });
 
-        jSpinner3.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
-        jSpinner3.setEnabled(false);
-        jSpinner3.addChangeListener(new javax.swing.event.ChangeListener() {
+        heightSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        heightSpinner.setEnabled(false);
+        heightSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSpinner3StateChanged(evt);
+                heightSpinnerStateChanged(evt);
             }
         });
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "pixels", "percent" }));
-        jComboBox2.setEnabled(false);
-        jComboBox2.addItemListener(new java.awt.event.ItemListener() {
+        unitCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "pixels", "percent" }));
+        unitCombo.setEnabled(false);
+        unitCombo.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jComboBox2ItemStateChanged(evt);
+                unitComboItemStateChanged(evt);
             }
         });
 
-        jCheckBox4.setText(bundle.getString("ResizeJPanel.jCheckBox4.text")); // NOI18N
-        jCheckBox4.setEnabled(false);
-        jCheckBox4.addItemListener(new java.awt.event.ItemListener() {
+        aspectCheckBox.setText(bundle.getString("ResizeJPanel.aspectCheckBox.text")); // NOI18N
+        aspectCheckBox.setEnabled(false);
+        aspectCheckBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jCheckBox4ItemStateChanged(evt);
+                aspectCheckBoxItemStateChanged(evt);
             }
         });
 
-        jCheckBox5.setText(bundle.getString("ResizeJPanel.jCheckBox5.text")); // NOI18N
-        jCheckBox5.setEnabled(false);
-        jCheckBox5.addItemListener(new java.awt.event.ItemListener() {
+        orientationCheckBox.setText(bundle.getString("ResizeJPanel.orientationCheckBox.text")); // NOI18N
+        orientationCheckBox.setEnabled(false);
+        orientationCheckBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jCheckBox5ItemStateChanged(evt);
+                orientationCheckBoxItemStateChanged(evt);
             }
         });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("ResizeJPanel.jPanel1.border.title"))); // NOI18N
 
-        jCheckBox2.setSelected(true);
-        jCheckBox2.setText(bundle.getString("ResizeJPanel.jCheckBox2.text")); // NOI18N
-        jCheckBox2.setEnabled(false);
+        antialisingCheckBox.setSelected(true);
+        antialisingCheckBox.setText(bundle.getString("ResizeJPanel.antialisingCheckBox.text")); // NOI18N
+        antialisingCheckBox.setEnabled(false);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "auto", "BiCubic", "BiCubicHighFreqResponse", "BiLinear", "Lanczos3", "MultiStep", "Nearest_Neighbor", "Bell", "Box", "Hermite", "Mitchell", "Triangle", "Thumpnail" }));
-        jComboBox1.setEnabled(false);
-        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+        resizeFilterComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "auto", "BiCubic", "BiCubicHighFreqResponse", "BiLinear", "Lanczos3", "MultiStep", "Nearest_Neighbor", "Bell", "Box", "Hermite", "Mitchell", "Triangle", "Thumpnail" }));
+        resizeFilterComboBox.setEnabled(false);
+        resizeFilterComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jComboBox1ItemStateChanged(evt);
+                resizeFilterComboBoxItemStateChanged(evt);
             }
         });
 
@@ -123,14 +123,14 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
         jLabel2.setText(bundle.getString("ResizeJPanel.jLabel2.text")); // NOI18N
         jLabel2.setEnabled(false);
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Quality", "Speed" }));
-        jComboBox3.setEnabled(false);
+        renderingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Quality", "Speed" }));
+        renderingComboBox.setEnabled(false);
 
         jLabel3.setText(bundle.getString("ResizeJPanel.jLabel3.text")); // NOI18N
         jLabel3.setEnabled(false);
 
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "none", "Normal", "Oversharpened", "Soft", "Verysharp" }));
-        jComboBox4.setEnabled(false);
+        sharpenComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "none", "Normal", "Oversharpened", "Soft", "Verysharp" }));
+        sharpenComboBox.setEnabled(false);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -139,23 +139,23 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBox2)
+                    .addComponent(antialisingCheckBox)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(resizeFilterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
                             .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(sharpenComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(renderingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jCheckBox2, jLabel1, jLabel2});
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {antialisingCheckBox, jLabel1, jLabel2});
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -163,17 +163,17 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(resizeFilterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(renderingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(sharpenComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBox2)
+                .addComponent(antialisingCheckBox)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -195,13 +195,13 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
                                             .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jSpinner2)
-                                            .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(widthSpinner)
+                                            .addComponent(heightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(jCheckBox4)
-                                    .addComponent(jCheckBox5)))
-                            .addComponent(jCheckBox1))
+                                        .addComponent(unitCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(aspectCheckBox)
+                                    .addComponent(orientationCheckBox)))
+                            .addComponent(resizeEnableCheckBox))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -210,93 +210,173 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jCheckBox1)
+                .addComponent(resizeEnableCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(widthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(heightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(unitCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBox4)
+                .addComponent(aspectCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCheckBox5)
+                .addComponent(orientationCheckBox)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jCheckBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox1ItemStateChanged
+    private void resizeEnableCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_resizeEnableCheckBoxItemStateChanged
         Component[] com = this.getComponents();
 
         for (int a = 0; a < com.length; a++) {
-            if (com[a] != jCheckBox1) {
-                com[a].setEnabled(jCheckBox1.isSelected());
+            if (com[a] != resizeEnableCheckBox) {
+                com[a].setEnabled(resizeEnableCheckBox.isSelected());
             }
         }
         updateAdvancePanel();
-    }//GEN-LAST:event_jCheckBox1ItemStateChanged
+    }//GEN-LAST:event_resizeEnableCheckBoxItemStateChanged
 
-    private void jSpinner2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner2StateChanged
+    private void widthSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_widthSpinnerStateChanged
         valueCorrection(0);
-    }//GEN-LAST:event_jSpinner2StateChanged
+    }//GEN-LAST:event_widthSpinnerStateChanged
 
-    private void jSpinner3StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner3StateChanged
+    private void heightSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_heightSpinnerStateChanged
         valueCorrection(1);
-    }//GEN-LAST:event_jSpinner3StateChanged
+    }//GEN-LAST:event_heightSpinnerStateChanged
 
-    private void jCheckBox4ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox4ItemStateChanged
+    private void aspectCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_aspectCheckBoxItemStateChanged
         updateModels();
-    }//GEN-LAST:event_jCheckBox4ItemStateChanged
+    }//GEN-LAST:event_aspectCheckBoxItemStateChanged
 
-    private void jCheckBox5ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox5ItemStateChanged
+    private void orientationCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_orientationCheckBoxItemStateChanged
         updateModels();
-    }//GEN-LAST:event_jCheckBox5ItemStateChanged
+    }//GEN-LAST:event_orientationCheckBoxItemStateChanged
 
-    private void jComboBox2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox2ItemStateChanged
+    private void unitComboItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_unitComboItemStateChanged
         updateModels();
-    }//GEN-LAST:event_jComboBox2ItemStateChanged
+    }//GEN-LAST:event_unitComboItemStateChanged
 
-    private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
+    private void resizeFilterComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_resizeFilterComboBoxItemStateChanged
         updateAdvancePanel();
-    }//GEN-LAST:event_jComboBox1ItemStateChanged
+    }//GEN-LAST:event_resizeFilterComboBoxItemStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JCheckBox jCheckBox4;
-    private javax.swing.JCheckBox jCheckBox5;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JComboBox jComboBox2;
-    private javax.swing.JComboBox jComboBox3;
-    private javax.swing.JComboBox jComboBox4;
+    private javax.swing.JCheckBox antialisingCheckBox;
+    private javax.swing.JCheckBox aspectCheckBox;
+    private javax.swing.JSpinner heightSpinner;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JSpinner jSpinner2;
-    private javax.swing.JSpinner jSpinner3;
+    private javax.swing.JCheckBox orientationCheckBox;
+    private javax.swing.JComboBox renderingComboBox;
+    private javax.swing.JCheckBox resizeEnableCheckBox;
+    private javax.swing.JComboBox resizeFilterComboBox;
+    private javax.swing.JComboBox sharpenComboBox;
+    private javax.swing.JComboBox unitCombo;
+    private javax.swing.JSpinner widthSpinner;
     // End of variables declaration//GEN-END:variables
+
+    public boolean getAntialisingCheckBox() {
+        return antialisingCheckBox.isSelected();
+    }
+
+    public void setAntialisingCheckBox(boolean value) {
+        this.antialisingCheckBox.setSelected(value);
+    }
+
+    public boolean getAspectCheckBox() {
+        return aspectCheckBox.isSelected();
+    }
+
+    public void setAspectCheckBox(boolean value) {
+        this.aspectCheckBox.setSelected(value);
+    }
+
+    public String getHeightSpinner() {
+        return heightSpinner.getValue().toString();
+    }
+
+    public void setHeightSpinner(String value) {
+        this.heightSpinner.getModel().setValue(Integer.parseInt(value));
+    }
+
+    public boolean getOrientationCheckBox() {
+        return orientationCheckBox.isSelected();
+    }
+
+    public void setOrientationCheckBox(boolean value) {
+        this.orientationCheckBox.setSelected(value);
+    }
+
+    public int getRenderingComboBox() {
+        return renderingComboBox.getSelectedIndex();
+    }
+
+    public void setRenderingComboBox(int index) {
+        this.renderingComboBox.setSelectedIndex(index);
+    }
+
+    public boolean getResizeEnableCheckBox() {
+        return resizeEnableCheckBox.isSelected();
+    }
+
+    public void setResizeEnableCheckBox(boolean value) {
+        this.resizeEnableCheckBox.setSelected(value);
+    }
+
+    public int getResizeFilterComboBox() {
+        return resizeFilterComboBox.getSelectedIndex();
+    }
+
+    public void setResizeFilterComboBox(int index) {
+        this.resizeFilterComboBox.setSelectedIndex(index);
+    }
+
+    public int getSharpenComboBox() {
+        return sharpenComboBox.getSelectedIndex();
+    }
+
+    public void setSharpenComboBox(int index) {
+        this.sharpenComboBox.setSelectedIndex(index);
+    }
+
+    public int getUnitCombo() {
+        return unitCombo.getSelectedIndex();
+    }
+
+    public void setUnitCombo(int index) {
+        this.unitCombo.setSelectedIndex(index);
+    }
+
+    public String getWidthSpinner() {
+        return widthSpinner.getValue().toString();
+    }
+
+    public void setWidthSpinner(int widthSpinner) {
+        this.widthSpinner.getModel().setValue(widthSpinner);
+    }
 
     @Override
     public ResizeParameters getImageEditParameters() {
         ResizeParameters resizeParameters = new ResizeParameters();
-        resizeParameters.setEnabled(jCheckBox1.isSelected());
-        resizeParameters.setWidth((Integer) jSpinner2.getValue());
-        resizeParameters.setHeight((Integer) jSpinner3.getValue());
-        resizeParameters.setMaintainAspectRatio(jCheckBox4.isSelected());
-        resizeParameters.setConsiderOrientation(jCheckBox5.isSelected());
-        resizeParameters.setAntialising(jCheckBox2.isSelected());
-        resizeParameters.setRendering(jComboBox3.getSelectedIndex());
-        resizeParameters.setFilter(jComboBox1.getSelectedItem().toString());
-        resizeParameters.setSharpen(jComboBox4.getSelectedItem().toString());
-        resizeParameters.setUnits(jComboBox2.getSelectedIndex());
+        resizeParameters.setEnabled(resizeEnableCheckBox.isSelected());
+        resizeParameters.setWidth((Integer) widthSpinner.getValue());
+        resizeParameters.setHeight((Integer) heightSpinner.getValue());
+        resizeParameters.setMaintainAspectRatio(aspectCheckBox.isSelected());
+        resizeParameters.setConsiderOrientation(orientationCheckBox.isSelected());
+        resizeParameters.setAntialising(antialisingCheckBox.isSelected());
+        resizeParameters.setRendering(renderingComboBox.getSelectedIndex());
+        resizeParameters.setFilter(resizeFilterComboBox.getSelectedItem().toString());
+        resizeParameters.setSharpen(sharpenComboBox.getSelectedItem().toString());
+        resizeParameters.setUnits(unitCombo.getSelectedIndex());
 
         return resizeParameters;
     }
@@ -305,48 +385,48 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
         int value = 1;
         int minimum = value;
 
-        if (jCheckBox4.isSelected() && !jCheckBox5.isSelected()) { //maintain aspect ratio
+        if (aspectCheckBox.isSelected() && !orientationCheckBox.isSelected()) { //maintain aspect ratio
             minimum = 0;
         }
-        if (jComboBox2.getSelectedIndex() == 1) { //percentage
+        if (unitCombo.getSelectedIndex() == 1) { //percentage
             minimum = 1;
             value = 100;
-            jCheckBox5.setEnabled(false);
-        } else if (jComboBox2.getSelectedIndex() == 0 && jCheckBox1.isSelected()) {
-            jCheckBox5.setEnabled(true);
+            orientationCheckBox.setEnabled(false);
+        } else if (unitCombo.getSelectedIndex() == 0 && resizeEnableCheckBox.isSelected()) {
+            orientationCheckBox.setEnabled(true);
         }
 
         SpinnerModel widthModel = new SpinnerNumberModel(value, minimum, null, 1);
         SpinnerModel heightModel = new SpinnerNumberModel(value, minimum, null, 1);
 
-        if (jComboBox2.getSelectedIndex() == 1 && jCheckBox4.isSelected()) {
+        if (unitCombo.getSelectedIndex() == 1 && aspectCheckBox.isSelected()) {
             widthModel = heightModel;
         }
 
-        jSpinner2.setModel(widthModel);
-        jSpinner3.setModel(heightModel);
+        widthSpinner.setModel(widthModel);
+        heightSpinner.setModel(heightModel);
         
         valueCorrection(0);
     }
 
     private void valueCorrection(int valueChanged) {
-        if (jCheckBox4.isSelected() && !jCheckBox5.isSelected() && jComboBox2.getSelectedIndex() == 0) {
+        if (aspectCheckBox.isSelected() && !orientationCheckBox.isSelected() && unitCombo.getSelectedIndex() == 0) {
             if (valueChanged == 1) {
-                jSpinner2.setValue(0);
+                widthSpinner.setValue(0);
             } else {
-                jSpinner3.setValue(0);
+                heightSpinner.setValue(0);
             }
-            if (valueChanged == 0 && jSpinner3.getValue().equals(0) && jSpinner2.getValue().equals(0)) { //width changed value
-                jSpinner2.setValue(1);
-            } else if (jSpinner3.getValue().equals(0) && jSpinner2.getValue().equals(0)) {
-                jSpinner3.setValue(1);
+            if (valueChanged == 0 && heightSpinner.getValue().equals(0) && widthSpinner.getValue().equals(0)) { //width changed value
+                widthSpinner.setValue(1);
+            } else if (heightSpinner.getValue().equals(0) && widthSpinner.getValue().equals(0)) {
+                heightSpinner.setValue(1);
             }
         }
     }
 
     private void updateAdvancePanel() {
-        if (jCheckBox1.isSelected()) {
-            switch (jComboBox1.getSelectedIndex()) {
+        if (resizeEnableCheckBox.isSelected()) {
+            switch (resizeFilterComboBox.getSelectedIndex()) {
                 case 0:
                 case 1:
                 case 3:
@@ -369,10 +449,10 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
                     break;
                 }
             }
-            jComboBox1.setEnabled(Boolean.TRUE);
+            resizeFilterComboBox.setEnabled(Boolean.TRUE);
             jLabel1.setEnabled(Boolean.TRUE);
         } else {
-            jComboBox1.setEnabled(Boolean.FALSE);
+            resizeFilterComboBox.setEnabled(Boolean.FALSE);
             jLabel1.setEnabled(Boolean.FALSE);
             handleGraphicsParameters(Boolean.FALSE);
             handleSharpenParameters(Boolean.FALSE);
@@ -381,13 +461,13 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
     }
 
     private void handleGraphicsParameters(boolean handle) {
-        jComboBox3.setEnabled(handle);
+        renderingComboBox.setEnabled(handle);
         jLabel2.setEnabled(handle);
-        jCheckBox2.setEnabled(handle);
+        antialisingCheckBox.setEnabled(handle);
     }
 
     private void handleSharpenParameters(boolean handle) {
-        jComboBox4.setEnabled(handle);
+        sharpenComboBox.setEnabled(handle);
         jLabel3.setEnabled(handle);
     }
 }

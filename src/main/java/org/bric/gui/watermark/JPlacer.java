@@ -4,13 +4,13 @@
  */
 package org.bric.gui.watermark;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.*;
 
 /**
  *
@@ -24,7 +24,7 @@ public class JPlacer extends JComponent implements MouseListener, MouseMotionLis
     private Rectangle windowBounds;
     
     private Image background;
-    private static final Color DEFAULT_COLOR = Color.RED;
+    private static final Color DEFAULT_COLOR = Color.WHITE;
     private Color fontColor = DEFAULT_COLOR;
     
     private double radAngle = 0;
@@ -33,7 +33,7 @@ public class JPlacer extends JComponent implements MouseListener, MouseMotionLis
     
     private int width, height;
     
-    private static final String STANDARD_TEXT = "<html><body>watermark</body></html>";
+    private static final String STANDARD_TEXT = "watermark";
     private String previewText = STANDARD_TEXT;
     
     private Rectangle rect;
@@ -42,7 +42,7 @@ public class JPlacer extends JComponent implements MouseListener, MouseMotionLis
     
     private boolean mouseReleased = false;
     
-    private JLabel renderer = new JLabel(STANDARD_TEXT);
+    private ShadowLabel renderer = new ShadowLabel(STANDARD_TEXT, 12);
     
     private CellRendererPane crp = new CellRendererPane();
     private Dimension dim;
@@ -67,7 +67,7 @@ public class JPlacer extends JComponent implements MouseListener, MouseMotionLis
         addComponentListener(this);
         
         try {
-            background = ImageIO.read(getClass().getResource("/resource/watermark/background.png"));
+            background = ImageIO.read(getClass().getResource("/resource/watermark/dokimi 6.png"));
         } catch (IOException ex) {
             Logger.getLogger(JPlacer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -85,7 +85,6 @@ public class JPlacer extends JComponent implements MouseListener, MouseMotionLis
         rect = new Rectangle(startX, startY, width, height);
         
         windowBounds = new Rectangle(0, 0, this.getWidth(), this.getHeight());
-//        boundedRect = rect;
         renderer.setForeground(fontColor);
         
         rotationCenterX = rect.x + (dim.width/2);
@@ -307,7 +306,6 @@ public class JPlacer extends JComponent implements MouseListener, MouseMotionLis
     
     private void updateLimits(){
         dim = renderer.getPreferredSize();
-//        boundedRect = getCoordinates();
         checkRectangleCollision();
         repaint();
     }

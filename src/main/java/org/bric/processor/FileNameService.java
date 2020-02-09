@@ -1,13 +1,14 @@
 package org.bric.processor;
 
-import org.bric.input.ImportedImage;
+import org.bric.gui.inputOutput.ImportedImage;
 import org.bric.utils.Utils;
 
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Queue;
+import java.io.File;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FileNameService {
 
@@ -30,7 +31,7 @@ public class FileNameService {
     private void initNumsStack(int initialNumberingIndex, int totalItems) {
         availableNumberingIndices = new ConcurrentLinkedQueue<>();
         if (outputFilepath.contains("#")) {
-            HashSet<Integer> existingNumsHash = Utils.getExistingNumsHash(outputFilepath);
+            HashSet<Integer> existingNumsHash = getExistingNumsHash(outputFilepath);
             for (int i = initialNumberingIndex; true; i++) {
                 if (!existingNumsHash.contains(i)) {
                     availableNumberingIndices.add(i);
@@ -91,5 +92,41 @@ public class FileNameService {
             return filepath + "%F";
         }
         return filepath;
+    }
+
+    @Deprecated
+    private static HashSet<Integer> getExistingNumsHash(String outputPath) {
+        String[] outputPathArray = outputPath.split(Pattern.quote(File.separator));
+        int outputPathSize = outputPathArray.length;
+        String outputName = outputPathArray[outputPathSize-1];
+        HashSet<Integer> numsHashset = new HashSet<Integer>();
+        File outputDir = new File(outputPath.substring(0, outputPath.lastIndexOf(System.getProperty("file.separator"))));
+        List<String> list = Arrays.asList(outputDir.list());
+        for (String file : list) {
+            if (file.matches(createRegex(outputName))) {
+                Pattern pattern = Pattern.compile("[0-9]+");
+                Matcher m = pattern.matcher(file);
+                while (m.find()) {
+                    numsHashset.add(Integer.parseInt(m.group()));
+                }
+            }
+        }
+        return numsHashset;
+    }
+
+    @Deprecated
+    public static String createRegex(String s) {
+        StringBuilder b = new StringBuilder();
+        for(int i=0; i<s.length(); ++i) {
+            char ch = s.charAt(i);
+            if ("\\.^$|?*+[]{}()-_".indexOf(ch) != -1){
+                b.append('\\').append(ch);
+            }
+            else {
+                b.append(ch);
+            }
+        }
+        b.append("\\.(jpg|jpeg|png|gif|tif|tiff|bmp|pdf|wbmp|pbm|pgm|ppm|pnm|psd|JPG|JPEG|PNG|GIF|TIF|TIFF|BMP|PDF|WBMP|PBM|PGM|PPM|PNM|PSD)");
+        return b.toString().replaceAll("#", "[0-9]+");
     }
 }

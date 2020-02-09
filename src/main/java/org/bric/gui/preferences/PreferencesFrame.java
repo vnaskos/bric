@@ -4,26 +4,37 @@
  */
 package org.bric.gui.preferences;
 
+import org.bric.utils.Utils;
+
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
-import org.bric.utils.Utils;
 
 /**
  *
  * @author vasilis
  */
 public class PreferencesFrame extends javax.swing.JFrame {
-
+    
+    int defaultLocaleIndex;
+    
     /**
      * Creates new form PreferencesFrame
      */
     public PreferencesFrame() {
+        defaultLocaleIndex = Utils.prefs.getInt("locale", 0);
+        Locale defaultLocale;
+        if(Utils.prefs.getInt("locale", 0) == 0){
+            defaultLocale = Locale.ENGLISH;
+        } else {
+            defaultLocale = Utils.GREEK;
+        }
+        Locale.setDefault(defaultLocale);
         initComponents();
         initialize();
     }
@@ -40,36 +51,37 @@ public class PreferencesFrame extends javax.swing.JFrame {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        general = new javax.swing.JPanel();
+        languageLabel = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
-        jComboBox1 = new javax.swing.JComboBox();
-        jLabel2 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox();
+        languageCombo = new javax.swing.JComboBox();
+        appearenceLabel = new javax.swing.JLabel();
+        appearenceCombo = new javax.swing.JComboBox();
         jSeparator2 = new javax.swing.JSeparator();
-        jLabel4 = new javax.swing.JLabel();
-        jComboBox5 = new javax.swing.JComboBox();
+        defaultTypeLabel = new javax.swing.JLabel();
+        defaultTypeCombo = new javax.swing.JComboBox();
         jSeparator4 = new javax.swing.JSeparator();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        jSpinner1 = new javax.swing.JSpinner();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        jCheckBox3 = new javax.swing.JCheckBox();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton4 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
+        Thumbnails = new javax.swing.JPanel();
+        importExportCloseLabel = new javax.swing.JLabel();
+        importExportCloseSpinner = new javax.swing.JSpinner();
+        thumbnailsCheckBox = new javax.swing.JCheckBox();
+        metadataCheckBox = new javax.swing.JCheckBox();
+        thumbnailsOnImport = new javax.swing.JRadioButton();
+        thumbnailsOnDemand = new javax.swing.JRadioButton();
+        metadataOnDemand = new javax.swing.JRadioButton();
+        metadataOnImport = new javax.swing.JRadioButton();
         jSeparator3 = new javax.swing.JSeparator();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox();
-        jLabel6 = new javax.swing.JLabel();
-        jComboBox4 = new javax.swing.JComboBox();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        Advanced = new javax.swing.JPanel();
+        threadsImportLabel = new javax.swing.JLabel();
+        threadsImportCombo = new javax.swing.JComboBox();
+        threadsExportLabel = new javax.swing.JLabel();
+        threadsExportCombo = new javax.swing.JComboBox();
+        okButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Preferences");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/preferences/PreferencesFrame"); // NOI18N
+        setTitle(bundle.getString("PreferencesFrame.title")); // NOI18N
         setAlwaysOnTop(true);
         setResizable(false);
 
@@ -77,203 +89,209 @@ public class PreferencesFrame extends javax.swing.JFrame {
         jTabbedPane1.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+        general.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
-        jLabel1.setText("Language");
+        languageLabel.setText(bundle.getString("PreferencesFrame.languageLabel.text")); // NOI18N
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "English" }));
+        languageCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "English", "Ελληνικά" }));
 
-        jLabel2.setText("Appearence");
+        appearenceLabel.setText(bundle.getString("PreferencesFrame.appearenceLabel.text")); // NOI18N
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "System Default" }));
+        appearenceCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "System Default" }));
 
-        jLabel4.setText("Default output type");
-        jLabel4.setToolTipText("if output type is \"same as first\" and export doesn't support initial file type");
+        defaultTypeLabel.setText(bundle.getString("PreferencesFrame.defaultTypeLabel.text")); // NOI18N
+        defaultTypeLabel.setToolTipText(bundle.getString("PreferencesFrame.defaultTypeLabel.toolTipText")); // NOI18N
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "JPG", "JPEG", "PNG", "GIF", "BMP", "TIF", "TIFF", "PGM", "PBM", "PNM", "PPM" }));
+        defaultTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "JPG", "JPEG", "PNG", "GIF", "BMP", "TIF", "TIFF", "PGM", "PBM", "PNM", "PPM" }));
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout generalLayout = new javax.swing.GroupLayout(general);
+        general.setLayout(generalLayout);
+        generalLayout.setHorizontalGroup(
+            generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator1)
             .addComponent(jSeparator2)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGroup(generalLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                .addGroup(generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(generalLayout.createSequentialGroup()
+                        .addComponent(languageLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 140, Short.MAX_VALUE)
-                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
+                        .addComponent(languageCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(generalLayout.createSequentialGroup()
+                        .addComponent(appearenceLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 137, Short.MAX_VALUE)
+                        .addComponent(appearenceCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(generalLayout.createSequentialGroup()
+                        .addComponent(defaultTypeLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
-                        .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(defaultTypeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
             .addComponent(jSeparator4)
         );
 
-        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jComboBox1, jComboBox2});
+        generalLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {appearenceCombo, languageCombo});
 
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+        generalLayout.setVerticalGroup(
+            generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generalLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(languageLabel)
+                    .addComponent(languageCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(appearenceLabel)
+                    .addComponent(appearenceCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
+                .addGroup(generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(defaultTypeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(defaultTypeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(78, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("General", jPanel2);
+        jTabbedPane1.addTab(bundle.getString("PreferencesFrame.general.TabConstraints.tabTitle"), general); // NOI18N
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+        Thumbnails.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
-        jLabel3.setText("Import/Export window close after (ms)");
+        importExportCloseLabel.setText(bundle.getString("PreferencesFrame.importExportCloseLabel.text")); // NOI18N
 
-        jCheckBox2.setSelected(true);
-        jCheckBox2.setText("Generate Thumbnails");
+        thumbnailsCheckBox.setSelected(true);
+        thumbnailsCheckBox.setText(bundle.getString("PreferencesFrame.thumbnailsCheckBox.text")); // NOI18N
 
-        jCheckBox3.setSelected(true);
-        jCheckBox3.setText("Collect Metadata");
+        metadataCheckBox.setSelected(true);
+        metadataCheckBox.setText(bundle.getString("PreferencesFrame.metadataCheckBox.text")); // NOI18N
 
-        buttonGroup1.add(jRadioButton1);
-        jRadioButton1.setText("on import");
+        buttonGroup1.add(thumbnailsOnImport);
+        thumbnailsOnImport.setText(bundle.getString("PreferencesFrame.thumbnailsOnImport.text")); // NOI18N
 
-        buttonGroup1.add(jRadioButton2);
-        jRadioButton2.setText("on demand");
+        buttonGroup1.add(thumbnailsOnDemand);
+        thumbnailsOnDemand.setSelected(true);
+        thumbnailsOnDemand.setText(bundle.getString("PreferencesFrame.thumbnailsOnDemand.text")); // NOI18N
 
-        buttonGroup2.add(jRadioButton4);
-        jRadioButton4.setText("on demand");
+        buttonGroup2.add(metadataOnDemand);
+        metadataOnDemand.setSelected(true);
+        metadataOnDemand.setText(bundle.getString("PreferencesFrame.metadataOnDemand.text")); // NOI18N
 
-        buttonGroup2.add(jRadioButton3);
-        jRadioButton3.setText("on import");
+        buttonGroup2.add(metadataOnImport);
+        metadataOnImport.setText(bundle.getString("PreferencesFrame.metadataOnImport.text")); // NOI18N
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jCheckBox2)
-                            .addComponent(jCheckBox3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jRadioButton3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRadioButton4))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jRadioButton1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRadioButton2)))
-                        .addGap(0, 83, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+        javax.swing.GroupLayout ThumbnailsLayout = new javax.swing.GroupLayout(Thumbnails);
+        Thumbnails.setLayout(ThumbnailsLayout);
+        ThumbnailsLayout.setHorizontalGroup(
+            ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator3)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(ThumbnailsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox2)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2))
+                .addGroup(ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ThumbnailsLayout.createSequentialGroup()
+                        .addComponent(importExportCloseLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
+                        .addComponent(importExportCloseSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(ThumbnailsLayout.createSequentialGroup()
+                        .addGroup(ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(thumbnailsCheckBox)
+                            .addGroup(ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(ThumbnailsLayout.createSequentialGroup()
+                                        .addGap(21, 21, 21)
+                                        .addComponent(metadataOnImport)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(metadataOnDemand))
+                                    .addComponent(metadataCheckBox))
+                                .addGroup(ThumbnailsLayout.createSequentialGroup()
+                                    .addGap(21, 21, 21)
+                                    .addComponent(thumbnailsOnImport)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(thumbnailsOnDemand))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        ThumbnailsLayout.setVerticalGroup(
+            ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ThumbnailsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(thumbnailsCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(thumbnailsOnImport)
+                    .addComponent(thumbnailsOnDemand))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox3)
-                    .addComponent(jRadioButton3)
-                    .addComponent(jRadioButton4))
+                .addComponent(metadataCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(metadataOnImport)
+                    .addComponent(metadataOnDemand))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(122, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ThumbnailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(importExportCloseLabel)
+                    .addComponent(importExportCloseSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(81, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Thumbnails", jPanel1);
+        jTabbedPane1.addTab(bundle.getString("PreferencesFrame.Thumbnails.TabConstraints.tabTitle"), Thumbnails); // NOI18N
 
-        jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+        Advanced.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
-        jLabel5.setText("Threads per process on import");
+        threadsImportLabel.setText(bundle.getString("PreferencesFrame.threadsImportLabel.text")); // NOI18N
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
+        threadsImportCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
 
-        jLabel6.setText("Threads per process on export");
+        threadsExportLabel.setText(bundle.getString("PreferencesFrame.threadsExportLabel.text")); // NOI18N
 
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
+        threadsExportCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        javax.swing.GroupLayout AdvancedLayout = new javax.swing.GroupLayout(Advanced);
+        Advanced.setLayout(AdvancedLayout);
+        AdvancedLayout.setHorizontalGroup(
+            AdvancedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AdvancedLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel5)
+                .addGroup(AdvancedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(AdvancedLayout.createSequentialGroup()
+                        .addComponent(threadsImportLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
+                        .addComponent(threadsImportCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AdvancedLayout.createSequentialGroup()
+                        .addComponent(threadsExportLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 115, Short.MAX_VALUE)
-                        .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(threadsExportCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        AdvancedLayout.setVerticalGroup(
+            AdvancedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AdvancedLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(AdvancedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(threadsImportLabel)
+                    .addComponent(threadsImportCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(AdvancedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(threadsExportLabel)
+                    .addComponent(threadsExportCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(169, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Advanced", jPanel4);
+        jTabbedPane1.addTab(bundle.getString("PreferencesFrame.Advanced.TabConstraints.tabTitle"), Advanced); // NOI18N
 
-        jButton1.setText("OK");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        okButton.setText(bundle.getString("PreferencesFrame.okButton.text")); // NOI18N
+        okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                okButtonActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Cancel");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText(bundle.getString("PreferencesFrame.cancelButton.text")); // NOI18N
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
@@ -284,13 +302,13 @@ public class PreferencesFrame extends javax.swing.JFrame {
             .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(okButton)
                 .addContainerGap())
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton1, jButton2});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, okButton});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -298,23 +316,25 @@ public class PreferencesFrame extends javax.swing.JFrame {
                 .addComponent(jTabbedPane1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(okButton)
+                    .addComponent(cancelButton))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         saveChanges();
         dispose();
-//        restart();
-    }//GEN-LAST:event_jButton1ActionPerformed
+        if(languageCombo.getSelectedIndex() != defaultLocaleIndex){
+            restart();
+        }
+    }//GEN-LAST:event_okButtonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.dispose();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -359,36 +379,36 @@ public class PreferencesFrame extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel Advanced;
+    private javax.swing.JPanel Thumbnails;
+    private javax.swing.JComboBox appearenceCombo;
+    private javax.swing.JLabel appearenceLabel;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JCheckBox jCheckBox3;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JComboBox jComboBox2;
-    private javax.swing.JComboBox jComboBox3;
-    private javax.swing.JComboBox jComboBox4;
-    private javax.swing.JComboBox jComboBox5;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JRadioButton jRadioButton3;
-    private javax.swing.JRadioButton jRadioButton4;
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JComboBox defaultTypeCombo;
+    private javax.swing.JLabel defaultTypeLabel;
+    private javax.swing.JPanel general;
+    private javax.swing.JLabel importExportCloseLabel;
+    private javax.swing.JSpinner importExportCloseSpinner;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JComboBox languageCombo;
+    private javax.swing.JLabel languageLabel;
+    private javax.swing.JCheckBox metadataCheckBox;
+    private javax.swing.JRadioButton metadataOnDemand;
+    private javax.swing.JRadioButton metadataOnImport;
+    private javax.swing.JButton okButton;
+    private javax.swing.JComboBox threadsExportCombo;
+    private javax.swing.JLabel threadsExportLabel;
+    private javax.swing.JComboBox threadsImportCombo;
+    private javax.swing.JLabel threadsImportLabel;
+    private javax.swing.JCheckBox thumbnailsCheckBox;
+    private javax.swing.JRadioButton thumbnailsOnDemand;
+    private javax.swing.JRadioButton thumbnailsOnImport;
     // End of variables declaration//GEN-END:variables
     
     private void restart(){
@@ -421,19 +441,21 @@ public class PreferencesFrame extends javax.swing.JFrame {
     }
 
     private void saveChanges(){
-        Utils.prefs.putInt("sleepValue", Integer.parseInt(jSpinner1.getValue().toString()));
-        Utils.prefs.putBoolean("thumbnail", jCheckBox2.isSelected());
-        Utils.prefs.putBoolean("metadata", jCheckBox3.isSelected());
-        Utils.prefs.putInt("importNumThreads", jComboBox3.getSelectedIndex());
-        Utils.prefs.putInt("exportNumThreads", jComboBox4.getSelectedIndex());
+        Utils.prefs.putInt("sleepValue", Integer.parseInt(importExportCloseSpinner.getValue().toString()));
+        Utils.prefs.putBoolean("thumbnail", thumbnailsCheckBox.isSelected());
+        Utils.prefs.putBoolean("metadata", metadataCheckBox.isSelected());
+        Utils.prefs.putInt("importNumThreads", threadsImportCombo.getSelectedIndex());
+        Utils.prefs.putInt("exportNumThreads", threadsExportCombo.getSelectedIndex());
         
-        int thumbnailWay = jRadioButton1.isSelected() ? 0 : 1;
+        int thumbnailWay = thumbnailsOnImport.isSelected() ? 0 : 1;
         Utils.prefs.putInt("thumbWay", thumbnailWay);
         
-        int metadataWay = jRadioButton3.isSelected() ? 0 : 1;
+        int metadataWay = metadataOnImport.isSelected() ? 0 : 1;
         Utils.prefs.putInt("metaWay", metadataWay);
         
-        Utils.prefs.put("defaultFileType", jComboBox5.getSelectedItem().toString());
+        Utils.prefs.put("defaultFileType", defaultTypeCombo.getSelectedItem().toString());
+        
+        Utils.prefs.put("locale", Integer.toString(languageCombo.getSelectedIndex()));
     }
     
     private void initialize(){
@@ -441,20 +463,22 @@ public class PreferencesFrame extends javax.swing.JFrame {
         
         int sleepValue = Utils.prefs.getInt("sleepValue", 500);
         SpinnerModel time = new SpinnerNumberModel(sleepValue, 0, 10000, 1);
-        jSpinner1.setModel(time);
+        importExportCloseSpinner.setModel(time);
         
-        jCheckBox2.setSelected(Utils.prefs.getBoolean("thumbnail", true));
-        jCheckBox3.setSelected(Utils.prefs.getBoolean("metadata", true));
+        thumbnailsCheckBox.setSelected(Utils.prefs.getBoolean("thumbnail", true));
+        metadataCheckBox.setSelected(Utils.prefs.getBoolean("metadata", true));
         
-        jComboBox3.setSelectedIndex(Utils.prefs.getInt("importNumThreads", 0));
-        jComboBox4.setSelectedIndex(Utils.prefs.getInt("exportNumThreads", 0));
+        threadsImportCombo.setSelectedIndex(Utils.prefs.getInt("importNumThreads", 0));
+        threadsExportCombo.setSelectedIndex(Utils.prefs.getInt("exportNumThreads", 0));
         
-        jRadioButton1.setSelected(Utils.prefs.getInt("thumbWay", 0) == 0);
-        jRadioButton2.setSelected(Utils.prefs.getInt("thumbWay", 0) == 1);
+        thumbnailsOnImport.setSelected(Utils.prefs.getInt("thumbWay", 0) == 0);
+        thumbnailsOnDemand.setSelected(Utils.prefs.getInt("thumbWay", 0) == 1);
         
-        jRadioButton3.setSelected(Utils.prefs.getInt("metaWay", 0) == 0);
-        jRadioButton4.setSelected(Utils.prefs.getInt("metaWay", 0) == 1);
+        metadataOnImport.setSelected(Utils.prefs.getInt("metaWay", 0) == 0);
+        metadataOnDemand.setSelected(Utils.prefs.getInt("metaWay", 0) == 1);
         
-        jComboBox5.setSelectedItem(Utils.prefs.get("defaultFileType", "jpg"));
+        defaultTypeCombo.setSelectedItem(Utils.prefs.get("defaultFileType", "jpg"));
+        
+        languageCombo.setSelectedIndex(Utils.prefs.getInt("locale", 0));
     }
 }

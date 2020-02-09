@@ -4,10 +4,9 @@
  */
 package org.bric.gui.rotate;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -15,8 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.JComponent;
 
 /**
  *
@@ -97,10 +94,11 @@ public class JRotator extends JComponent implements MouseListener, MouseMotionLi
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         //G2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         
-        if(this.isEnabled())
+        if(this.isEnabled()) {
             g2.drawImage(backgroundEnabled, 0,0,this);
-        else
+        } else {
             g2.drawImage(backgroundDisabled, 0,0,this);
+        }
         g2.rotate(radAngle, w/2, h/2);
         g2.drawImage(mainImage, (IMAGE_WIDTH/2)-(mainImage.getWidth(this) /2), (IMAGE_HEIGHT/2)-(mainImage.getHeight(this)/2), this);
         g2.rotate(-radAngle, w/2, h/2);

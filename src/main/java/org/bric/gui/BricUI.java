@@ -4,23 +4,26 @@
  */
 package org.bric.gui;
 
-import java.awt.Desktop;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.*;
-import org.bric.gui.output.ProgressBarFrame;
+import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.preferences.PreferencesFrame;
 import org.bric.gui.tabs.*;
 import org.bric.imageEditParameters.*;
-import org.bric.input.ImportedImage;
 import org.bric.processor.ImageProcessHandler;
+import org.bric.utils.ArrayListTransferHandler;
 import org.bric.utils.Utils;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,34 +31,51 @@ import org.bric.utils.Utils;
  */
 public class BricUI extends JFrame {
 
+    static ResourceBundle bundle;
+    
     DefaultListModel model = new DefaultListModel();
     static int duplicateAction = Utils.NOT_SET;
     int previewState;
     public final ImageIcon DEFAULT_ICON = new javax.swing.ImageIcon(getClass().getResource("/resource/preview.png"));
     private PreferencesFrame preferencesFrame = new PreferencesFrame();
+    private About aboutFrame = new About();
     public static String lastOpenedDirectory = "";
     
     List<String> imagesList;
     ArrayListTransferHandler arrayListHandler;
     
-    Locale greek = new Locale("el", "GR");
+    JFileChooser propertiesChooser;
+    Properties properties;
     
     /**
      * Creates new form Main
      */
     public BricUI() {
+        Locale defaultLocale;
+        if (Utils.prefs.getInt("locale", 0) == 0) {
+            defaultLocale = Locale.ENGLISH;
+        } else {
+            defaultLocale = Utils.GREEK;
+        }
+        Locale.setDefault(defaultLocale);
+//        Locale.setDefault(Utils.GREEK);
+//        Locale.setDefault(Locale.ENGLISH);
         
-//        Locale.setDefault(greek);
-        
+        bundle = ResourceBundle.getBundle("lang/gui/BricUI");
+             
         initComponents();
         arrayListHandler = new ArrayListTransferHandler();
-        jList1.setModel(model);
-        jList1.setTransferHandler(arrayListHandler);
-        jList1.setDragEnabled(true);
-        jTabbedPane1.add("Output", new OutputJPanel());
-        jTabbedPane1.add("Resize", new ResizeJPanel());
-        jTabbedPane1.add("Rotate", new RotateJPanel());
-        jTabbedPane1.add("Watermark", new WatermarkJPanel());
+        inputList.setModel(model);
+        inputList.setTransferHandler(arrayListHandler);
+        inputList.setDragEnabled(true);
+        editPane.add(bundle.getString("BricUI.outputTab.name"), new OutputJPanel());
+        editPane.add(bundle.getString("BricUI.resizeTab.name"), new ResizeJPanel());
+        editPane.add(bundle.getString("BricUI.rotateTab.name"), new RotateJPanel());
+        editPane.add(bundle.getString("BricUI.watermarkTab.name"), new WatermarkJPanel());
+        properties = new Properties();
+        
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
+        initializeProperties();
     }
 
     /**
@@ -67,321 +87,417 @@ public class BricUI extends JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jToggleButton1 = new javax.swing.JToggleButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jSplitPane1 = new javax.swing.JSplitPane();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel8 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
+        toolBar = new javax.swing.JPanel();
+        alwaysOnTopButton = new javax.swing.JToggleButton();
+        hideDetailsButton = new javax.swing.JButton();
+        preferencesButton = new javax.swing.JButton();
+        startButton = new javax.swing.JButton();
+        previewButton = new javax.swing.JButton();
+        saveButton = new javax.swing.JButton();
+        loadButton = new javax.swing.JButton();
+        aboutButton = new javax.swing.JButton();
+        workspace = new javax.swing.JSplitPane();
+        editPane = new javax.swing.JTabbedPane();
+        inputPane = new javax.swing.JPanel();
+        addButton = new javax.swing.JButton();
+        removeButton = new javax.swing.JButton();
+        clearButton = new javax.swing.JButton();
+        itemsCountLabel = new javax.swing.JLabel();
+        detailsPanel = new javax.swing.JPanel();
+        previewIcon = new javax.swing.JLabel();
+        metadataScrollPane = new javax.swing.JScrollPane();
+        metadataPane = new javax.swing.JTextPane();
+        inputListScrollPane = new javax.swing.JScrollPane();
+        inputList = new javax.swing.JList();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/BricUI"); // NOI18N
         setTitle(bundle.getString("BricUI.title")); // NOI18N
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        toolBar.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jToggleButton1.setText(bundle.getString("BricUI.jToggleButton1.text")); // NOI18N
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        alwaysOnTopButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp.png"))); // NOI18N
+        alwaysOnTopButton.setToolTipText(bundle.getString("BricUI.alwaysOnTopButton.toolTipText")); // NOI18N
+        alwaysOnTopButton.setBorderPainted(false);
+        alwaysOnTopButton.setContentAreaFilled(false);
+        alwaysOnTopButton.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp_r.png"))); // NOI18N
+        alwaysOnTopButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp_r.png"))); // NOI18N
+        alwaysOnTopButton.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp_r.png"))); // NOI18N
+        alwaysOnTopButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp_p.png"))); // NOI18N
+        alwaysOnTopButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                alwaysOnTopButtonActionPerformed(evt);
             }
         });
 
-        jButton5.setText(bundle.getString("BricUI.jButton5.text")); // NOI18N
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        hideDetailsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/refresh.png"))); // NOI18N
+        hideDetailsButton.setToolTipText(bundle.getString("BricUI.hideDetailsButton.toolTipText")); // NOI18N
+        hideDetailsButton.setBorderPainted(false);
+        hideDetailsButton.setContentAreaFilled(false);
+        hideDetailsButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/refresh_p.png"))); // NOI18N
+        hideDetailsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                hideDetailsButtonActionPerformed(evt);
             }
         });
 
-        jButton6.setText(bundle.getString("BricUI.jButton6.text")); // NOI18N
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
+        preferencesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/configuration.png"))); // NOI18N
+        preferencesButton.setToolTipText(bundle.getString("BricUI.preferencesButton.toolTipText")); // NOI18N
+        preferencesButton.setBorderPainted(false);
+        preferencesButton.setContentAreaFilled(false);
+        preferencesButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/configuration_p.png"))); // NOI18N
+        preferencesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
+                preferencesButtonActionPerformed(evt);
             }
         });
 
-        jButton7.setText(bundle.getString("BricUI.jButton7.text")); // NOI18N
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
+        startButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/tick.png"))); // NOI18N
+        startButton.setToolTipText(bundle.getString("BricUI.startButton.toolTipText")); // NOI18N
+        startButton.setBorderPainted(false);
+        startButton.setContentAreaFilled(false);
+        startButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/tick_p.png"))); // NOI18N
+        startButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
+                startButtonActionPerformed(evt);
             }
         });
 
-        jButton4.setText(bundle.getString("BricUI.jButton4.text")); // NOI18N
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        previewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/photo-camera.png"))); // NOI18N
+        previewButton.setToolTipText(bundle.getString("BricUI.previewButton.toolTipText")); // NOI18N
+        previewButton.setBorderPainted(false);
+        previewButton.setContentAreaFilled(false);
+        previewButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/photo-camera_p.png"))); // NOI18N
+        previewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                previewButtonActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        saveButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-floopy.png"))); // NOI18N
+        saveButton.setToolTipText(bundle.getString("BricUI.saveButton.toolTipText")); // NOI18N
+        saveButton.setBorderPainted(false);
+        saveButton.setContentAreaFilled(false);
+        saveButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-floopy_p.png"))); // NOI18N
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveButtonActionPerformed(evt);
+            }
+        });
+
+        loadButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd.png"))); // NOI18N
+        loadButton.setToolTipText(bundle.getString("BricUI.loadButton.toolTipText")); // NOI18N
+        loadButton.setBorderPainted(false);
+        loadButton.setContentAreaFilled(false);
+        loadButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd_p.png"))); // NOI18N
+        loadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadButtonActionPerformed(evt);
+            }
+        });
+
+        aboutButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/info.png"))); // NOI18N
+        aboutButton.setToolTipText(bundle.getString("BricUI.aboutButton.toolTipText")); // NOI18N
+        aboutButton.setBorderPainted(false);
+        aboutButton.setContentAreaFilled(false);
+        aboutButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/info_p.png"))); // NOI18N
+        aboutButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aboutButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout toolBarLayout = new javax.swing.GroupLayout(toolBar);
+        toolBar.setLayout(toolBarLayout);
+        toolBarLayout.setHorizontalGroup(
+            toolBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(toolBarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton6)
-                .addGap(37, 37, 37)
-                .addComponent(jToggleButton1)
+                .addComponent(preferencesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 226, Short.MAX_VALUE)
-                .addComponent(jButton4)
+                .addComponent(aboutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton4))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(alwaysOnTopButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(hideDetailsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(loadButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(210, 210, 210)
+                .addComponent(previewButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(9, 9, 9))
         );
 
-        jSplitPane1.setDividerLocation(355);
-        jSplitPane1.setResizeWeight(0.3);
+        toolBarLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {aboutButton, hideDetailsButton});
 
-        jTabbedPane1.setMinimumSize(new java.awt.Dimension(370, 480));
-        jSplitPane1.setRightComponent(jTabbedPane1);
-
-        jPanel8.setMinimumSize(new java.awt.Dimension(355, 480));
-
-        jButton1.setText(bundle.getString("BricUI.jButton1.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        jButton2.setText(bundle.getString("BricUI.jButton2.text")); // NOI18N
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
-        jButton3.setText(bundle.getString("BricUI.jButton3.text")); // NOI18N
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setFont(new java.awt.Font("DejaVu Sans Light", 0, 14)); // NOI18N
-        jLabel1.setText(bundle.getString("BricUI.jLabel1.text")); // NOI18N
-
-        jPanel2.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel2.setMinimumSize(new java.awt.Dimension(167, 136));
-
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/preview.png"))); // NOI18N
-        jLabel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jLabel2.setMaximumSize(new java.awt.Dimension(130, 130));
-        jLabel2.setMinimumSize(new java.awt.Dimension(130, 130));
-        jLabel2.setPreferredSize(new java.awt.Dimension(130, 130));
-
-        jTextPane1.setEditable(false);
-        jTextPane1.setContentType(bundle.getString("BricUI.jTextPane1.contentType")); // NOI18N
-        jTextPane1.setMinimumSize(new java.awt.Dimension(6, 128));
-        jTextPane1.setPreferredSize(new java.awt.Dimension(6, 128));
-        jScrollPane2.setViewportView(jTextPane1);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+        toolBarLayout.setVerticalGroup(
+            toolBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(toolBarLayout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(toolBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(alwaysOnTopButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(toolBarLayout.createSequentialGroup()
+                        .addGroup(toolBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(hideDetailsButton)
+                            .addGroup(toolBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(previewButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(loadButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(saveButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(preferencesButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(startButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(aboutButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
 
-        jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+        workspace.setDividerLocation(350);
+        workspace.setResizeWeight(0.3);
+
+        editPane.setMinimumSize(new java.awt.Dimension(370, 480));
+        workspace.setRightComponent(editPane);
+
+        inputPane.setMinimumSize(new java.awt.Dimension(355, 480));
+
+        addButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/add.png"))); // NOI18N
+        addButton.setToolTipText(bundle.getString("BricUI.addButton.toolTipText")); // NOI18N
+        addButton.setBorderPainted(false);
+        addButton.setContentAreaFilled(false);
+        addButton.setDoubleBuffered(true);
+        addButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/add_p.png"))); // NOI18N
+        addButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addButtonActionPerformed(evt);
+            }
+        });
+
+        removeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/remove.png"))); // NOI18N
+        removeButton.setToolTipText(bundle.getString("BricUI.removeButton.toolTipText")); // NOI18N
+        removeButton.setBorderPainted(false);
+        removeButton.setContentAreaFilled(false);
+        removeButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/remove_p.png"))); // NOI18N
+        removeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeButtonActionPerformed(evt);
+            }
+        });
+
+        clearButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/error.png"))); // NOI18N
+        clearButton.setToolTipText(bundle.getString("BricUI.clearButton.toolTipText")); // NOI18N
+        clearButton.setBorderPainted(false);
+        clearButton.setContentAreaFilled(false);
+        clearButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/error_p.png"))); // NOI18N
+        clearButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearButtonActionPerformed(evt);
+            }
+        });
+
+        itemsCountLabel.setFont(new java.awt.Font("DejaVu Sans Light", 0, 14)); // NOI18N
+        itemsCountLabel.setText(bundle.getString("BricUI.itemsCountLabel.text")); // NOI18N
+
+        detailsPanel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        detailsPanel.setMinimumSize(new java.awt.Dimension(167, 136));
+
+        previewIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        previewIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/preview.png"))); // NOI18N
+        previewIcon.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        previewIcon.setMaximumSize(new java.awt.Dimension(130, 130));
+        previewIcon.setMinimumSize(new java.awt.Dimension(130, 130));
+        previewIcon.setPreferredSize(new java.awt.Dimension(130, 130));
+
+        metadataPane.setEditable(false);
+        metadataPane.setContentType("text/html"); // NOI18N
+        metadataPane.setMinimumSize(new java.awt.Dimension(6, 128));
+        metadataPane.setPreferredSize(new java.awt.Dimension(6, 128));
+        metadataScrollPane.setViewportView(metadataPane);
+
+        javax.swing.GroupLayout detailsPanelLayout = new javax.swing.GroupLayout(detailsPanel);
+        detailsPanel.setLayout(detailsPanelLayout);
+        detailsPanelLayout.setHorizontalGroup(
+            detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(detailsPanelLayout.createSequentialGroup()
+                .addComponent(previewIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(metadataScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
+        );
+        detailsPanelLayout.setVerticalGroup(
+            detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailsPanelLayout.createSequentialGroup()
+                .addGap(0, 0, 0)
+                .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(metadataScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                    .addComponent(previewIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        );
+
+        inputList.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        inputList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jList1MouseClicked(evt);
+                inputListMouseClicked(evt);
             }
         });
-        jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+        inputList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                jList1ValueChanged(evt);
+                inputListValueChanged(evt);
             }
         });
-        jScrollPane1.setViewportView(jList1);
+        inputListScrollPane.setViewportView(inputList);
 
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
+        javax.swing.GroupLayout inputPaneLayout = new javax.swing.GroupLayout(inputPane);
+        inputPane.setLayout(inputPaneLayout);
+        inputPaneLayout.setHorizontalGroup(
+            inputPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(inputPaneLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
+                .addComponent(removeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
+                .addComponent(clearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addContainerGap(67, Short.MAX_VALUE))
-            .addComponent(jScrollPane1)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(itemsCountLabel)
+                .addContainerGap())
+            .addComponent(inputListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
+            .addComponent(detailsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-
-        jPanel8Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton1, jButton2, jButton3});
-
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
+        inputPaneLayout.setVerticalGroup(
+            inputPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(inputPaneLayout.createSequentialGroup()
+                .addComponent(inputListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3)
-                    .addComponent(jLabel1))
+                .addGroup(inputPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(inputPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(removeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(clearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(itemsCountLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(detailsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2))
         );
 
-        jPanel8Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButton1, jButton2, jButton3});
-
-        jSplitPane1.setLeftComponent(jPanel8);
+        workspace.setLeftComponent(inputPane);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jSplitPane1)
+            .addComponent(toolBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(workspace, javax.swing.GroupLayout.PREFERRED_SIZE, 731, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jSplitPane1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(workspace)
+                .addGap(0, 0, 0)
+                .addComponent(toolBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         importImages();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_addButtonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         try {
             removeImages();
         } catch (Exception e) {
-            jLabel2.setIcon(DEFAULT_ICON);
+            previewIcon.setIcon(DEFAULT_ICON);
         }
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_removeButtonActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
         try {
             clearAll();
         } catch (Exception e) {
-            jLabel2.setIcon(DEFAULT_ICON);
+            previewIcon.setIcon(DEFAULT_ICON);
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_clearButtonActionPerformed
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+    private void preferencesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_preferencesButtonActionPerformed
         preferencesFrame.setVisible(true);
-    }//GEN-LAST:event_jButton6ActionPerformed
+    }//GEN-LAST:event_preferencesButtonActionPerformed
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        this.setAlwaysOnTop(jToggleButton1.isSelected());
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    private void alwaysOnTopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_alwaysOnTopButtonActionPerformed
+        this.setAlwaysOnTop(alwaysOnTopButton.isSelected());
+    }//GEN-LAST:event_alwaysOnTopButtonActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void hideDetailsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hideDetailsButtonActionPerformed
         previewState++;
         switch (previewState) {
             case 0:
-                jLabel2.setVisible(true);
-                jPanel2.setVisible(true);
+                previewIcon.setVisible(true);
+                detailsPanel.setVisible(true);
                 break;
             case 1:
-                jLabel2.setVisible(false);
+                previewIcon.setVisible(false);
                 break;
             case 2:
-                jLabel2.setVisible(false);
-                jPanel2.setVisible(false);
+                previewIcon.setVisible(false);
+                detailsPanel.setVisible(false);
                 break;
             case 3:
                 previewState = 0;
             default:
-                jLabel2.setVisible(true);
-                jPanel2.setVisible(true);
+                previewIcon.setVisible(true);
+                detailsPanel.setVisible(true);
         }
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_hideDetailsButtonActionPerformed
 
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        startProcess(false);
-    }//GEN-LAST:event_jButton7ActionPerformed
+    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
+        if(!model.isEmpty()){
+            startProcess(false);
+        }
+    }//GEN-LAST:event_startButtonActionPerformed
 
 
-    private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
+    private void inputListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_inputListValueChanged
         try {
-            ImportedImage importedImage = (ImportedImage) model.get(jList1.getSelectedIndex());
+            ImportedImage importedImage = (ImportedImage) model.get(inputList.getSelectedIndex());
             
             generateThumbnailMetadataOnDemand(importedImage);
             
-            jLabel2.setIcon(importedImage.getThumbnailImageIcon());
+            previewIcon.setIcon(importedImage.getThumbnailImageIcon());
             previewInfo(importedImage.getPath(), importedImage.getDimensions(), importedImage.getSize());
         } catch (Exception e) {
-            jLabel2.setIcon(DEFAULT_ICON);
+            previewIcon.setIcon(DEFAULT_ICON);
         }
-    }//GEN-LAST:event_jList1ValueChanged
+    }//GEN-LAST:event_inputListValueChanged
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        if(jList1.getSelectedValue() != null){
+    private void previewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previewButtonActionPerformed
+        if(inputList.getSelectedValue() != null){
             startProcess(true);
         }
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_previewButtonActionPerformed
 
-    private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
+    private void inputListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inputListMouseClicked
         if (evt.getClickCount() == 2) {
             try {
                 if(model.isEmpty()){
                    return; 
                 }
-                ImportedImage image = (ImportedImage) model.get(jList1.getSelectedIndex());
+                ImportedImage image = (ImportedImage) model.get(inputList.getSelectedIndex());
                 Desktop.getDesktop().open(new File(image.getPath()));
             } catch (IOException ex) {
                 Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }//GEN-LAST:event_jList1MouseClicked
+    }//GEN-LAST:event_inputListMouseClicked
+
+    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        saveSettings();
+    }//GEN-LAST:event_saveButtonActionPerformed
+
+    private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed
+        loadSettings();
+    }//GEN-LAST:event_loadButtonActionPerformed
+
+    private void aboutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutButtonActionPerformed
+        aboutFrame.setVisible(true);
+    }//GEN-LAST:event_aboutButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -429,33 +545,38 @@ public class BricUI extends JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JList jList1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel8;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextPane jTextPane1;
-    private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JButton aboutButton;
+    private javax.swing.JButton addButton;
+    private javax.swing.JToggleButton alwaysOnTopButton;
+    private javax.swing.JButton clearButton;
+    private javax.swing.JPanel detailsPanel;
+    private javax.swing.JTabbedPane editPane;
+    private javax.swing.JButton hideDetailsButton;
+    private javax.swing.JList inputList;
+    private javax.swing.JScrollPane inputListScrollPane;
+    private javax.swing.JPanel inputPane;
+    private javax.swing.JLabel itemsCountLabel;
+    private javax.swing.JButton loadButton;
+    private javax.swing.JTextPane metadataPane;
+    private javax.swing.JScrollPane metadataScrollPane;
+    private javax.swing.JButton preferencesButton;
+    private javax.swing.JButton previewButton;
+    private javax.swing.JLabel previewIcon;
+    private javax.swing.JButton removeButton;
+    private javax.swing.JButton saveButton;
+    private javax.swing.JButton startButton;
+    private javax.swing.JPanel toolBar;
+    private javax.swing.JSplitPane workspace;
     // End of variables declaration//GEN-END:variables
 
     synchronized public static void duplicatePane(String file) {
 
         if (duplicateAction == Utils.NOT_SET || duplicateAction == Utils.REPLACE || duplicateAction == Utils.SKIP) {
 
-            Object[] selectionValues = {"Replace all", "Replace",
-                "Skip all", "Skip"};
+            Object[] selectionValues = {BricUI.bundle.getString("BricUI.duplicate.replaceAll"), 
+                BricUI.bundle.getString("BricUI.duplicate.replace"),
+                BricUI.bundle.getString("BricUI.duplicate.skipAll"),
+                BricUI.bundle.getString("BricUI.duplicate.skip")};
 
             String initialSelection = selectionValues[0].toString();
 
@@ -463,8 +584,9 @@ public class BricUI extends JFrame {
 
             do{
             selection = JOptionPane.showInputDialog(
-                    null, String.format("This image\n%s\nhas already been added", file),
-                    "Warning Duplicate Input", JOptionPane.QUESTION_MESSAGE, null, selectionValues, initialSelection);
+                    null, String.format(BricUI.bundle.getString("BricUI.duplicate.text"), "\n"+file+"\n"),
+                    BricUI.bundle.getString("BricUI.duplicate.title"), JOptionPane.QUESTION_MESSAGE,
+                    null, selectionValues, initialSelection);
             } while(selection == null);
             
             int answer = 0;
@@ -498,7 +620,7 @@ public class BricUI extends JFrame {
     private void removeImages() {
         ArrayList<Integer> toBeDeleted = new ArrayList<Integer>();
 
-        for (int number : jList1.getSelectedIndices()) {
+        for (int number : inputList.getSelectedIndices()) {
             toBeDeleted.add(number);
         }
 
@@ -510,12 +632,12 @@ public class BricUI extends JFrame {
             
         }
 
-        jTextPane1.setText("");
+        metadataPane.setText("");
         updateItemsLabel();
     }
 
     private void updateItemsLabel() {
-        jLabel1.setText("Items: " + model.getSize());
+        itemsCountLabel.setText(bundle.getString("BricUI.itemsCountLabel.text") + model.getSize());
 
         if (model.getSize() == 0) {
             duplicateAction = Utils.NOT_SET;
@@ -527,22 +649,21 @@ public class BricUI extends JFrame {
         imagesList.clear();
         clearHash();
         System.gc();
-        jTextPane1.setText("");
+        metadataPane.setText("");
         updateItemsLabel();
     }
 
-    //Not Ready
     private void previewInfo(String listSelected, String dimensions, long filesize) {
         String text = "<html><body>";
-        text += "<b>Name:</b><br />";
+        text += "<b>" + bundle.getString("BricUI.metadata.name") + "</b><br />";
         text += listSelected.substring(listSelected.lastIndexOf(Utils.FS) + 1, listSelected.length()) + "<br /><br />";
-        text += "<b>Dimensions: </b><br />" + dimensions + "<br />";
+        text += "<b>" + bundle.getString("BricUI.metadata.dimensions") +" </b><br />" + dimensions + "<br />";
         if (filesize != 0) {
-            text += "<br /><b>Filesize: </b><br />" + filesize / 1024 + "KB<br />";
+            text += "<br /><b>" + bundle.getString("BricUI.metadata.filesize") + " </b><br />" + filesize / 1024 + "KB<br />";
         }
         text += "</body></html>";
-        jTextPane1.setText(text);
-        jTextPane1.setCaretPosition(0);
+        metadataPane.setText(text);
+        metadataPane.setCaretPosition(0);
     }
     
     public void importImages(){
@@ -556,7 +677,6 @@ public class BricUI extends JFrame {
 
             @Override
             public void run() {
-//                final ImportFrame importer = new ImportFrame();
                 final ProgressBarFrame importer = new ProgressBarFrame();
                 importer.setImagesCount(imagesList.size());
                 importer.setVisible(true);
@@ -584,7 +704,6 @@ public class BricUI extends JFrame {
             public void run() {
                 for (int i = from; i < from + step; i++) {
                     if (!importer.isVisible()) {
-//                        updateModel();
                         return;
                     }
                     if (i < imagesList.size()) {
@@ -592,15 +711,10 @@ public class BricUI extends JFrame {
                         if (hash.contains(imagesList.get(i))) {
                             duplicatePane(imagesList.get(i));
                         }
-//                        if (model.contains(new ImportedImage(imagesList.get(i)))) {
-//                            duplicatePane(imagesList.get(i));
-//                        }
 
-//                        if (duplicateAction == Utils.REPLACE || duplicateAction == Utils.REPLACE_ALL || !Utils.modelContains(model, imagesList.get(i))) {
                         if (duplicateAction == Utils.REPLACE || duplicateAction == Utils.REPLACE_ALL || !hash.contains(imagesList.get(i))) {
                             ImportedImage im = new ImportedImage( imagesList.get(i) );
                             if(!im.isCorrupted()){
-//                                getLoadedImages().add(im);
                                 addToModel(im);
                                 importer.updateValue(true);
                             }else{
@@ -615,8 +729,6 @@ public class BricUI extends JFrame {
                         break;
                     }
                 }
-                
-//                updateModel();
                 
             }
         }).start();
@@ -646,24 +758,6 @@ public class BricUI extends JFrame {
             }
         });
     }
-    
-//    public void updateModel() {
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                ArrayList<ImportedImage> temp = (ArrayList<ImportedImage>) getLoadedImages().clone();
-//                for (ImportedImage img : temp) {
-//                    if (model.contains(img)) {
-//                        model.removeElement(img);
-//                    }
-//                    model.addElement(img);
-//                }
-//                getLoadedImages().clear();
-//                temp.clear();
-//                updateItemsLabel();
-//            }
-//        });
-//    }
     
     public List<String> readImages(){
         ArrayList<String> imagePaths = new ArrayList<String>();
@@ -730,8 +824,8 @@ public class BricUI extends JFrame {
                 RotateParameters rotateParameters = null;
                 WatermarkParameters watermarkParameters = null;
 
-                for (int i = 0; i < jTabbedPane1.getComponentCount(); i++) {
-                    ImageEditParameters imageEditParameters = ((ImageEditTab) jTabbedPane1.getComponentAt(i)).getImageEditParameters();
+                for (int i = 0; i < editPane.getComponentCount(); i++) {
+                    ImageEditParameters imageEditParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
                     if (imageEditParameters instanceof OutputParameters) {
                         outputParameters = (OutputParameters) imageEditParameters;
                     } else if (imageEditParameters instanceof ResizeParameters) {
@@ -745,7 +839,7 @@ public class BricUI extends JFrame {
 
                 ImageProcessHandler mainProcess;
                 if(preview){
-                    ImportedImage imageToPreview = (ImportedImage) model.get(jList1.getSelectedIndex());
+                    ImportedImage imageToPreview = (ImportedImage) model.get(inputList.getSelectedIndex());
                     mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
                 } else {
                     mainProcess = new ImageProcessHandler(outputParameters, model);
@@ -753,218 +847,150 @@ public class BricUI extends JFrame {
                 mainProcess.setResizeParameters(resizeParameters);
                 mainProcess.setRotateParameters(rotateParameters);
                 mainProcess.setWatermarkParameters(watermarkParameters);
-                
+
                 mainProcess.start();
                 
             }
         }).start();
     }
-}
-
-class ArrayListTransferHandler extends TransferHandler {
-
-    DataFlavor localArrayListFlavor, serialArrayListFlavor;
-    String localArrayListType = DataFlavor.javaJVMLocalObjectMimeType
-            + ";class=java.util.ArrayList";
-    JList source = null;
-    int[] indices = null;
-    int addIndex = -1; //Location where items were added
-    int addCount = 0; //Number of items added
-
-    public ArrayListTransferHandler() {
-        try {
-            localArrayListFlavor = new DataFlavor(localArrayListType);
-        } catch (ClassNotFoundException e) {
-            System.out
-                    .println("ArrayListTransferHandler: unable to create data flavor");
-        }
-        serialArrayListFlavor = new DataFlavor(ArrayList.class, "ArrayList");
-    }
-
-    @Override
-    public boolean importData(JComponent c, Transferable t) {
-        JList target = null;
-        ArrayList alist = null;
-        if (!canImport(c, t.getTransferDataFlavors())) {
-            return false;
-        }
-        try {
-            target = (JList) c;
-            if (hasLocalArrayListFlavor(t.getTransferDataFlavors())) {
-                alist = (ArrayList) t.getTransferData(localArrayListFlavor);
-            } else if (hasSerialArrayListFlavor(t.getTransferDataFlavors())) {
-                alist = (ArrayList) t.getTransferData(serialArrayListFlavor);
-            } else {
-                return false;
-            }
-        } catch (UnsupportedFlavorException ufe) {
-            System.out.println("importData: unsupported data flavor");
-            return false;
-        } catch (IOException ioe) {
-            System.out.println("importData: I/O exception");
-            return false;
-        }
-
-        //At this point we use the same code to retrieve the data
-        //locally or serially.
-
-        //We'll drop at the current selected index.
-        int index = target.getSelectedIndex();
-
-        //Prevent the user from dropping data back on itself.
-        //For example, if the user is moving items #4,#5,#6 and #7 and
-        //attempts to insert the items after item #5, this would
-        //be problematic when removing the original items.
-        //This is interpreted as dropping the same data on itself
-        //and has no effect.
-        if (source.equals(target)) {
-            if (indices != null && index >= indices[0] - 1
-                    && index <= indices[indices.length - 1]) {
-                indices = null;
-                return true;
-            }
-        }
-
-        DefaultListModel listModel = (DefaultListModel) target.getModel();
-        int max = listModel.getSize();
-        if (index < 0) {
-            index = max;
-        } else {
-            index++;
-            if (index > max) {
-                index = max;
-            }
-        }
-        addIndex = index;
-        addCount = alist.size();
-        for (int i = 0; i < alist.size(); i++) {
-            listModel.add(index++, alist.get(i));
-        }
-        return true;
-    }
-
-    @Override
-    protected void exportDone(JComponent c, Transferable data, int action) {
-        if ((action == MOVE) && (indices != null)) {
-            DefaultListModel model = (DefaultListModel) source.getModel();
-
-            //If we are moving items around in the same list, we
-            //need to adjust the indices accordingly since those
-            //after the insertion point have moved.
-            if (addCount > 0) {
-                for (int i = 0; i < indices.length; i++) {
-                    if (indices[i] > addIndex) {
-                        indices[i] += addCount;
-                    }
-                }
-            }
-            for (int i = indices.length - 1; i >= 0; i--) {
-                model.remove(indices[i]);
-            }
-        }
-        indices = null;
-        addIndex = -1;
-        addCount = 0;
-    }
-
-    private boolean hasLocalArrayListFlavor(DataFlavor[] flavors) {
-        if (localArrayListFlavor == null) {
-            return false;
-        }
-
-        for (int i = 0; i < flavors.length; i++) {
-            if (flavors[i].equals(localArrayListFlavor)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasSerialArrayListFlavor(DataFlavor[] flavors) {
-        if (serialArrayListFlavor == null) {
-            return false;
-        }
-
-        for (int i = 0; i < flavors.length; i++) {
-            if (flavors[i].equals(serialArrayListFlavor)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean canImport(JComponent c, DataFlavor[] flavors) {
-        if (hasLocalArrayListFlavor(flavors)) {
-            return true;
-        }
-        if (hasSerialArrayListFlavor(flavors)) {
-            return true;
-        }
-        return false;
+    
+    private void initializeProperties(){
+        propertiesChooser = new JFileChooser();
+        propertiesChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        propertiesChooser.setFileFilter(new FileNameExtensionFilter("properties file(*.properties)", "PROPERTIES"));
     }
     
-    @Override
-    protected Transferable createTransferable(JComponent c) {
-        if (c instanceof JList) {
-            source = (JList) c;
-            indices = source.getSelectedIndices();
-            int length = source.getSelectedIndices().length;
-            DefaultListModel tranferableModel = (DefaultListModel) source.getModel();
-            ImportedImage[] values = new ImportedImage[length];
-            for(int i = 0; i < length; i++){
-                values[i] = (ImportedImage) tranferableModel.get(indices[i]);
+    private void saveSettings() {
+        FileOutputStream out = null;
+        try {
+            propertiesChooser.setDialogTitle("Save properties");
+            
+            if (propertiesChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
+                return;
             }
-            if (values == null || values.length == 0) {
-                return null;
+            String file = propertiesChooser.getSelectedFile().getPath();
+            if(!file.matches(".+\\.properties")){
+                file = propertiesChooser.getSelectedFile().getPath()+".properties";
             }
-            ArrayList<ImportedImage> alist = new ArrayList<ImportedImage>(values.length);
-            for (int i = 0; i < values.length; i++) {
-                ImportedImage o = values[i];
-                alist.add(o);
+            out = new FileOutputStream(new File(file));
+            
+            OutputJPanel outputJPanel = (OutputJPanel) editPane.getComponentAt(0);
+            properties.setProperty("fileTypeCombo", Integer.toString(outputJPanel.getFileTypeComboIndex()));
+            properties.setProperty("outputPathText", outputJPanel.getOutputPathText());
+            properties.setProperty("qualityValue", Integer.toString(outputJPanel.getQualitySliderValue()));
+            properties.setProperty("startIndexValue", Integer.toString(outputJPanel.getStartIndexSpinnerValue()));
+            
+            ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
+            properties.setProperty("resizeAntialising", resizeJPanel.getAntialisingCheckBox() == true ? "1" : "0");
+            properties.setProperty("resizeAspect", resizeJPanel.getAspectCheckBox() == true ? "1" : "0");
+            properties.setProperty("resizeHeight", resizeJPanel.getHeightSpinner());
+            properties.setProperty("resizeOrientation", resizeJPanel.getOrientationCheckBox() == true ? "1" : "0");
+            properties.setProperty("resizeRendering", Integer.toString(resizeJPanel.getRenderingComboBox()));
+            properties.setProperty("resizeEnable", resizeJPanel.getResizeEnableCheckBox() == true ? "1" : "0");
+            properties.setProperty("resizeFilter", Integer.toString(resizeJPanel.getResizeFilterComboBox()));
+            properties.setProperty("resizeSharpen", Integer.toString(resizeJPanel.getSharpenComboBox()));
+            properties.setProperty("resizeUnits", Integer.toString(resizeJPanel.getUnitCombo()));
+            properties.setProperty("resizeWidth", resizeJPanel.getWidthSpinner());
+            
+            RotateJPanel rotateJPanel = (RotateJPanel) editPane.getComponentAt(2);
+            properties.setProperty("rotateEnable", rotateJPanel.getRotateEnableCheckBox() == true ? "1" : "0");
+            properties.setProperty("rotateAction", Integer.toString(rotateJPanel.getActionsComboBox()));
+            properties.setProperty("rotateAngle", rotateJPanel.getAngleSlider());
+            properties.setProperty("rotateCustom", rotateJPanel.getCustomRadioButton() == true ? "1" : "0");
+            properties.setProperty("rotateDifferentValue", rotateJPanel.getDifferentValueCheckBox() == true ? "1" : "0");
+            properties.setProperty("rotateMinLimit", rotateJPanel.getFromSpinner());
+            properties.setProperty("rotateLimit", rotateJPanel.getLimitCheckBox() == true ? "1" : "0");
+            properties.setProperty("rotatePredifiend", rotateJPanel.getPredefinedRadioButton() == true ? "1" : "0");
+            properties.setProperty("rotateRandom", rotateJPanel.getRandomCheckBox() == true ? "1" : "0");
+            properties.setProperty("rotateMaxLimit", rotateJPanel.getToSpinner());
+            
+            WatermarkJPanel watermarkJPanel = (WatermarkJPanel) editPane.getComponentAt(3);
+            properties.setProperty("watermarkColoumns", watermarkJPanel.getColoumnsSpinner());
+            properties.setProperty("watermarkText", watermarkJPanel.getEditorTextPane());
+            properties.setProperty("watermarkMode", Integer.toString(watermarkJPanel.getModeComboBox()));
+            properties.setProperty("watermarkOpacity", watermarkJPanel.getOpacitySlider());
+            properties.setProperty("watermarkPattern", Integer.toString(watermarkJPanel.getPatternComboBox()));
+            properties.setProperty("watermarkRows", watermarkJPanel.getRowsSlidder());
+            properties.setProperty("watermarkEnable", watermarkJPanel.getWatermarkEnableCheckBox() == true ? "1" : "0");
+            properties.setProperty("watermarkImage", watermarkJPanel.getWatermarkImageText());
+            
+            properties.store(out, "");
+        } catch (IOException ex) {
+            Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if(out != null){
+                    out.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return new ArrayListTransferable(alist);
         }
-        return null;
     }
 
-    @Override
-    public int getSourceActions(JComponent c) {
-        return COPY_OR_MOVE;
-    }
+    private void loadSettings() {
+        FileInputStream fileInput = null;
+        try {
+            propertiesChooser.setDialogTitle("Load properties");
 
-    public class ArrayListTransferable implements Transferable {
-
-        ArrayList data;
-
-        public ArrayListTransferable(ArrayList alist) {
-            data = alist;
-        }
-
-        @Override
-        public Object getTransferData(DataFlavor flavor)
-                throws UnsupportedFlavorException {
-            if (!isDataFlavorSupported(flavor)) {
-                throw new UnsupportedFlavorException(flavor);
+            if (propertiesChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
+                return;
             }
-            return data;
-        }
-
-        @Override
-        public DataFlavor[] getTransferDataFlavors() {
-            return new DataFlavor[]{localArrayListFlavor,
-                        serialArrayListFlavor};
-        }
-
-        @Override
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
-            if (localArrayListFlavor.equals(flavor)) {
-                return true;
+            
+            File file = propertiesChooser.getSelectedFile();
+            fileInput = new FileInputStream(file);
+            properties.load(fileInput);
+            
+            OutputJPanel outputJPanel = (OutputJPanel) editPane.getComponentAt(0);
+            outputJPanel.setFileTypeComboIndex(properties.getProperty("fileTypeCombo"));
+            outputJPanel.setOutputPathText(properties.getProperty("outputPathText"));
+            outputJPanel.setQualitySliderValue(properties.getProperty("qualityValue"));
+            outputJPanel.setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
+            
+            ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
+            resizeJPanel.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1") ? true : false);
+            resizeJPanel.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1") ? true : false);
+            resizeJPanel.setHeightSpinner(properties.getProperty("resizeHeight"));
+            resizeJPanel.setOrientationCheckBox(properties.getProperty("resizeOrientation").equals("1") ? true : false);
+            resizeJPanel.setRenderingComboBox(Integer.parseInt(properties.getProperty("resizeRendering")));
+            resizeJPanel.setResizeEnableCheckBox(properties.getProperty("resizeEnable").equals("1") ? true : false);
+            resizeJPanel.setResizeFilterComboBox(Integer.parseInt(properties.getProperty("resizeFilter")));
+            resizeJPanel.setSharpenComboBox(Integer.parseInt(properties.getProperty("resizeSharpen")));
+            resizeJPanel.setUnitCombo(Integer.parseInt(properties.getProperty("resizeUnits")));
+            resizeJPanel.setWidthSpinner(Integer.parseInt(properties.getProperty("resizeWidth")));
+                    
+            RotateJPanel rotateJPanel = (RotateJPanel) editPane.getComponentAt(2);
+            rotateJPanel.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1") ? true : false);
+            rotateJPanel.setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
+            rotateJPanel.setAngleSlider(Integer.parseInt(properties.getProperty("rotateAngle")));
+            rotateJPanel.setCustomRadioButton(properties.getProperty("rotateCustom").equals("1") ? true : false);
+            rotateJPanel.setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1") ? true : false);
+            rotateJPanel.setFromSpinner(Integer.parseInt(properties.getProperty("rotateMinLimit")));
+            rotateJPanel.setLimitCheckBox(properties.getProperty("rotateLimit").equals("1") ? true : false);
+            rotateJPanel.setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1") ? true : false);
+            rotateJPanel.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1") ? true : false);
+            rotateJPanel.setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
+            
+            WatermarkJPanel watermarkJPanel = (WatermarkJPanel) editPane.getComponentAt(3);
+            watermarkJPanel.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColoumns")));
+            watermarkJPanel.setEditorTextPane(properties.getProperty("watermarkText"));
+            watermarkJPanel.setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
+            watermarkJPanel.setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
+            watermarkJPanel.setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
+            watermarkJPanel.setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
+            watermarkJPanel.setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1") ? true : false);
+            watermarkJPanel.setWatermarkImageText(properties.getProperty("watermarkImage"));
+            
+        } catch (IOException ex) {
+            Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if(fileInput != null){
+                    fileInput.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if (serialArrayListFlavor.equals(flavor)) {
-                return true;
-            }
-            return false;
         }
     }
 }
