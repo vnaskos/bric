@@ -2,6 +2,7 @@ package org.bric.gui;
 
 import org.bric.core.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
+import org.bric.gui.input.ListModel;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -52,9 +52,7 @@ public class BricUI extends JFrame {
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
 
-    private static Set<String> hash = new ConcurrentSkipListSet<>();
-
-    DefaultListModel<ImportedImage> model;
+    ListModel<ImportedImage> model;
     static int duplicateAction = Utils.NOT_SET;
     int previewState;
     
@@ -115,7 +113,7 @@ public class BricUI extends JFrame {
         JScrollPane metadataScrollPane = new JScrollPane();
         metadataPane = new javax.swing.JTextPane();
         JScrollPane inputListScrollPane = new JScrollPane();
-        model = new DefaultListModel<>();
+        model = new ListModel<>();
         inputList = new javax.swing.JList<>(model);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -542,7 +540,6 @@ public class BricUI extends JFrame {
         Collections.reverse(toBeDeleted);
 
         for (int value : toBeDeleted) {
-            removeFromHash(model.get(value).getPath());
             model.remove(value);
             
         }
@@ -561,7 +558,6 @@ public class BricUI extends JFrame {
 
     private void clearAll() {
         model.clear();
-        clearHash();
         metadataPane.setText("");
         updateItemsLabel();
     }
@@ -604,11 +600,14 @@ public class BricUI extends JFrame {
 
     private Callable<Void> importFile(final ProgressBarFrame progressBar, final String path) {
         return () -> {
-            if (hash.contains(path)) {
+            if (model.contains(img -> img.getPath().equals(path))) {
                 duplicatePane(path);
             }
 
-            if (duplicateAction == Utils.REPLACE || duplicateAction == Utils.REPLACE_ALL || !hash.contains(path)) {
+            if (duplicateAction == Utils.NOT_SET ||
+                    duplicateAction == Utils.REPLACE ||
+                    duplicateAction == Utils.REPLACE_ALL) {
+
                 ImportedImage im = new ImportedImage(path);
                 if(!im.isCorrupted()){
                     addToModel(im);
@@ -616,6 +615,7 @@ public class BricUI extends JFrame {
                 }else{
                     progressBar.updateValue(false);
                 }
+
             } else {
                 progressBar.updateValue(true);
             }
@@ -625,23 +625,10 @@ public class BricUI extends JFrame {
             return null;
         };
     }
-
-    public static void removeFromHash(String path){
-        hash.remove(path);
-    }
-    
-    public static void clearHash(){
-        hash.clear();
-    }
     
     public void addToModel(final ImportedImage im) {
         synchronized (this) {
             SwingUtilities.invokeLater(() -> {
-                if (hash.contains(im.getPath())) {
-                    model.removeElement(im);
-                } else {
-                    hash.add(im.getPath());
-                }
                 model.addElement(im);
                 updateItemsLabel();
             });
@@ -715,7 +702,7 @@ public class BricUI extends JFrame {
                 ImportedImage imageToPreview = model.get(inputList.getSelectedIndex());
                 mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
             } else {
-                mainProcess = new ImageProcessHandler(outputParameters, model);
+                mainProcess = new ImageProcessHandler(outputParameters, model.getElements());
             }
             mainProcess.setResizeParameters(resizeParameters);
             mainProcess.setRotateParameters(rotateParameters);

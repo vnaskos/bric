@@ -29,9 +29,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -63,27 +63,22 @@ public class ImageProcessHandler {
     //pdf
     Document document;
 
-    public ImageProcessHandler(OutputParameters outputParameters, DefaultListModel<ImportedImage> model) {
+    public ImageProcessHandler(OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
         numberingIndex = new AtomicInteger(outputParameters.getNumberingStartIndex());
         outputPath = outputParameters.getOutputPath();
 
-        modelSize = model.size();
+        modelSize = inputList.size();
 
-        inputQueue = new ConcurrentLinkedQueue<>();
-        for (int i=0; i<model.getSize(); i++) {
-            inputQueue.add(model.get(i));
-        }
+        inputQueue = new ConcurrentLinkedQueue<>(inputList);
 
         this.fileNameService = new FileNameService(outputParameters.getOutputPath(),
-                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), model.size());
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputList.size());
     }
 
     public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
-        DefaultListModel<ImportedImage> previewModel = new DefaultListModel<>();
-        previewModel.addElement(imageToPreview);
-
-        ImageProcessHandler process = new ImageProcessHandler(outputParameters, previewModel);
+        ImageProcessHandler process = new ImageProcessHandler(outputParameters,
+                Collections.singletonList(imageToPreview));
         process.setPreview();
 
         return process;
