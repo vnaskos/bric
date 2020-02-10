@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.gui.inputOutput;
 
 import org.bric.utils.PDFToImage;
@@ -10,13 +6,20 @@ import org.bric.utils.Utils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-/**
- *
- * @author vasilis
- */
-public class GenerateThumbnail {
-    
-    public static BufferedImage generate(String filename, int thumbWidth, int thumbHeight){
+public class Thumbnail {
+
+    public static final int DEFAULT_WIDTH = 125;
+    public static final int DEFAULT_HEIGHT = 125;
+
+    public static BufferedImage generate(String filename) {
+        return generate(filename, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
+
+    public static BufferedImage generate(Image image) {
+        return generate(image, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
+
+    public static BufferedImage generate(String filename, int thumbWidth, int thumbHeight) {
         if(filename == null){
             return null;
         }
@@ -28,8 +31,8 @@ public class GenerateThumbnail {
         }
         return generate(image, thumbWidth, thumbHeight);
     }
-    
-    public static BufferedImage generate(Image image, int thumbWidth, int thumbHeight){
+
+    public static BufferedImage generate(Image image, int thumbWidth, int thumbHeight) {
         if(image.getWidth(null) >= image.getHeight(null)){
             thumbHeight = (thumbWidth * image.getHeight(null)) / image.getWidth(null); 
         } else {
