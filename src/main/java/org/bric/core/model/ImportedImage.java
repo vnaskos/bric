@@ -2,7 +2,7 @@ package org.bric.core.model;
 
 import org.bric.core.model.input.GenerationMethod;
 import org.bric.core.model.input.InputType;
-import org.bric.gui.inputOutput.Thumbnail;
+import org.bric.core.model.input.Thumbnail;
 import org.bric.utils.Utils;
 
 import java.awt.image.BufferedImage;

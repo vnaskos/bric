@@ -1,7 +1,6 @@
-package org.bric.gui.inputOutput;
+package org.bric.core.model.input;
 
 import org.bric.core.model.ImportedImage;
-import org.bric.core.model.input.InputType;
 import org.bric.utils.PDFToImage;
 import org.bric.utils.Utils;
 
@@ -31,7 +30,7 @@ public class Thumbnail {
             } else {
                 image = Utils.loadImage(importedImage.getPath());
             }
-            BufferedImage scaledImage = scaleImage(image, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            BufferedImage scaledImage = scaleImage(image);
             return new Thumbnail(scaledImage);
         } catch (Exception ex) {
             importedImage.setCorrupted(true);
@@ -39,7 +38,10 @@ public class Thumbnail {
         }
     }
 
-    private static BufferedImage scaleImage(Image image, int thumbWidth, int thumbHeight) {
+    private static BufferedImage scaleImage(Image image) {
+        int thumbWidth = DEFAULT_WIDTH;
+        int thumbHeight = DEFAULT_HEIGHT;
+
         if(image.getWidth(null) >= image.getHeight(null)){
             thumbHeight = (thumbWidth * image.getHeight(null)) / image.getWidth(null); 
         } else {
