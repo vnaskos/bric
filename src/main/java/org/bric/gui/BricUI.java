@@ -324,15 +324,7 @@ public class BricUI extends JFrame {
             properties = outputTab.saveState(properties);
             properties = resizeTab.saveState(properties);
             properties = rotateTab.saveState(properties);
-
-            properties.setProperty("watermarkColumns", watermarkTab.getColoumnsSpinner());
-            properties.setProperty("watermarkText", watermarkTab.getEditorTextPane());
-            properties.setProperty("watermarkMode", Integer.toString(watermarkTab.getModeComboBox()));
-            properties.setProperty("watermarkOpacity", watermarkTab.getOpacitySlider());
-            properties.setProperty("watermarkPattern", Integer.toString(watermarkTab.getPatternComboBox()));
-            properties.setProperty("watermarkRows", watermarkTab.getRowsSlidder());
-            properties.setProperty("watermarkEnable", watermarkTab.getWatermarkEnableCheckBox() ? "1" : "0");
-            properties.setProperty("watermarkImage", watermarkTab.getWatermarkImageText());
+            properties = watermarkTab.saveState(properties);
             
             properties.store(out, "");
         } catch (IOException ex) {
@@ -365,17 +357,7 @@ public class BricUI extends JFrame {
             outputTab.restoreState(properties);
             resizeTab.restoreState(properties);
             rotateTab.restoreState(properties);
-
-
-            watermarkTab.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColumns")));
-            watermarkTab.setEditorTextPane(properties.getProperty("watermarkText"));
-            watermarkTab.setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
-            watermarkTab.setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
-            watermarkTab.setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
-            watermarkTab.setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
-            watermarkTab.setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1"));
-            watermarkTab.setWatermarkImageText(properties.getProperty("watermarkImage"));
-            
+            watermarkTab.restoreState(properties);
         } catch (IOException ex) {
             Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
