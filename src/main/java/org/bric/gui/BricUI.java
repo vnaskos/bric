@@ -5,6 +5,7 @@ import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.input.InputTab;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
+import org.bric.gui.state.StateManager;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
@@ -15,16 +16,11 @@ import org.bric.processor.ImageProcessHandler;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class BricUI extends JFrame {
 
@@ -34,6 +30,8 @@ public class BricUI extends JFrame {
 
     private final PreferencesFrame preferencesFrame;
     private final About aboutFrame;
+
+    private final StateManager stateManager;
 
     private final InputTab inputTab;
     private final OutputTab outputTab;
@@ -63,7 +61,7 @@ public class BricUI extends JFrame {
         resizeTab = new ResizeJPanel();
         rotateTab = new RotateJPanel();
         watermarkTab = new WatermarkJPanel();
-
+        stateManager = new StateManager(outputTab, resizeTab, rotateTab, watermarkTab);
 
         initComponents();
         
@@ -132,14 +130,14 @@ public class BricUI extends JFrame {
         saveButton.setBorderPainted(false);
         saveButton.setContentAreaFilled(false);
         saveButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-floopy_p.png"))); // NOI18N
-        saveButton.addActionListener(evt -> saveSettings());
+        saveButton.addActionListener(evt -> stateManager.saveState());
 
         loadButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd.png"))); // NOI18N
         loadButton.setToolTipText(bundle.getString("BricUI.loadButton.toolTipText")); // NOI18N
         loadButton.setBorderPainted(false);
         loadButton.setContentAreaFilled(false);
         loadButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd_p.png"))); // NOI18N
-        loadButton.addActionListener(evt -> loadSettings());
+        loadButton.addActionListener(evt -> stateManager.restoreState());
 
         aboutButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/info.png"))); // NOI18N
         aboutButton.setToolTipText(bundle.getString("BricUI.aboutButton.toolTipText")); // NOI18N
@@ -292,79 +290,5 @@ public class BricUI extends JFrame {
         mainProcess.setWatermarkParameters(watermarkParameters);
 
         mainProcess.start();
-    }
-    
-    private static JFileChooser propertiesFileChooser() {
-        JFileChooser propertiesChooser = new JFileChooser();
-        propertiesChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        propertiesChooser.setFileFilter(new FileNameExtensionFilter("properties file(*.properties)", "PROPERTIES"));
-        return propertiesChooser;
-    }
-    
-    private void saveSettings() {
-        FileOutputStream out = null;
-        try {
-            JFileChooser propertiesChooser = BricUI.propertiesFileChooser();
-            propertiesChooser.setDialogTitle("Save properties");
-            
-            if (propertiesChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
-                return;
-            }
-            String file = propertiesChooser.getSelectedFile().getPath();
-            if(!file.matches(".+\\.properties")){
-                file = propertiesChooser.getSelectedFile().getPath()+".properties";
-            }
-            out = new FileOutputStream(new File(file));
-
-            Properties properties = new Properties();
-            properties = outputTab.saveState(properties);
-            properties = resizeTab.saveState(properties);
-            properties = rotateTab.saveState(properties);
-            properties = watermarkTab.saveState(properties);
-            
-            properties.store(out, "");
-        } catch (IOException ex) {
-            Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if(out != null){
-                    out.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    private void loadSettings() {
-        FileInputStream fileInput = null;
-        try {
-            JFileChooser propertiesChooser = BricUI.propertiesFileChooser();
-            propertiesChooser.setDialogTitle("Load properties");
-
-            if (propertiesChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
-                return;
-            }
-            
-            File file = propertiesChooser.getSelectedFile();
-            fileInput = new FileInputStream(file);
-            Properties properties = new Properties();
-            properties.load(fileInput);
-
-            outputTab.restoreState(properties);
-            resizeTab.restoreState(properties);
-            rotateTab.restoreState(properties);
-            watermarkTab.restoreState(properties);
-        } catch (IOException ex) {
-            Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if(fileInput != null){
-                    fileInput.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 }
