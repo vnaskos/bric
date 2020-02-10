@@ -1,9 +1,4 @@
-package org.bric.core.model;
-
-import org.bric.core.model.input.GenerationMethod;
-import org.bric.core.model.input.InputType;
-import org.bric.core.model.input.Metadata;
-import org.bric.core.model.input.Thumbnail;
+package org.bric.core.input.model;
 
 import java.awt.image.BufferedImage;
 import java.util.Optional;

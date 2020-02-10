@@ -1,7 +1,7 @@
 package org.bric.gui.input;
 
 import org.bric.core.input.DirectoryScanner;
-import org.bric.core.model.ImportedImage;
+import org.bric.core.input.model.ImportedImage;
 import org.bric.gui.BricUI;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.swing.ArrayListTransferHandler;

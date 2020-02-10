@@ -1,4 +1,4 @@
-package org.bric.core.model.input;
+package org.bric.core.input.model;
 
 public enum InputType {
 

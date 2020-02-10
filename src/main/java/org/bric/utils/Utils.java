@@ -4,7 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
-import org.bric.core.model.input.InputType;
+import org.bric.core.input.model.InputType;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

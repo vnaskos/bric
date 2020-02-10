@@ -1,6 +1,6 @@
 package org.bric.core.input;
 
-import org.bric.core.model.input.InputType;
+import org.bric.core.input.model.InputType;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package org.bric.gui;
 
-import org.bric.core.model.ImportedImage;
+import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.input.InputTab;
 import org.bric.gui.output.OutputTab;

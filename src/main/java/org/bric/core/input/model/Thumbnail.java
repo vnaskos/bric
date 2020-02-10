@@ -1,6 +1,5 @@
-package org.bric.core.model.input;
+package org.bric.core.input.model;
 
-import org.bric.core.model.ImportedImage;
 import org.bric.utils.PDFToImage;
 import org.bric.utils.Utils;
 
