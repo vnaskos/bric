@@ -1,6 +1,7 @@
 package org.bric.gui;
 
 import org.bric.core.model.ImportedImage;
+import org.bric.core.model.input.InputType;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.input.ListModel;
 import org.bric.gui.inputOutput.ProgressBarFrame;
@@ -662,10 +663,9 @@ public class BricUI extends JFrame {
         for (File child : children) {
             if (child.isFile() && child.getName().contains(".")) {
                 String extension = child.toString().substring(child.toString().lastIndexOf('.') + 1);
-                for(String ext : Utils.supportedInputExtensions){
-                    if(ext.equalsIgnoreCase(extension)){
-                        list.add(child.getPath());
-                    }
+
+                if (InputType.isSupported(extension)) {
+                    list.add(child.getPath());
                 }
             } else if (child.isDirectory()) {
                 scanDirectory(child, list);
