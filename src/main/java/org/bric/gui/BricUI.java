@@ -40,9 +40,6 @@ public class BricUI extends JFrame {
     private final ResizeJPanel resizeTab;
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
-
-
-    Properties properties;
     
     /**
      * Creates new form Main
@@ -69,8 +66,6 @@ public class BricUI extends JFrame {
 
 
         initComponents();
-
-        properties = new Properties();
         
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
     }
@@ -321,6 +316,7 @@ public class BricUI extends JFrame {
             }
             out = new FileOutputStream(new File(file));
 
+            Properties properties = new Properties();
             properties = outputTab.saveState(properties);
             properties = resizeTab.saveState(properties);
             properties = rotateTab.saveState(properties);
@@ -352,6 +348,7 @@ public class BricUI extends JFrame {
             
             File file = propertiesChooser.getSelectedFile();
             fileInput = new FileInputStream(file);
+            Properties properties = new Properties();
             properties.load(fileInput);
 
             outputTab.restoreState(properties);
