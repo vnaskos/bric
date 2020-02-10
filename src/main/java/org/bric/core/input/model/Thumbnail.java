@@ -25,7 +25,7 @@ public class Thumbnail {
         try {
             BufferedImage image;
             if (importedImage.getType() == InputType.PDF) {
-                image = PDFToImage.getBImagesFromPDF(importedImage.getPath(), 1, 1).get(0);
+                image = PDFToImage.getBImagesFromPDF(importedImage.getPath(), 0, 1).get(0);
             } else {
                 image = Utils.loadImage(importedImage.getPath());
             }
