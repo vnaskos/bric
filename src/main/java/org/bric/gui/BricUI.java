@@ -53,7 +53,7 @@ public class BricUI extends JFrame {
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
 
-    ListModel<ImportedImage> model;
+    private ListModel<ImportedImage> model;
     static int duplicateAction = Utils.NOT_SET;
     int previewState;
     
