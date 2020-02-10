@@ -4,33 +4,39 @@
  */
 package org.bric.gui.tabs;
 
-import javax.swing.JFileChooser;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
 import org.bric.gui.BricUI;
 import org.bric.imageEditParameters.OutputParameters;
 import org.bric.utils.Utils;
+
+import javax.swing.*;
+import java.util.ResourceBundle;
 
 /**
  *
  * @author vasilis
  */
 public class OutputJPanel extends javax.swing.JPanel implements ImageEditTab{
+    
+    ResourceBundle bundle;
+    
     /**
      * Creates new form OutputJPanel
      */
     public OutputJPanel() {
+        
+        bundle = ResourceBundle.getBundle("lang/gui/tabs/OutputJPanel");
+        
         initComponents();
         
         SpinnerModel numbering = new SpinnerNumberModel(1, null, null, 1);
-        jSpinner1.setModel(numbering);
+        startIndexSpinner.setModel(numbering);
         
         SpinnerModel horizontal = new SpinnerNumberModel(300, 10, 1000, 1);
         SpinnerModel vertical = new SpinnerNumberModel(300, 10, 1000, 1);
         jSpinner2.setModel(horizontal);
         jSpinner3.setModel(vertical);
         
-        jLabel6.setVisible(false);
+        dpiLabel.setVisible(false);
         jLabel7.setVisible(false);
         jLabel8.setVisible(false);
         jSpinner2.setVisible(false);
@@ -46,64 +52,65 @@ public class OutputJPanel extends javax.swing.JPanel implements ImageEditTab{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextField1 = new javax.swing.JTextField();
-        jButton4 = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox();
-        jLabel4 = new javax.swing.JLabel();
-        jSpinner1 = new javax.swing.JSpinner();
-        jLabel5 = new javax.swing.JLabel();
-        jSlider1 = new javax.swing.JSlider();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextPane2 = new javax.swing.JTextPane();
-        jLabel6 = new javax.swing.JLabel();
+        outputPathText = new javax.swing.JTextField();
+        browseButton = new javax.swing.JButton();
+        formatLabel = new javax.swing.JLabel();
+        fileTypeCombo = new javax.swing.JComboBox();
+        numberingLabel = new javax.swing.JLabel();
+        startIndexSpinner = new javax.swing.JSpinner();
+        qualityLabel = new javax.swing.JLabel();
+        qualitySlider = new javax.swing.JSlider();
+        fileNameMasksScrollPane = new javax.swing.JScrollPane();
+        fileNameMasksPane = new javax.swing.JTextPane();
+        dpiLabel = new javax.swing.JLabel();
         jSpinner2 = new javax.swing.JSpinner();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jSpinner3 = new javax.swing.JSpinner();
 
-        jTextField1.setText(System.getProperty("user.home"));
+        //setBackground(new java.awt.Color(43, 43, 43));
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/Bundle"); // NOI18N
-        jButton4.setText(bundle.getString("OutputJPanel.jButton4.text")); // NOI18N
-        jButton4.setToolTipText(bundle.getString("OutputJPanel.jButton4.toolTipText")); // NOI18N
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        outputPathText.setText(System.getProperty("user.home"));
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/OutputJPanel"); // NOI18N
+        browseButton.setText(bundle.getString("OutputJPanel.browseButton.text")); // NOI18N
+        browseButton.setToolTipText(bundle.getString("OutputJPanel.browseButton.toolTipText")); // NOI18N
+        browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                browseButtonActionPerformed(evt);
             }
         });
 
-        jLabel3.setText(bundle.getString("OutputJPanel.jLabel3.text")); // NOI18N
+        formatLabel.setText(bundle.getString("OutputJPanel.formatLabel.text")); // NOI18N
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "SAME AS FIRST", "JPG", "JPEG", "PNG", "GIF", "BMP", "TIF", "TIFF", "PGM", "PBM", "PNM", "PPM", "PDF" }));
-        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+        fileTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "SAME AS FIRST", "JPG", "JPEG", "PNG", "GIF", "BMP", "TIF", "TIFF", "PGM", "PBM", "PNM", "PPM", "PDF" }));
+        fileTypeCombo.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jComboBox1ItemStateChanged(evt);
+                fileTypeComboItemStateChanged(evt);
             }
         });
 
-        jLabel4.setText(bundle.getString("OutputJPanel.jLabel4.text")); // NOI18N
+        numberingLabel.setText(bundle.getString("OutputJPanel.numberingLabel.text")); // NOI18N
 
-        jLabel5.setText(bundle.getString("OutputJPanel.jLabel5.text")); // NOI18N
+        qualityLabel.setText(bundle.getString("OutputJPanel.qualityLabel.text") + "100%");
 
-        jSlider1.setMajorTickSpacing(10);
-        jSlider1.setMinorTickSpacing(5);
-        jSlider1.setPaintLabels(true);
-        jSlider1.setPaintTicks(true);
-        jSlider1.setValue(100);
-        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+        qualitySlider.setMajorTickSpacing(10);
+        qualitySlider.setMinorTickSpacing(5);
+        qualitySlider.setPaintLabels(true);
+        qualitySlider.setPaintTicks(true);
+        qualitySlider.setValue(100);
+        qualitySlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider1StateChanged(evt);
+                qualitySliderStateChanged(evt);
             }
         });
 
-        jTextPane2.setContentType("text/html"); // NOI18N
-        jTextPane2.setEditable(false);
-        java.util.ResourceBundle bundle1 = java.util.ResourceBundle.getBundle("lang/gui/Bundle"); // NOI18N
-        jTextPane2.setText(bundle1.getString("OutputJPanel.jTextPane2.text")); // NOI18N
-        jScrollPane3.setViewportView(jTextPane2);
+        fileNameMasksPane.setEditable(false);
+        fileNameMasksPane.setContentType("text/html"); // NOI18N
+        fileNameMasksPane.setText(bundle.getString("OutputJpanel.fileNameMasks.text")); // NOI18N
+        fileNameMasksScrollPane.setViewportView(fileNameMasksPane);
 
-        jLabel6.setText(bundle.getString("OutputJPanel.jLabel6.text")); // NOI18N
+        dpiLabel.setText(bundle.getString("OutputJPanel.dpiLabel.text")); // NOI18N
 
         jLabel7.setText(bundle.getString("OutputJPanel.jLabel7.text")); // NOI18N
 
@@ -117,24 +124,24 @@ public class OutputJPanel extends javax.swing.JPanel implements ImageEditTab{
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextField1)
+                        .addComponent(outputPathText)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(browseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
+                        .addComponent(formatLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 191, Short.MAX_VALUE)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(fileTypeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
+                        .addComponent(numberingLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(startIndexSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel5)
+                        .addComponent(qualityLabel)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                    .addComponent(qualitySlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(fileNameMasksScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel6)
+                        .addComponent(dpiLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -151,84 +158,116 @@ public class OutputJPanel extends javax.swing.JPanel implements ImageEditTab{
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
+                    .addComponent(outputPathText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(browseButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(formatLabel)
+                    .addComponent(fileTypeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(numberingLabel)
+                    .addComponent(startIndexSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7)
-                    .addComponent(jLabel6))
+                    .addComponent(dpiLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
-                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
+                .addComponent(qualityLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(qualitySlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(fileNameMasksScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
         JFileChooser chooser = new JFileChooser(BricUI.lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        jTextField1.setText(chooser.getSelectedFile().getPath() + Utils.FS);
+        outputPathText.setText(chooser.getSelectedFile().getPath() + Utils.FS);
         BricUI.lastOpenedDirectory = chooser.getSelectedFile().getPath();
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_browseButtonActionPerformed
 
-    private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
-        boolean qualityEnable = jComboBox1.getSelectedIndex() <= 2 ? true : false;
-        jLabel5.setEnabled(qualityEnable);
-        jSlider1.setEnabled(qualityEnable);
-        jLabel6.setEnabled(qualityEnable);
+    private void fileTypeComboItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fileTypeComboItemStateChanged
+        boolean qualityEnable = fileTypeCombo.getSelectedIndex() <= 2 ? true : false;
+        qualityLabel.setEnabled(qualityEnable);
+        qualitySlider.setEnabled(qualityEnable);
+        dpiLabel.setEnabled(qualityEnable);
         jLabel7.setEnabled(qualityEnable);
         jLabel8.setEnabled(qualityEnable);
         jSpinner2.setEnabled(qualityEnable);
         jSpinner3.setEnabled(qualityEnable);
-    }//GEN-LAST:event_jComboBox1ItemStateChanged
+    }//GEN-LAST:event_fileTypeComboItemStateChanged
 
-    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
-        jLabel5.setText(String.format("Quality: %s%%", jSlider1.getValue()));
-    }//GEN-LAST:event_jSlider1StateChanged
+    private void qualitySliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_qualitySliderStateChanged
+        qualityLabel.setText(String.format(bundle.getString("OutputJPanel.qualityLabel.text") + "%s%%", qualitySlider.getValue()));
+    }//GEN-LAST:event_qualitySliderStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton4;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JButton browseButton;
+    private javax.swing.JLabel dpiLabel;
+    private javax.swing.JTextPane fileNameMasksPane;
+    private javax.swing.JScrollPane fileNameMasksScrollPane;
+    private javax.swing.JComboBox fileTypeCombo;
+    private javax.swing.JLabel formatLabel;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSlider jSlider1;
-    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JSpinner jSpinner2;
     private javax.swing.JSpinner jSpinner3;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextPane jTextPane2;
+    private javax.swing.JLabel numberingLabel;
+    private javax.swing.JTextField outputPathText;
+    private javax.swing.JLabel qualityLabel;
+    private javax.swing.JSlider qualitySlider;
+    private javax.swing.JSpinner startIndexSpinner;
     // End of variables declaration//GEN-END:variables
+
+    public int getFileTypeComboIndex() {
+        return fileTypeCombo.getSelectedIndex();
+    }
+
+    public void setFileTypeComboIndex(String index) {
+        this.fileTypeCombo.setSelectedIndex(Integer.parseInt(index));
+    }
+
+    public String getOutputPathText() {
+        return outputPathText.getText();
+    }
+
+    public void setOutputPathText(String outputPathText) {
+        this.outputPathText.setText(outputPathText);
+    }
+
+    public int getQualitySliderValue() {
+        return qualitySlider.getValue();
+    }
+
+    public void setQualitySliderValue(String value) {
+        this.qualitySlider.setValue(Integer.parseInt(value));
+    }
+
+    public int getStartIndexSpinnerValue() {
+        return Integer.parseInt(startIndexSpinner.getValue().toString());
+    }
+
+    public void setStartIndexSpinnerValue(int startIndex) {
+        this.startIndexSpinner.getModel().setValue(startIndex);
+    }
 
     @Override
     public OutputParameters getImageEditParameters() {
         OutputParameters outputParameters = new OutputParameters();
-        outputParameters.setOutputPath(jTextField1.getText());
-        outputParameters.setQuality((float)jSlider1.getValue()/100);
-        outputParameters.setOutputFormat(jComboBox1.getSelectedItem().toString());
-        outputParameters.setNumberingStartIndex((Integer)jSpinner1.getValue());
+        outputParameters.setOutputPath(outputPathText.getText());
+        outputParameters.setQuality((float)qualitySlider.getValue()/100);
+        outputParameters.setOutputFormat(fileTypeCombo.getSelectedItem().toString());
+        outputParameters.setNumberingStartIndex((Integer)startIndexSpinner.getValue());
 //        outputParameters.setDpiHorizontal((Integer) jSpinner2.getValue());
 //        outputParameters.setDpiVertical((Integer) jSpinner3.getValue());
         return outputParameters;

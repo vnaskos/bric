@@ -6,30 +6,23 @@ package org.bric.utils;
 
 import ij.IJ;
 import ij.ImagePlus;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.Sanselan;
+import org.bric.gui.inputOutput.GenerateThumbnail;
+import org.bric.gui.inputOutput.ImportedImage;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.Sanselan;
-import org.bric.input.GenerateThumbnail;
-import org.bric.input.ImportedImage;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.prefs.Preferences;
 
 /**
  *
@@ -37,6 +30,8 @@ import org.bric.input.ImportedImage;
  */
 public class Utils {
 
+    public static final Locale GREEK = new Locale("el", "GR");
+    
     public static final String FS = System.getProperty("file.separator");
     public static final int REPLACE_ALL = 0,
             REPLACE = 1,
@@ -111,10 +106,6 @@ public class Utils {
                 } case 2:{
                     ImagePlus imp = IJ.openImage(filename);
                     BufferedImage newImage = BufferedImageCreator.create(imp, 0);
-//                    ColorProcessor cp = (ColorProcessor) imp.getProcessor();
-//                    int[] pixels = (int[]) cp.getPixels();
-//                    BufferedImage bimg = new BufferedImage(cp.getWidth(), cp.getHeight(), BufferedImage.TYPE_INT_RGB);
-//                    bimg.setRGB(0, 0, cp.getWidth(), cp.getHeight(), pixels, 0, cp.getWidth());
                     return newImage;
                 } 
             }
@@ -196,38 +187,4 @@ public class Utils {
             image.setDimensions("unknown");
         }
     }
-    
-    public static HashSet<Integer> getExistingNumsHash(String outputPath) {
-        String[] outputPathArray = outputPath.split(Pattern.quote(File.separator));
-        int outputPathSize = outputPathArray.length;
-        String outputName = outputPathArray[outputPathSize-1];
-        HashSet<Integer> numsHashset = new HashSet<Integer>();
-        File outputDir = new File(outputPath.substring(0, outputPath.lastIndexOf(System.getProperty("file.separator"))));
-        List<String> list = Arrays.asList(outputDir.list());
-        for (String file : list) {
-            if (file.matches(createRegex(outputName))) {
-                Pattern pattern = Pattern.compile("[0-9]+");
-                Matcher m = pattern.matcher(file);
-                while (m.find()) {
-                    numsHashset.add(Integer.parseInt(m.group()));
-                }
-            }
-        }
-        return numsHashset;
-    }
-    
-    public static String createRegex(String s) {  
-        StringBuilder b = new StringBuilder();  
-        for(int i=0; i<s.length(); ++i) {  
-            char ch = s.charAt(i);  
-            if ("\\.^$|?*+[]{}()-_".indexOf(ch) != -1){
-                b.append('\\').append(ch);    
-            }
-            else {  
-                b.append(ch);
-            }
-        }  
-        b.append("\\.(jpg|jpeg|png|gif|tif|tiff|bmp|pdf|wbmp|pbm|pgm|ppm|pnm|psd|JPG|JPEG|PNG|GIF|TIF|TIFF|BMP|PDF|WBMP|PBM|PGM|PPM|PNM|PSD)");
-        return b.toString().replaceAll("#", "[0-9]+");  
-    }  
 }

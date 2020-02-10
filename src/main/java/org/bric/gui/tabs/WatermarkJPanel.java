@@ -5,18 +5,15 @@
 package org.bric.gui.tabs;
 
 import com.jhlabs.image.RotateFilter;
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import javax.swing.*;
 import org.bric.gui.BricUI;
 import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.utils.Utils;
 import say.swing.JFontChooser;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ResourceBundle;
 
 /**
  *
@@ -24,7 +21,9 @@ import say.swing.JFontChooser;
  */
 public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab {
 
-    private Color color;
+    static ResourceBundle bundle;
+    
+    private Color color, defaultColor;
     private String plainText;
     private Font defaultFont, currentFont;
     
@@ -32,9 +31,11 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
      * Creates new form WatermarkPanelNew
      */
     public WatermarkJPanel() {
+        bundle = ResourceBundle.getBundle("lang/gui/tabs/WatermarkJPanel");
         initComponents();
-        jTextField1.setVisible(false);
-        jButton2.setVisible(false);
+        defaultColor = rotateLabel.getForeground();
+        watermarkImageText.setVisible(false);
+        browseButton.setVisible(false);
         defaultFont = editorTextPane.getFont();
         currentFont = defaultFont;
     }
@@ -48,136 +49,132 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jFontChooser1 = new say.swing.JFontChooser();
-        jCheckBox3 = new javax.swing.JCheckBox();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jSplitPane1 = new javax.swing.JSplitPane();
-        jPlacer1 = new org.bric.gui.watermark.JPlacer();
-        jSlider1 = new javax.swing.JSlider();
-        jSlider2 = new javax.swing.JSlider();
+        fontChooser = new say.swing.JFontChooser();
+        watermarkEnableCheckBox = new javax.swing.JCheckBox();
+        watermarkSplitPane = new javax.swing.JSplitPane();
+        watermarkPlacer = new org.bric.gui.watermark.JPlacer();
+        rotateSlider = new javax.swing.JSlider();
+        opacitySlider = new javax.swing.JSlider();
         jPanel2 = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
-        modeCombo = new javax.swing.JComboBox();
+        settingsPanel = new javax.swing.JPanel();
+        colorButton = new javax.swing.JButton();
+        fontButton = new javax.swing.JButton();
+        modeComboBox = new javax.swing.JComboBox();
         editorJLabel = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         editorTextPane = new javax.swing.JTextPane();
-        jButton2 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        browseButton = new javax.swing.JButton();
+        watermarkImageText = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
-        jSpinner1 = new javax.swing.JSpinner();
-        jComboBox3 = new javax.swing.JComboBox();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jSpinner2 = new javax.swing.JSpinner();
-        jLabel8 = new javax.swing.JLabel();
+        rowsSlidder = new javax.swing.JSpinner();
+        patternComboBox = new javax.swing.JComboBox();
+        columnsLabel = new javax.swing.JLabel();
+        rowsLabel = new javax.swing.JLabel();
+        coloumnsSpinner = new javax.swing.JSpinner();
+        patternLabel = new javax.swing.JLabel();
+        opcityLabel = new javax.swing.JLabel();
+        rotateLabel = new javax.swing.JLabel();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/Bundle"); // NOI18N
-        jCheckBox3.setText(bundle.getString("WatermarkJPanel.jCheckBox3.text")); // NOI18N
-        jCheckBox3.addItemListener(new java.awt.event.ItemListener() {
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/WatermarkJPanel"); // NOI18N
+        watermarkEnableCheckBox.setText(bundle.getString("WatermarkJPanel.watermarkEnableCheckBox.text")); // NOI18N
+        watermarkEnableCheckBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jCheckBox3ItemStateChanged(evt);
+                watermarkEnableCheckBoxItemStateChanged(evt);
             }
         });
 
-        jLabel10.setText(bundle.getString("WatermarkJPanel.jLabel10.text")); // NOI18N
-        jLabel10.setEnabled(false);
+        watermarkSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
-        jLabel1.setText(bundle.getString("WatermarkJPanel.jLabel1.text")); // NOI18N
-        jLabel1.setEnabled(false);
+        watermarkPlacer.setEnabled(false);
+        watermarkPlacer.setMinimumSize(new java.awt.Dimension(350, 215));
 
-        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-
-        jPlacer1.setEnabled(false);
-
-        jSlider1.setMaximum(360);
-        jSlider1.setToolTipText(bundle.getString("WatermarkJPanel.jSlider1.toolTipText")); // NOI18N
-        jSlider1.setValue(0);
-        jSlider1.setEnabled(false);
-        jSlider1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jSlider1MouseExited(evt);
-            }
+        rotateSlider.setMaximum(360);
+        rotateSlider.setToolTipText(bundle.getString("WatermarkJPanel.rotateSlider.toolTipText")); // NOI18N
+        rotateSlider.setValue(0);
+        rotateSlider.setEnabled(false);
+        rotateSlider.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jSlider1MouseEntered(evt);
+                rotateSliderMouseEntered(evt);
             }
-        });
-        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider1StateChanged(evt);
-            }
-        });
-
-        jSlider2.setMajorTickSpacing(10);
-        jSlider2.setMinorTickSpacing(5);
-        jSlider2.setToolTipText(bundle.getString("WatermarkJPanel.jSlider2.toolTipText")); // NOI18N
-        jSlider2.setValue(0);
-        jSlider2.setEnabled(false);
-        jSlider2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                jSlider2MouseExited(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jSlider2MouseEntered(evt);
+                rotateSliderMouseExited(evt);
             }
         });
-        jSlider2.addChangeListener(new javax.swing.event.ChangeListener() {
+        rotateSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider2StateChanged(evt);
+                rotateSliderStateChanged(evt);
             }
         });
 
-        javax.swing.GroupLayout jPlacer1Layout = new javax.swing.GroupLayout(jPlacer1);
-        jPlacer1.setLayout(jPlacer1Layout);
-        jPlacer1Layout.setHorizontalGroup(
-            jPlacer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
-            .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        opacitySlider.setMajorTickSpacing(10);
+        opacitySlider.setMinorTickSpacing(5);
+        opacitySlider.setToolTipText(bundle.getString("WatermarkJPanel.opacity.toolTipText")); // NOI18N
+        opacitySlider.setValue(0);
+        opacitySlider.setEnabled(false);
+        opacitySlider.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                opacitySliderMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                opacitySliderMouseExited(evt);
+            }
+        });
+        opacitySlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                opacitySliderStateChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout watermarkPlacerLayout = new javax.swing.GroupLayout(watermarkPlacer);
+        watermarkPlacer.setLayout(watermarkPlacerLayout);
+        watermarkPlacerLayout.setHorizontalGroup(
+            watermarkPlacerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(opacitySlider, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
+            .addComponent(rotateSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-        jPlacer1Layout.setVerticalGroup(
-            jPlacer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPlacer1Layout.createSequentialGroup()
-                .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+        watermarkPlacerLayout.setVerticalGroup(
+            watermarkPlacerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, watermarkPlacerLayout.createSequentialGroup()
+                .addComponent(opacitySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 176, Short.MAX_VALUE)
-                .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(rotateSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jSplitPane1.setLeftComponent(jPlacer1);
+        watermarkSplitPane.setLeftComponent(watermarkPlacer);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        settingsPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jButton9.setText(bundle.getString("WatermarkJPanel.jButton9.text")); // NOI18N
-        jButton9.setEnabled(false);
-        jButton9.addActionListener(new java.awt.event.ActionListener() {
+        colorButton.setText(bundle.getString("WatermarkJPanel.colorButton.text")); // NOI18N
+        colorButton.setToolTipText(bundle.getString("WatermarkJPanel.colorButton.toolTipText")); // NOI18N
+        colorButton.setEnabled(false);
+        colorButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton9ActionPerformed(evt);
+                colorButtonActionPerformed(evt);
             }
         });
 
-        jButton10.setText(bundle.getString("WatermarkJPanel.jButton10.text")); // NOI18N
-        jButton10.setEnabled(false);
-        jButton10.addActionListener(new java.awt.event.ActionListener() {
+        fontButton.setText(bundle.getString("WatermarkJPanel.fontButton.text")); // NOI18N
+        fontButton.setToolTipText(bundle.getString("WatermarkJPanel.fontButton.toolTipText")); // NOI18N
+        fontButton.setEnabled(false);
+        fontButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton10ActionPerformed(evt);
+                fontButtonActionPerformed(evt);
             }
         });
 
-        modeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Text Mode", "HTML Mode", "Image Mode" }));
-        modeCombo.setEnabled(false);
-        modeCombo.addActionListener(new java.awt.event.ActionListener() {
+        modeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Text Mode", "HTML Mode", "Image Mode" }));
+        modeComboBox.setEnabled(false);
+        modeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                modeComboActionPerformed(evt);
+                modeComboBoxActionPerformed(evt);
             }
         });
 
-        editorJLabel.setText("Text Editor");
+        editorJLabel.setText(bundle.getString("WatermarkJPanel.editorJLabel.text.text")); // NOI18N
         editorJLabel.setEnabled(false);
 
         editorTextPane.setContentType("text/html"); // NOI18N
-        editorTextPane.setText("<html>\r\n  <head>\r\n\r\n  </head>\r\n  <body>\r\n    <p style=\"margin-top: 0\">\r\n      \rwatermark\n    </p>\r\n  </body>\r\n</html>\r\n");
-        editorTextPane.setToolTipText("");
+        editorTextPane.setText(bundle.getString("WatermarkJPanel.editorTextPane.text")); // NOI18N
         editorTextPane.setEnabled(false);
         editorTextPane.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -189,114 +186,110 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         });
         jScrollPane2.setViewportView(editorTextPane);
 
-        jButton2.setText("...");
-        jButton2.setEnabled(false);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        browseButton.setText(bundle.getString("WatermarkJPanel.browseButton.text")); // NOI18N
+        browseButton.setEnabled(false);
+        browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                browseButtonActionPerformed(evt);
             }
         });
 
-        jTextField1.setEnabled(false);
+        watermarkImageText.setEnabled(false);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout settingsPanelLayout = new javax.swing.GroupLayout(settingsPanel);
+        settingsPanel.setLayout(settingsPanelLayout);
+        settingsPanelLayout.setHorizontalGroup(
+            settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jTextField1)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(settingsPanelLayout.createSequentialGroup()
+                        .addComponent(watermarkImageText)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(browseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(settingsPanelLayout.createSequentialGroup()
                         .addComponent(editorJLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fontButton)
+                        .addGap(3, 3, 3)
+                        .addComponent(colorButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(modeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(modeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
-
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton10, jButton9});
-
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        settingsPanelLayout.setVerticalGroup(
+            settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, settingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton10)
-                    .addComponent(modeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton9)
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fontButton)
+                    .addComponent(modeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(colorButton)
                     .addComponent(editorJLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 93, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(settingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(browseButton)
+                    .addComponent(watermarkImageText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
-        jSpinner1.setEnabled(false);
+        rowsSlidder.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
+        rowsSlidder.setEnabled(false);
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Single", "Tiled" }));
-        jComboBox3.setEnabled(false);
-        jComboBox3.addItemListener(new java.awt.event.ItemListener() {
+        patternComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Single", "Tiled" }));
+        patternComboBox.setEnabled(false);
+        patternComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jComboBox3ItemStateChanged(evt);
+                patternComboBoxItemStateChanged(evt);
             }
         });
 
-        jLabel3.setText(bundle.getString("WatermarkJPanel.jLabel3.text")); // NOI18N
-        jLabel3.setEnabled(false);
+        columnsLabel.setText(bundle.getString("WatermarkJPanel.coulumnsLabel.text")); // NOI18N
+        columnsLabel.setToolTipText(bundle.getString("WatermarkJPanel.columnsLabel.toolTipText")); // NOI18N
+        columnsLabel.setEnabled(false);
 
-        jLabel2.setText(bundle.getString("WatermarkJPanel.jLabel2.text")); // NOI18N
-        jLabel2.setEnabled(false);
+        rowsLabel.setText(bundle.getString("WatermarkJPanel.rowsLabel.text")); // NOI18N
+        rowsLabel.setToolTipText(bundle.getString("WatermarkJPanel.rowsLabel.toolTipText")); // NOI18N
+        rowsLabel.setEnabled(false);
 
-        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
-        jSpinner2.setEnabled(false);
+        coloumnsSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
+        coloumnsSpinner.setEnabled(false);
 
-        jLabel8.setText(bundle.getString("WatermarkJPanel.jLabel8.text")); // NOI18N
-        jLabel8.setEnabled(false);
+        patternLabel.setText(bundle.getString("WatermarkJPanel.patternLabel.text")); // NOI18N
+        patternLabel.setEnabled(false);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(patternLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(patternComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40)
+                .addComponent(rowsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(rowsSlidder, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(columnsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(coloumnsSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-
-        jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel2, jLabel3});
-
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3))
+                    .addComponent(patternComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rowsSlidder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(coloumnsSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(patternLabel)
+                    .addComponent(rowsLabel)
+                    .addComponent(columnsLabel))
                 .addContainerGap())
         );
 
@@ -308,7 +301,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(settingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -317,111 +310,112 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(14, 14, 14)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(settingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        jSplitPane1.setRightComponent(jPanel2);
+        watermarkSplitPane.setRightComponent(jPanel2);
+
+        opcityLabel.setText(bundle.getString("WatermarkJPanel.opacityLabel.text")+"0%"); // NOI18N
+        opcityLabel.setEnabled(false);
+
+        rotateLabel.setText(bundle.getString("WatermarkJPanel.rotateJLabel.text")+"0°"); // NOI18N
+        rotateLabel.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(watermarkSplitPane)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jCheckBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(77, 77, 77)
-                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(watermarkEnableCheckBox)
+                .addGap(47, 47, 47)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(rotateLabel)
+                    .addComponent(opcityLabel))
                 .addContainerGap())
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
-
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel10});
-
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBox3)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel10)
-                            .addComponent(jLabel1))))
-                .addGap(6, 6, 6)
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(watermarkEnableCheckBox)
+                    .addComponent(opcityLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rotateLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(watermarkSplitPane))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jCheckBox3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox3ItemStateChanged
+    private void watermarkEnableCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_watermarkEnableCheckBoxItemStateChanged
         watermarkTabEnable();
-    }//GEN-LAST:event_jCheckBox3ItemStateChanged
+    }//GEN-LAST:event_watermarkEnableCheckBoxItemStateChanged
 
-    private void jSlider1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider1MouseExited
-        jLabel1.setForeground(Color.BLACK);
-    }//GEN-LAST:event_jSlider1MouseExited
+    private void rotateSliderMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotateSliderMouseExited
+        rotateLabel.setForeground(defaultColor);
+    }//GEN-LAST:event_rotateSliderMouseExited
 
-    private void jSlider1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider1MouseEntered
-        jLabel1.setForeground(Color.RED);
-    }//GEN-LAST:event_jSlider1MouseEntered
+    private void rotateSliderMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotateSliderMouseEntered
+        rotateLabel.setForeground(Color.RED);
+    }//GEN-LAST:event_rotateSliderMouseEntered
 
-    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
-        jPlacer1.setAngle(jSlider1.getValue());
-        jLabel1.setText("Rotate: " + jSlider1.getValue() + "°");
-    }//GEN-LAST:event_jSlider1StateChanged
+    private void rotateSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_rotateSliderStateChanged
+        watermarkPlacer.setAngle(rotateSlider.getValue());
+        rotateLabel.setText(bundle.getString("WatermarkJPanel.rotateJLabel.text") + rotateSlider.getValue() + "°");
+    }//GEN-LAST:event_rotateSliderStateChanged
 
-    private void jSlider2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider2MouseExited
-        jLabel10.setForeground(Color.BLACK);
-    }//GEN-LAST:event_jSlider2MouseExited
+    private void opacitySliderMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_opacitySliderMouseExited
+        opcityLabel.setForeground(defaultColor);
+    }//GEN-LAST:event_opacitySliderMouseExited
 
-    private void jSlider2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider2MouseEntered
-        jLabel10.setForeground(Color.RED);
-    }//GEN-LAST:event_jSlider2MouseEntered
+    private void opacitySliderMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_opacitySliderMouseEntered
+        opcityLabel.setForeground(Color.RED);
+    }//GEN-LAST:event_opacitySliderMouseEntered
 
-    private void jSlider2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider2StateChanged
-        jLabel10.setText(String.format("Opacity: %s%%", jSlider2.getValue()));
-        jPlacer1.setAlpha(jSlider2.getValue());
-    }//GEN-LAST:event_jSlider2StateChanged
+    private void opacitySliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_opacitySliderStateChanged
+        opcityLabel.setText(String.format(bundle.getString("WatermarkJPanel.opacityLabel.text") + "%s%%", opacitySlider.getValue()));
+        watermarkPlacer.setAlpha(opacitySlider.getValue());
+    }//GEN-LAST:event_opacitySliderStateChanged
 
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+    private void colorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorButtonActionPerformed
         color = JColorChooser.showDialog(null, "Choose Color", Color.BLACK);
         editorTextPane.setForeground(color);
-        jPlacer1.setColor(color);
-    }//GEN-LAST:event_jButton9ActionPerformed
+//        watermarkPlacer.setColor(color);
+    }//GEN-LAST:event_colorButtonActionPerformed
 
-    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        if (jFontChooser1.showDialog(this) != JFontChooser.OK_OPTION) {
+    private void fontButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontButtonActionPerformed
+        if (fontChooser.showDialog(this) != JFontChooser.OK_OPTION) {
             return;
         }
-        editorTextPane.setFont(jFontChooser1.getSelectedFont());
-        currentFont = jFontChooser1.getSelectedFont();
-    }//GEN-LAST:event_jButton10ActionPerformed
+        editorTextPane.setFont(fontChooser.getSelectedFont());
+        currentFont = fontChooser.getSelectedFont();
+    }//GEN-LAST:event_fontButtonActionPerformed
 
-    private void jComboBox3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox3ItemStateChanged
+    private void patternComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_patternComboBoxItemStateChanged
         watermarkTabEnable();
-    }//GEN-LAST:event_jComboBox3ItemStateChanged
+    }//GEN-LAST:event_patternComboBoxItemStateChanged
 
     private void editorTextPaneKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editorTextPaneKeyPressed
 
     }//GEN-LAST:event_editorTextPaneKeyPressed
 
-    private void modeComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modeComboActionPerformed
+    private void modeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modeComboBoxActionPerformed
         setEditorMode();
         editorTextPane.setText(plainText);
-    }//GEN-LAST:event_modeComboActionPerformed
+    }//GEN-LAST:event_modeComboBoxActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
         JFileChooser chooser = new JFileChooser(BricUI.lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        jTextField1.setText(chooser.getSelectedFile().getPath());
+        watermarkImageText.setText(chooser.getSelectedFile().getPath());
         BricUI.lastOpenedDirectory = chooser.getSelectedFile().getPath();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_browseButtonActionPerformed
 
     private void editorTextPaneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editorTextPaneKeyTyped
 
@@ -429,82 +423,82 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     
     private void setEditorMode(){
         plainText = editorTextPane.getText();
-        if(modeCombo.getSelectedIndex() == 0){
+        if(modeComboBox.getSelectedIndex() == 0){
             jScrollPane2.setVisible(true);
-            jTextField1.setVisible(false);
-            jButton2.setVisible(false);
-            jButton10.setVisible(true);
-            jButton9.setVisible(true);
-            editorJLabel.setText("Text Editor");
+            watermarkImageText.setVisible(false);
+            browseButton.setVisible(false);
+            fontButton.setVisible(true);
+            colorButton.setVisible(true);
+            editorJLabel.setText(bundle.getString("WatermarkJPanel.editorJLabel.text.text"));
             editorTextPane.setContentType("text/html");
             editorTextPane.setFont(currentFont);
             editorTextPane.setForeground(color);
-        } else if(modeCombo.getSelectedIndex() == 1) {
-            jButton10.setVisible(false);
-            jButton9.setVisible(false);
+        } else if(modeComboBox.getSelectedIndex() == 1) {
+            fontButton.setVisible(false);
+            colorButton.setVisible(false);
             jScrollPane2.setVisible(true);
-            jTextField1.setVisible(false);
-            jButton2.setVisible(false);
-            editorJLabel.setText("HTML Editor");
+            watermarkImageText.setVisible(false);
+            browseButton.setVisible(false);
+            editorJLabel.setText(bundle.getString("WatermarkJPanel.editorJLabel.text.html"));
             editorTextPane.setContentType("text/plain");
             editorTextPane.setFont(defaultFont);
             editorTextPane.setForeground(Color.BLACK);
         } else {
-            jButton10.setVisible(false);
-            jButton9.setVisible(false);
+            fontButton.setVisible(false);
+            colorButton.setVisible(false);
             jScrollPane2.setVisible(false);
-            jTextField1.setVisible(true);
-            jButton2.setVisible(true);
-            editorJLabel.setText("Image Mode");
+            watermarkImageText.setVisible(true);
+            browseButton.setVisible(true);
+            editorJLabel.setText(bundle.getString("WatermarkJPanel.editorJLabel.text.image"));
         }
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton browseButton;
+    private javax.swing.JButton colorButton;
+    private javax.swing.JSpinner coloumnsSpinner;
+    private javax.swing.JLabel columnsLabel;
     private javax.swing.JLabel editorJLabel;
     private javax.swing.JTextPane editorTextPane;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton9;
-    private javax.swing.JCheckBox jCheckBox3;
-    private javax.swing.JComboBox jComboBox3;
-    private say.swing.JFontChooser jFontChooser1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton fontButton;
+    private say.swing.JFontChooser fontChooser;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private org.bric.gui.watermark.JPlacer jPlacer1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSlider jSlider1;
-    private javax.swing.JSlider jSlider2;
-    private javax.swing.JSpinner jSpinner1;
-    private javax.swing.JSpinner jSpinner2;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JComboBox modeCombo;
+    private javax.swing.JComboBox modeComboBox;
+    private javax.swing.JSlider opacitySlider;
+    private javax.swing.JLabel opcityLabel;
+    private javax.swing.JComboBox patternComboBox;
+    private javax.swing.JLabel patternLabel;
+    private javax.swing.JLabel rotateLabel;
+    private javax.swing.JSlider rotateSlider;
+    private javax.swing.JLabel rowsLabel;
+    private javax.swing.JSpinner rowsSlidder;
+    private javax.swing.JPanel settingsPanel;
+    private javax.swing.JCheckBox watermarkEnableCheckBox;
+    private javax.swing.JTextField watermarkImageText;
+    private org.bric.gui.watermark.JPlacer watermarkPlacer;
+    private javax.swing.JSplitPane watermarkSplitPane;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public WatermarkParameters getImageEditParameters() {
         WatermarkParameters watermarkParameters = new WatermarkParameters();
-        watermarkParameters.setEnabled(jCheckBox3.isSelected());
+        watermarkParameters.setEnabled(watermarkEnableCheckBox.isSelected());
 
         watermarkParameters.setWatermarkText(editorTextPane.getText());
 
-        watermarkParameters.setPattern(jComboBox3.getSelectedIndex());
-        watermarkParameters.setTiledRows((Integer) jSpinner1.getValue());
-        watermarkParameters.setTiledColumns((Integer) jSpinner2.getValue());
+        watermarkParameters.setPattern(patternComboBox.getSelectedIndex());
+        watermarkParameters.setTiledRows((Integer) rowsSlidder.getValue());
+        watermarkParameters.setTiledColumns((Integer) coloumnsSpinner.getValue());
 
-        watermarkParameters.setFont(jFontChooser1.getSelectedFont());
-        watermarkParameters.setColor(jPlacer1.getColor());
+        watermarkParameters.setFont(fontChooser.getSelectedFont());
+        watermarkParameters.setColor(watermarkPlacer.getColor());
 
-        watermarkParameters.setComponentWidth(jPlacer1.getWidth());
-        watermarkParameters.setComponentHeight(jPlacer1.getHeight());
-        watermarkParameters.setCenterX(jPlacer1.getLabelCenterX());
-        watermarkParameters.setCenterY(jPlacer1.getLabelCenterY());
+        watermarkParameters.setComponentWidth(watermarkPlacer.getWidth());
+        watermarkParameters.setComponentHeight(watermarkPlacer.getHeight());
+        watermarkParameters.setCenterX(watermarkPlacer.getLabelCenterX());
+        watermarkParameters.setCenterY(watermarkPlacer.getLabelCenterY());
         
         BufferedImage watermarkImage = computeWatermarkBufferedImage();
         
@@ -518,11 +512,11 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         CellRendererPane crp = new CellRendererPane();
         BufferedImage watermark;
         
-        if(modeCombo.getSelectedIndex() != 2){
+        if(modeComboBox.getSelectedIndex() != 2){
             JTextPane pane = new JTextPane();
             pane.setContentType("text/html");
             pane.setText(editorTextPane.getText());
-            if(modeCombo.getSelectedIndex() == 0){
+            if(modeComboBox.getSelectedIndex() == 0){
                 pane.setForeground(editorTextPane.getForeground());
                 pane.setFont(editorTextPane.getFont());
             }
@@ -534,14 +528,14 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
 
             crp.paintComponent(g, pane, null, 0, 0, dim.width, dim.height);
 
-            g.setComposite(makeComposite(jPlacer1.getAlpha()));
+            g.setComposite(makeComposite(watermarkPlacer.getAlpha()));
 
             g.dispose();
         } else {
-            watermark = Utils.loadImage(jTextField1.getText());
+            watermark = Utils.loadImage(watermarkImageText.getText());
         }
         
-        float angle = (float) (((360-jSlider1.getValue())*Math.PI)/180);
+        float angle = (float) (((360-rotateSlider.getValue())*Math.PI)/180);
         RotateFilter rotateFilter = new RotateFilter(angle);
         
         return rotateFilter.filter(watermark, null);
@@ -553,24 +547,88 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     }
 
     private void watermarkTabEnable() {
-        boolean enable = jCheckBox3.isSelected();
-        boolean tiled = jComboBox3.getSelectedIndex() == 1;
+        boolean enable = watermarkEnableCheckBox.isSelected();
+        boolean tiled = patternComboBox.getSelectedIndex() == 1;
 
-        jPlacer1.setEnabled(enable);
-        jLabel8.setEnabled(enable);
-        jComboBox3.setEnabled(enable);
-        jLabel10.setEnabled(enable);
-        jSlider2.setEnabled(enable);
+        watermarkPlacer.setEnabled(enable);
+        patternLabel.setEnabled(enable);
+        patternComboBox.setEnabled(enable);
+        opcityLabel.setEnabled(enable);
+        opacitySlider.setEnabled(enable);
 
-        jLabel2.setEnabled(enable & tiled);
-        jSpinner1.setEnabled(enable & tiled);
-        jLabel3.setEnabled(enable & tiled);
-        jSpinner2.setEnabled(enable & tiled);
-        jLabel1.setEnabled(enable);
-        jSlider1.setEnabled(enable);
-        for(Component comp : jPanel1.getComponents()){
+        rowsLabel.setEnabled(enable & tiled);
+        rowsSlidder.setEnabled(enable & tiled);
+        columnsLabel.setEnabled(enable & tiled);
+        coloumnsSpinner.setEnabled(enable & tiled);
+        rotateLabel.setEnabled(enable);
+        rotateSlider.setEnabled(enable);
+        for(Component comp : settingsPanel.getComponents()){
             comp.setEnabled(enable);
         }
         editorTextPane.setEnabled(enable);
+    }
+
+    public String getColoumnsSpinner() {
+        return coloumnsSpinner.getValue().toString();
+    }
+
+    public void setColoumnsSpinner(int coloumnsSpinner) {
+        this.coloumnsSpinner.getModel().setValue(coloumnsSpinner);
+    }
+
+    public String getEditorTextPane() {
+        return editorTextPane.getText();
+    }
+
+    public void setEditorTextPane(String editorTextPane) {
+        this.editorTextPane.setText(editorTextPane);
+    }
+
+    public int getModeComboBox() {
+        return modeComboBox.getSelectedIndex();
+    }
+
+    public void setModeComboBox(int modeComboBox) {
+        this.modeComboBox.setSelectedIndex(modeComboBox);
+    }
+
+    public String getOpacitySlider() {
+        return String.valueOf(opacitySlider.getValue());
+    }
+
+    public void setOpacitySlider(int opacitySlider) {
+        this.opacitySlider.getModel().setValue(opacitySlider);
+    }
+
+    public int getPatternComboBox() {
+        return patternComboBox.getSelectedIndex();
+    }
+
+    public void setPatternComboBox(int patternComboBox) {
+        this.patternComboBox.setSelectedIndex(patternComboBox);
+    }
+
+    public String getRowsSlidder() {
+        return String.valueOf(rowsSlidder.getValue());
+    }
+
+    public void setRowsSlider(int rowsSlidder) {
+        this.rowsSlidder.getModel().setValue(rowsSlidder);
+    }
+
+    public boolean getWatermarkEnableCheckBox() {
+        return watermarkEnableCheckBox.isSelected();
+    }
+
+    public void setWatermarkEnableCheckBox(boolean watermarkEnableCheckBox) {
+        this.watermarkEnableCheckBox.setSelected(watermarkEnableCheckBox);
+    }
+
+    public String getWatermarkImageText() {
+        return watermarkImageText.getText();
+    }
+
+    public void setWatermarkImageText(String watermarkImageText) {
+        this.watermarkImageText.setText(watermarkImageText);
     }
 }

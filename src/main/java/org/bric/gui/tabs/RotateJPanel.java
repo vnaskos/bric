@@ -4,8 +4,9 @@
  */
 package org.bric.gui.tabs;
 
-import java.util.Random;
 import org.bric.imageEditParameters.RotateParameters;
+
+import java.util.Random;
 
 /**
  *
@@ -13,7 +14,6 @@ import org.bric.imageEditParameters.RotateParameters;
  */
 public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
 
-    
     private int rotationUpLimit = 360,
             rotationDownLimit = 0;
     private int randomAngle;
@@ -37,145 +37,146 @@ public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        jRadioButton12 = new javax.swing.JRadioButton();
-        jRadioButton13 = new javax.swing.JRadioButton();
-        jLabel11 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jSlider3 = new javax.swing.JSlider();
-        jCheckBox7 = new javax.swing.JCheckBox();
-        jCheckBox8 = new javax.swing.JCheckBox();
-        jCheckBox9 = new javax.swing.JCheckBox();
-        jSpinner6 = new javax.swing.JSpinner();
-        jLabel12 = new javax.swing.JLabel();
-        jSpinner5 = new javax.swing.JSpinner();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jComboBox6 = new javax.swing.JComboBox();
-        jRotator1 = new org.bric.gui.rotate.JRotator();
+        customPredefinedGroup = new javax.swing.ButtonGroup();
+        RotateEnableCheckBox = new javax.swing.JCheckBox();
+        customRadioButton = new javax.swing.JRadioButton();
+        predefinedRadioButton = new javax.swing.JRadioButton();
+        angleLabel = new javax.swing.JLabel();
+        angleField = new javax.swing.JTextField();
+        angleSlider = new javax.swing.JSlider();
+        randomCheckBox = new javax.swing.JCheckBox();
+        differentValueCheckBox = new javax.swing.JCheckBox();
+        limitCheckBox = new javax.swing.JCheckBox();
+        fromSpinner = new javax.swing.JSpinner();
+        fromLimitLabel = new javax.swing.JLabel();
+        toSpinner = new javax.swing.JSpinner();
+        toLimitLabel = new javax.swing.JLabel();
+        actionsLabel = new javax.swing.JLabel();
+        actionsComboBox = new javax.swing.JComboBox();
+        rotator = new org.bric.gui.rotate.JRotator();
+        jSeparator1 = new javax.swing.JSeparator();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/Bundle"); // NOI18N
-        jCheckBox2.setText(bundle.getString("RotateJPanel.jCheckBox2.text")); // NOI18N
-        jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/RotateJPanel"); // NOI18N
+        RotateEnableCheckBox.setText(bundle.getString("RotateJPanel.RotateEnableCheckBox.text")); // NOI18N
+        RotateEnableCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox2ActionPerformed(evt);
+                RotateEnableCheckBoxActionPerformed(evt);
             }
         });
 
-        buttonGroup2.add(jRadioButton12);
-        jRadioButton12.setSelected(true);
-        jRadioButton12.setText(bundle.getString("RotateJPanel.jRadioButton12.text")); // NOI18N
-        jRadioButton12.setEnabled(false);
-        jRadioButton12.addItemListener(new java.awt.event.ItemListener() {
+        customPredefinedGroup.add(customRadioButton);
+        customRadioButton.setSelected(true);
+        customRadioButton.setText(bundle.getString("RotateJPanel.customRadioButton.text")); // NOI18N
+        customRadioButton.setEnabled(false);
+        customRadioButton.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButton12ItemStateChanged(evt);
+                customRadioButtonItemStateChanged(evt);
             }
         });
 
-        buttonGroup2.add(jRadioButton13);
-        jRadioButton13.setText(bundle.getString("RotateJPanel.jRadioButton13.text")); // NOI18N
-        jRadioButton13.setEnabled(false);
-        jRadioButton13.addItemListener(new java.awt.event.ItemListener() {
+        customPredefinedGroup.add(predefinedRadioButton);
+        predefinedRadioButton.setText(bundle.getString("RotateJPanel.predefinedRadioButton.text")); // NOI18N
+        predefinedRadioButton.setEnabled(false);
+        predefinedRadioButton.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButton13ItemStateChanged(evt);
+                predefinedRadioButtonItemStateChanged(evt);
             }
         });
 
-        jLabel11.setText(bundle.getString("RotateJPanel.jLabel11.text")); // NOI18N
-        jLabel11.setEnabled(false);
+        angleLabel.setText(bundle.getString("RotateJPanel.angleLabel.text")); // NOI18N
+        angleLabel.setEnabled(false);
 
-        jTextField4.setText(bundle.getString("RotateJPanel.jTextField4.text")); // NOI18N
-        jTextField4.setEnabled(false);
-        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                jTextField4KeyTyped(evt);
-            }
+        angleField.setText("0°");
+        angleField.setEnabled(false);
+        angleField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField4KeyReleased(evt);
+                angleFieldKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                angleFieldKeyTyped(evt);
             }
         });
 
-        jSlider3.setMajorTickSpacing(45);
-        jSlider3.setMaximum(360);
-        jSlider3.setMinorTickSpacing(5);
-        jSlider3.setPaintLabels(true);
-        jSlider3.setPaintTicks(true);
-        jSlider3.setValue(0);
-        jSlider3.setEnabled(false);
-        jSlider3.addChangeListener(new javax.swing.event.ChangeListener() {
+        angleSlider.setMajorTickSpacing(45);
+        angleSlider.setMaximum(360);
+        angleSlider.setMinorTickSpacing(5);
+        angleSlider.setPaintLabels(true);
+        angleSlider.setPaintTicks(true);
+        angleSlider.setValue(0);
+        angleSlider.setEnabled(false);
+        angleSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider3StateChanged(evt);
+                angleSliderStateChanged(evt);
             }
         });
 
-        jCheckBox7.setText(bundle.getString("RotateJPanel.jCheckBox7.text")); // NOI18N
-        jCheckBox7.setEnabled(false);
-        jCheckBox7.addItemListener(new java.awt.event.ItemListener() {
+        randomCheckBox.setText(bundle.getString("RotateJPanel.randomCheckBox.text")); // NOI18N
+        randomCheckBox.setEnabled(false);
+        randomCheckBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jCheckBox7ItemStateChanged(evt);
+                randomCheckBoxItemStateChanged(evt);
             }
         });
 
-        jCheckBox8.setText(bundle.getString("RotateJPanel.jCheckBox8.text")); // NOI18N
-        jCheckBox8.setEnabled(false);
+        differentValueCheckBox.setText(bundle.getString("RotateJPanel.differentValueCheckBox.text")); // NOI18N
+        differentValueCheckBox.setEnabled(false);
 
-        jCheckBox9.setText(bundle.getString("RotateJPanel.jCheckBox9.text")); // NOI18N
-        jCheckBox9.setEnabled(false);
-        jCheckBox9.addItemListener(new java.awt.event.ItemListener() {
+        limitCheckBox.setText(bundle.getString("RotateJPanel.limitCheckBox.text")); // NOI18N
+        limitCheckBox.setEnabled(false);
+        limitCheckBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jCheckBox9ItemStateChanged(evt);
+                limitCheckBoxItemStateChanged(evt);
             }
         });
 
-        jSpinner6.setModel(new javax.swing.SpinnerNumberModel(0, 0, 360, 1));
-        jSpinner6.setEnabled(false);
-        jSpinner6.addChangeListener(new javax.swing.event.ChangeListener() {
+        fromSpinner.setModel(new javax.swing.SpinnerNumberModel(0, 0, 360, 1));
+        fromSpinner.setEnabled(false);
+        fromSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSpinner6StateChanged(evt);
+                fromSpinnerStateChanged(evt);
             }
         });
 
-        jLabel12.setText(bundle.getString("RotateJPanel.jLabel12.text")); // NOI18N
-        jLabel12.setEnabled(false);
+        fromLimitLabel.setText(bundle.getString("RotateJPanel.fromLimitLabel.text")); // NOI18N
+        fromLimitLabel.setEnabled(false);
 
-        jSpinner5.setModel(new javax.swing.SpinnerNumberModel(360, 0, 360, 1));
-        jSpinner5.setEnabled(false);
-        jSpinner5.addChangeListener(new javax.swing.event.ChangeListener() {
+        toSpinner.setModel(new javax.swing.SpinnerNumberModel(360, 0, 360, 1));
+        toSpinner.setEnabled(false);
+        toSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSpinner5StateChanged(evt);
+                toSpinnerStateChanged(evt);
             }
         });
 
-        jLabel13.setText(bundle.getString("RotateJPanel.jLabel13.text")); // NOI18N
-        jLabel13.setEnabled(false);
+        toLimitLabel.setText(bundle.getString("RotateJPanel.toLimitLabel.text")); // NOI18N
+        toLimitLabel.setEnabled(false);
 
-        jLabel14.setText(bundle.getString("RotateJPanel.jLabel14.text")); // NOI18N
-        jLabel14.setEnabled(false);
+        actionsLabel.setText(bundle.getString("RotateJPanel.actionsLabel.text")); // NOI18N
+        actionsLabel.setEnabled(false);
 
-        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "180° Upside Down", "90° Counter Clockwise", "90° Clockwise", "Horizontal Flip", "Horizontal + Vertical Flip", "Vertical Flip" }));
-        jComboBox6.setEnabled(false);
+        actionsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "180° Upside Down", "90° Counter Clockwise", "90° Clockwise", "Horizontal Flip", "Horizontal + Vertical Flip", "Vertical Flip" }));
+        actionsComboBox.setEnabled(false);
 
-        jRotator1.setEnabled(false);
-        jRotator1.addMouseListener(new java.awt.event.MouseAdapter() {
+        rotator.setEnabled(false);
+        rotator.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jRotator1MouseClicked(evt);
+                rotatorMouseClicked(evt);
             }
         });
-        jRotator1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+        rotator.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
-                jRotator1MouseDragged(evt);
+                rotatorMouseDragged(evt);
             }
         });
 
-        javax.swing.GroupLayout jRotator1Layout = new javax.swing.GroupLayout(jRotator1);
-        jRotator1.setLayout(jRotator1Layout);
-        jRotator1Layout.setHorizontalGroup(
-            jRotator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout rotatorLayout = new javax.swing.GroupLayout(rotator);
+        rotator.setLayout(rotatorLayout);
+        rotatorLayout.setHorizontalGroup(
+            rotatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 240, Short.MAX_VALUE)
         );
-        jRotator1Layout.setVerticalGroup(
-            jRotator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        rotatorLayout.setVerticalGroup(
+            rotatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 240, Short.MAX_VALUE)
         );
 
@@ -183,178 +184,185 @@ public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator1)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(angleLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(rotator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(angleField, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(41, 41, 41))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(angleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jCheckBox2)
-                                .addGap(18, 18, 18)
-                                .addComponent(jRadioButton12)
-                                .addGap(18, 18, 18)
-                                .addComponent(jRadioButton13))
-                            .addGroup(layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jCheckBox7)
-                                    .addComponent(jCheckBox9))
+                                    .addComponent(randomCheckBox)
+                                    .addComponent(limitCheckBox))
                                 .addGap(51, 51, 51)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel12)
+                                        .addComponent(fromLimitLabel)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jSpinner6, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(fromSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel13)
+                                        .addComponent(toLimitLabel)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jSpinner5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(jCheckBox8)))
+                                        .addComponent(toSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(differentValueCheckBox)))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel14)
+                                .addGap(21, 21, 21)
+                                .addComponent(customRadioButton)
                                 .addGap(18, 18, 18)
-                                .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(predefinedRadioButton))
+                            .addComponent(RotateEnableCheckBox)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jRotator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jSlider3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                                .addComponent(actionsLabel)
+                                .addGap(18, 18, 18)
+                                .addComponent(actionsComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 28, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(RotateEnableCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox2)
-                    .addComponent(jRadioButton12)
-                    .addComponent(jRadioButton13))
-                .addGap(2, 2, 2)
-                .addComponent(jRotator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(customRadioButton)
+                    .addComponent(predefinedRadioButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rotator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(angleLabel)
+                    .addComponent(angleField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSlider3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(angleSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(randomCheckBox)
+                    .addComponent(differentValueCheckBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox7)
-                    .addComponent(jCheckBox8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(limitCheckBox)
+                    .addComponent(toLimitLabel)
+                    .addComponent(toSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fromLimitLabel)
+                    .addComponent(fromSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(1, 1, 1)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox9)
-                    .addComponent(jLabel13)
-                    .addComponent(jSpinner5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel12)
-                    .addComponent(jSpinner6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel14)
-                    .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(actionsLabel)
+                    .addComponent(actionsComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
+    private void RotateEnableCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RotateEnableCheckBoxActionPerformed
         rotateTabEnable();
-    }//GEN-LAST:event_jCheckBox2ActionPerformed
+    }//GEN-LAST:event_RotateEnableCheckBoxActionPerformed
 
-    private void jRadioButton12ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButton12ItemStateChanged
+    private void customRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_customRadioButtonItemStateChanged
         rotateTabEnable();
-    }//GEN-LAST:event_jRadioButton12ItemStateChanged
+    }//GEN-LAST:event_customRadioButtonItemStateChanged
 
-    private void jRadioButton13ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButton13ItemStateChanged
+    private void predefinedRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_predefinedRadioButtonItemStateChanged
         rotateTabEnable();
-    }//GEN-LAST:event_jRadioButton13ItemStateChanged
+    }//GEN-LAST:event_predefinedRadioButtonItemStateChanged
 
-    private void jTextField4KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyTyped
+    private void angleFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_angleFieldKeyTyped
         rotateFieldAction();
-    }//GEN-LAST:event_jTextField4KeyTyped
+    }//GEN-LAST:event_angleFieldKeyTyped
 
-    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
+    private void angleFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_angleFieldKeyReleased
         rotateFieldAction();
-    }//GEN-LAST:event_jTextField4KeyReleased
+    }//GEN-LAST:event_angleFieldKeyReleased
 
-    private void jSlider3StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider3StateChanged
-        jRotator1.setAngle(jSlider3.getValue());
-        if (!jTextField4.hasFocus()) {
-            jTextField4.setText(jRotator1.getAngle() + "°");
+    private void angleSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_angleSliderStateChanged
+        rotator.setAngle(angleSlider.getValue());
+        if (!angleField.hasFocus()) {
+            angleField.setText(rotator.getAngle() + "°");
         }
-    }//GEN-LAST:event_jSlider3StateChanged
+    }//GEN-LAST:event_angleSliderStateChanged
 
-    private void jCheckBox7ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox7ItemStateChanged
+    private void randomCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_randomCheckBoxItemStateChanged
         rotateTabEnable();
-    }//GEN-LAST:event_jCheckBox7ItemStateChanged
+    }//GEN-LAST:event_randomCheckBoxItemStateChanged
 
-    private void jCheckBox9ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox9ItemStateChanged
+    private void limitCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_limitCheckBoxItemStateChanged
         rotateTabEnable();
-    }//GEN-LAST:event_jCheckBox9ItemStateChanged
+    }//GEN-LAST:event_limitCheckBoxItemStateChanged
 
-    private void jSpinner6StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner6StateChanged
+    private void fromSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fromSpinnerStateChanged
         setRotationLimit();
-    }//GEN-LAST:event_jSpinner6StateChanged
+    }//GEN-LAST:event_fromSpinnerStateChanged
 
-    private void jSpinner5StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner5StateChanged
+    private void toSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_toSpinnerStateChanged
         setRotationLimit();
-    }//GEN-LAST:event_jSpinner5StateChanged
+    }//GEN-LAST:event_toSpinnerStateChanged
 
-    private void jRotator1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jRotator1MouseClicked
-       jSlider3.setValue(jRotator1.getAngle());
-       jTextField4.setText(jRotator1.getAngle() + "°");
-    }//GEN-LAST:event_jRotator1MouseClicked
+    private void rotatorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotatorMouseClicked
+       angleSlider.setValue(rotator.getAngle());
+       angleField.setText(rotator.getAngle() + "°");
+    }//GEN-LAST:event_rotatorMouseClicked
 
-    private void jRotator1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jRotator1MouseDragged
-        jSlider3.setValue(jRotator1.getAngle());
-        jTextField4.setText(jRotator1.getAngle() + "°");
-    }//GEN-LAST:event_jRotator1MouseDragged
+    private void rotatorMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotatorMouseDragged
+        angleSlider.setValue(rotator.getAngle());
+        angleField.setText(rotator.getAngle() + "°");
+    }//GEN-LAST:event_rotatorMouseDragged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JCheckBox jCheckBox7;
-    private javax.swing.JCheckBox jCheckBox8;
-    private javax.swing.JCheckBox jCheckBox9;
-    private javax.swing.JComboBox jComboBox6;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JRadioButton jRadioButton12;
-    private javax.swing.JRadioButton jRadioButton13;
-    private org.bric.gui.rotate.JRotator jRotator1;
-    private javax.swing.JSlider jSlider3;
-    private javax.swing.JSpinner jSpinner5;
-    private javax.swing.JSpinner jSpinner6;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JCheckBox RotateEnableCheckBox;
+    private javax.swing.JComboBox actionsComboBox;
+    private javax.swing.JLabel actionsLabel;
+    private javax.swing.JTextField angleField;
+    private javax.swing.JLabel angleLabel;
+    private javax.swing.JSlider angleSlider;
+    private javax.swing.ButtonGroup customPredefinedGroup;
+    private javax.swing.JRadioButton customRadioButton;
+    private javax.swing.JCheckBox differentValueCheckBox;
+    private javax.swing.JLabel fromLimitLabel;
+    private javax.swing.JSpinner fromSpinner;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JCheckBox limitCheckBox;
+    private javax.swing.JRadioButton predefinedRadioButton;
+    private javax.swing.JCheckBox randomCheckBox;
+    private org.bric.gui.rotate.JRotator rotator;
+    private javax.swing.JLabel toLimitLabel;
+    private javax.swing.JSpinner toSpinner;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public RotateParameters getImageEditParameters() {
         RotateParameters rotateParameters = new RotateParameters();
-        rotateParameters.setEnabled(jCheckBox2.isSelected());
-        rotateParameters.setCustom(jRadioButton12.isSelected());
-        rotateParameters.setPredefined(jRadioButton13.isSelected());
-        int angle = jRotator1.getAngle();
+        rotateParameters.setEnabled(RotateEnableCheckBox.isSelected());
+        rotateParameters.setCustom(customRadioButton.isSelected());
+        rotateParameters.setPredefined(predefinedRadioButton.isSelected());
+        int angle = rotator.getAngle();
         rotateParameters.setAngle(angle);
-        rotateParameters.setRandom(jCheckBox7.isSelected());
-        rotateParameters.setDifferentValues(jCheckBox8.isSelected());
-        rotateParameters.setLimit(jCheckBox9.isSelected());
-        rotateParameters.setFrom((Integer)jSpinner6.getValue());
-        rotateParameters.setTo((Integer)jSpinner5.getValue());
-        rotateParameters.setAction(jComboBox6.getSelectedIndex());
+        rotateParameters.setRandom(randomCheckBox.isSelected());
+        rotateParameters.setDifferentValues(differentValueCheckBox.isSelected());
+        rotateParameters.setLimit(limitCheckBox.isSelected());
+        rotateParameters.setFrom((Integer)fromSpinner.getValue());
+        rotateParameters.setTo((Integer)toSpinner.getValue());
+        rotateParameters.setAction(actionsComboBox.getSelectedIndex());
         rotateParameters.setRandomAngle(calculateRandomAngle());
 
         return rotateParameters;
     }
     
     private int calculateRandomAngle(){
-        if(jCheckBox9.isSelected()){
-            min = Integer.parseInt(jSpinner6.getValue().toString());
-            max = Integer.parseInt(jSpinner5.getValue().toString());
+        if(limitCheckBox.isSelected()){
+            min = Integer.parseInt(fromSpinner.getValue().toString());
+            max = Integer.parseInt(toSpinner.getValue().toString());
             
             if(min > max){
                 int reminder = max;
@@ -370,50 +378,131 @@ public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
     }
     
     private void rotateTabEnable() {
-        boolean enable = jCheckBox2.isSelected();
-        boolean predefined = jRadioButton13.isSelected();
-        boolean random = jCheckBox7.isSelected();
-        boolean limit = jCheckBox9.isSelected();
-        jRadioButton12.setEnabled(enable);
-        jRadioButton13.setEnabled(enable);
-        jRotator1.setEnabled(enable & !random & !predefined);
-        jLabel11.setEnabled(enable & !random & !predefined);
-        jTextField4.setEnabled(enable & !random & !predefined);
-        jSlider3.setEnabled(enable & !random & !predefined);
-        jCheckBox7.setEnabled(enable & !predefined);
-        jCheckBox8.setEnabled(enable & random & !predefined);
-        jCheckBox9.setEnabled(enable & random & !predefined);
-        jLabel12.setEnabled(enable & !predefined & limit & random);
-        jSpinner6.setEnabled(enable & !predefined & limit & random);
-        jLabel13.setEnabled(enable & !predefined & limit & random);
-        jSpinner5.setEnabled(enable & !predefined & limit & random);
-        jLabel14.setEnabled(enable & predefined);
-        jComboBox6.setEnabled(enable & predefined);
+        boolean enable = RotateEnableCheckBox.isSelected();
+        boolean predefined = predefinedRadioButton.isSelected();
+        boolean random = randomCheckBox.isSelected();
+        boolean limit = limitCheckBox.isSelected();
+        customRadioButton.setEnabled(enable);
+        predefinedRadioButton.setEnabled(enable);
+        rotator.setEnabled(enable & !random & !predefined);
+        angleLabel.setEnabled(enable & !random & !predefined);
+        angleField.setEnabled(enable & !random & !predefined);
+        angleSlider.setEnabled(enable & !random & !predefined);
+        randomCheckBox.setEnabled(enable & !predefined);
+        differentValueCheckBox.setEnabled(enable & random & !predefined);
+        limitCheckBox.setEnabled(enable & random & !predefined);
+        fromLimitLabel.setEnabled(enable & !predefined & limit & random);
+        fromSpinner.setEnabled(enable & !predefined & limit & random);
+        toLimitLabel.setEnabled(enable & !predefined & limit & random);
+        toSpinner.setEnabled(enable & !predefined & limit & random);
+        actionsLabel.setEnabled(enable & predefined);
+        actionsComboBox.setEnabled(enable & predefined);
     }
     
     private void rotateFieldAction() {
-        int symbol = jTextField4.getText().contains("°") ? 1 : 0;
+        int symbol = angleField.getText().contains("°") ? 1 : 0;
         int fieldNumber = 0;
         try {
-            fieldNumber = Integer.parseInt(jTextField4.getText(0, jTextField4.getText().length() - symbol));
+            fieldNumber = Integer.parseInt(angleField.getText(0, angleField.getText().length() - symbol));
         } catch (Exception ex) {
 //            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (fieldNumber <= 360 && fieldNumber >= 0 && jTextField4.getText().length() >= 1) {
-            jRotator1.setAngle(fieldNumber);
-            jSlider3.setValue(fieldNumber);
+        if (fieldNumber <= 360 && fieldNumber >= 0 && angleField.getText().length() >= 1) {
+            rotator.setAngle(fieldNumber);
+            angleSlider.setValue(fieldNumber);
         }
     }
     
     private void setRotationLimit() {
-        rotationDownLimit = Integer.parseInt(jSpinner6.getValue().toString());
-        rotationUpLimit = Integer.parseInt(jSpinner5.getValue().toString());
+        rotationDownLimit = Integer.parseInt(fromSpinner.getValue().toString());
+        rotationUpLimit = Integer.parseInt(toSpinner.getValue().toString());
 
         if (rotationDownLimit > rotationUpLimit) {
             int tempValue = rotationDownLimit;
             rotationDownLimit = rotationUpLimit;
             rotationUpLimit = tempValue;
         }
+    }
+    
+    
+    public boolean getRotateEnableCheckBox() {
+        return RotateEnableCheckBox.isSelected();
+    }
+
+    public void setRotateEnableCheckBox(boolean value) {
+        this.RotateEnableCheckBox.setSelected(value);
+    }
+
+    public int getActionsComboBox() {
+        return actionsComboBox.getSelectedIndex();
+    }
+
+    public void setActionsComboBox(int index) {
+        this.actionsComboBox.setSelectedIndex(index);
+    }
+
+    public String getAngleSlider() {
+        return String.valueOf(angleSlider.getValue());
+    }
+
+    public void setAngleSlider(int angleSlider) {
+        this.angleSlider.getModel().setValue(angleSlider);
+    }
+
+    public boolean getCustomRadioButton() {
+        return customRadioButton.isSelected();
+    }
+
+    public void setCustomRadioButton(boolean value) {
+        this.customRadioButton.setSelected(value);
+    }
+
+    public boolean getDifferentValueCheckBox() {
+        return differentValueCheckBox.isSelected();
+    }
+
+    public void setDifferentValueCheckBox(boolean value) {
+        this.differentValueCheckBox.setSelected(value);
+    }
+
+    public String getFromSpinner() {
+        return fromSpinner.getValue().toString();
+    }
+
+    public void setFromSpinner(int fromSpinner) {
+        this.fromSpinner.getModel().setValue(fromSpinner);
+    }
+
+    public boolean getLimitCheckBox() {
+        return limitCheckBox.isSelected();
+    }
+
+    public void setLimitCheckBox(boolean value) {
+        this.limitCheckBox.setSelected(value);
+    }
+
+    public boolean getPredefinedRadioButton() {
+        return predefinedRadioButton.isSelected();
+    }
+
+    public void setPredefinedRadioButton(boolean value) {
+        this.predefinedRadioButton.setSelected(value);
+    }
+
+    public boolean getRandomCheckBox() {
+        return randomCheckBox.isSelected();
+    }
+
+    public void setRandomCheckBox(boolean value) {
+        this.randomCheckBox.setSelected(value);
+    }
+
+    public String getToSpinner() {
+        return toSpinner.getValue().toString();
+    }
+
+    public void setToSpinner(int toSpinner) {
+        this.toSpinner.getModel().setValue(toSpinner);
     }
     
 }
