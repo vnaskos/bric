@@ -1,6 +1,7 @@
 package org.bric.processor;
 
 import org.bric.core.model.ImportedImage;
+import org.bric.core.model.output.OutputType;
 import org.bric.utils.Utils;
 
 import java.io.File;
@@ -12,20 +13,18 @@ import java.util.regex.Pattern;
 
 public class FileNameService {
 
-    public static final String DEFAULT_OUTPUT_TYPE = "jpg";
-
     private final String outputFilepath;
-    private final String outputType;
+    private final OutputType outputType;
     private final AtomicInteger numberingIndex;
 
     private Queue<Integer> availableNumberingIndices;
 
-    public FileNameService(String outputFilepath, String outputType, int initialNumberingIndex, int totalItems) {
+    public FileNameService(String outputFilepath, OutputType outputType, int initialNumberingIndex, int totalItems) {
         this.outputFilepath = outputFilepath;
-        this.outputType = outputType;
+        this.outputType =  outputType;
         this.numberingIndex = new AtomicInteger(initialNumberingIndex);
 
-        initNumsStack(initialNumberingIndex, totalItems);
+        initNumsStack(numberingIndex.get(), totalItems);
     }
 
     private void initNumsStack(int initialNumberingIndex, int totalItems) {
@@ -59,25 +58,25 @@ public class FileNameService {
         generatedFilepath = generatedFilepath.replace("%F", currentImage.getName());
         generatedFilepath = generatedFilepath.replace("^P", currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));
 
-        String extension = outputType;
-        if (outputType.equals("same as first")) {
-            for(String ext : Utils.supportedOutputExtensions){
-                if(ext.equalsIgnoreCase(currentImage.getImageType())){
-                    extension = currentImage.getImageType();
-                    break;
-                } else {
-                    extension = Utils.prefs.get("defaultFileType", DEFAULT_OUTPUT_TYPE);
-                }
-            }
-        }
-
-        generatedFilepath += '.' + extension;
+        generatedFilepath += '.' + getOutputExtension(currentImage);
 
         if (generatedFilepath.contains("#")) {
             generatedFilepath = generatedFilepath.replaceAll("#", String.valueOf(availableNumberingIndices.poll()));
         }
 
         return generatedFilepath;
+    }
+
+    private String getOutputExtension(ImportedImage currentImage) {
+        if (outputType == OutputType.SAME_AS_FIRST) {
+            try {
+                return OutputType.valueOf(currentImage.getImageType().toUpperCase()).name.toLowerCase();
+            } catch (IllegalArgumentException ex) {
+                return Utils.prefs.get("defaultFileType", OutputType.DEFAULT.name.toLowerCase());
+            }
+        }
+
+        return outputType.name.toLowerCase();
     }
 
     private String ensureFilepathContainsSlashIfEndsWithPathModifier(String filepath) {

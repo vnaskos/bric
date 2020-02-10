@@ -6,6 +6,7 @@ package org.bric.gui.tabs;
 
 import com.jhlabs.image.RotateFilter;
 import org.bric.gui.BricUI;
+import org.bric.gui.swing.JPlacer;
 import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.utils.Utils;
 import say.swing.JFontChooser;
@@ -52,7 +53,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         fontChooser = new say.swing.JFontChooser();
         watermarkEnableCheckBox = new javax.swing.JCheckBox();
         watermarkSplitPane = new javax.swing.JSplitPane();
-        watermarkPlacer = new org.bric.gui.watermark.JPlacer();
+        watermarkPlacer = new JPlacer();
         rotateSlider = new javax.swing.JSlider();
         opacitySlider = new javax.swing.JSlider();
         jPanel2 = new javax.swing.JPanel();
@@ -477,7 +478,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     private javax.swing.JPanel settingsPanel;
     private javax.swing.JCheckBox watermarkEnableCheckBox;
     private javax.swing.JTextField watermarkImageText;
-    private org.bric.gui.watermark.JPlacer watermarkPlacer;
+    private JPlacer watermarkPlacer;
     private javax.swing.JSplitPane watermarkSplitPane;
     // End of variables declaration//GEN-END:variables
 

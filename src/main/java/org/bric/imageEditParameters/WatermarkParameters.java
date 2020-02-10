@@ -4,15 +4,16 @@
  */
 package org.bric.imageEditParameters;
 
-import java.awt.Color;
-import java.awt.Font;
+import org.bric.core.model.TabParameters;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
  *
  * @author vasilis
  */
-public class WatermarkParameters implements ImageEditParameters {
+public class WatermarkParameters implements TabParameters {
     private boolean enabled;
     private boolean custom;
     private int pattern;    

@@ -5,12 +5,20 @@
 package org.bric.gui;
 
 import org.bric.core.model.ImportedImage;
+import org.bric.core.model.TabParameters;
+import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.inputOutput.ProgressBarFrame;
+import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
-import org.bric.gui.tabs.*;
-import org.bric.imageEditParameters.*;
+import org.bric.gui.swing.ArrayListTransferHandler;
+import org.bric.gui.tabs.ImageEditTab;
+import org.bric.gui.tabs.ResizeJPanel;
+import org.bric.gui.tabs.RotateJPanel;
+import org.bric.gui.tabs.WatermarkJPanel;
+import org.bric.imageEditParameters.ResizeParameters;
+import org.bric.imageEditParameters.RotateParameters;
+import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.processor.ImageProcessHandler;
-import org.bric.utils.ArrayListTransferHandler;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
@@ -68,7 +76,7 @@ public class BricUI extends JFrame {
         inputList.setModel(model);
         inputList.setTransferHandler(arrayListHandler);
         inputList.setDragEnabled(true);
-        editPane.add(bundle.getString("BricUI.outputTab.name"), new OutputJPanel());
+        editPane.add(bundle.getString("BricUI.outputTab.name"), new OutputTab());
         editPane.add(bundle.getString("BricUI.resizeTab.name"), new ResizeJPanel());
         editPane.add(bundle.getString("BricUI.rotateTab.name"), new RotateJPanel());
         editPane.add(bundle.getString("BricUI.watermarkTab.name"), new WatermarkJPanel());
@@ -825,15 +833,15 @@ public class BricUI extends JFrame {
                 WatermarkParameters watermarkParameters = null;
 
                 for (int i = 0; i < editPane.getComponentCount(); i++) {
-                    ImageEditParameters imageEditParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
-                    if (imageEditParameters instanceof OutputParameters) {
-                        outputParameters = (OutputParameters) imageEditParameters;
-                    } else if (imageEditParameters instanceof ResizeParameters) {
-                        resizeParameters = (ResizeParameters) imageEditParameters;
-                    } else if (imageEditParameters instanceof RotateParameters) {
-                        rotateParameters = (RotateParameters) imageEditParameters;
-                    } else if (imageEditParameters instanceof WatermarkParameters) {
-                        watermarkParameters = (WatermarkParameters) imageEditParameters;
+                    TabParameters tabParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
+                    if (tabParameters instanceof OutputParameters) {
+                        outputParameters = (OutputParameters) tabParameters;
+                    } else if (tabParameters instanceof ResizeParameters) {
+                        resizeParameters = (ResizeParameters) tabParameters;
+                    } else if (tabParameters instanceof RotateParameters) {
+                        rotateParameters = (RotateParameters) tabParameters;
+                    } else if (tabParameters instanceof WatermarkParameters) {
+                        watermarkParameters = (WatermarkParameters) tabParameters;
                     }
                 }
 
@@ -874,11 +882,11 @@ public class BricUI extends JFrame {
             }
             out = new FileOutputStream(new File(file));
             
-            OutputJPanel outputJPanel = (OutputJPanel) editPane.getComponentAt(0);
-            properties.setProperty("fileTypeCombo", Integer.toString(outputJPanel.getFileTypeComboIndex()));
-            properties.setProperty("outputPathText", outputJPanel.getOutputPathText());
-            properties.setProperty("qualityValue", Integer.toString(outputJPanel.getQualitySliderValue()));
-            properties.setProperty("startIndexValue", Integer.toString(outputJPanel.getStartIndexSpinnerValue()));
+            OutputTab outputTab = (OutputTab) editPane.getComponentAt(0);
+            properties.setProperty("fileTypeCombo", Integer.toString(outputTab.getFileTypeComboIndex()));
+            properties.setProperty("outputPathText", outputTab.getOutputPathText());
+            properties.setProperty("qualityValue", Integer.toString(outputTab.getQualitySliderValue()));
+            properties.setProperty("startIndexValue", Integer.toString(outputTab.getStartIndexSpinnerValue()));
             
             ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
             properties.setProperty("resizeAntialising", resizeJPanel.getAntialisingCheckBox() == true ? "1" : "0");
@@ -941,11 +949,11 @@ public class BricUI extends JFrame {
             fileInput = new FileInputStream(file);
             properties.load(fileInput);
             
-            OutputJPanel outputJPanel = (OutputJPanel) editPane.getComponentAt(0);
-            outputJPanel.setFileTypeComboIndex(properties.getProperty("fileTypeCombo"));
-            outputJPanel.setOutputPathText(properties.getProperty("outputPathText"));
-            outputJPanel.setQualitySliderValue(properties.getProperty("qualityValue"));
-            outputJPanel.setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
+            OutputTab outputTab = (OutputTab) editPane.getComponentAt(0);
+            outputTab.setFileTypeComboIndex(properties.getProperty("fileTypeCombo"));
+            outputTab.setOutputPathText(properties.getProperty("outputPathText"));
+            outputTab.setQualitySliderValue(properties.getProperty("qualityValue"));
+            outputTab.setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
             
             ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
             resizeJPanel.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1") ? true : false);

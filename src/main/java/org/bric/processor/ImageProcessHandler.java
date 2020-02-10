@@ -8,8 +8,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.sanselan.ImageFormat;
 import org.apache.sanselan.Sanselan;
 import org.bric.core.model.ImportedImage;
+import org.bric.core.model.output.OutputParameters;
+import org.bric.core.model.output.OutputType;
 import org.bric.gui.inputOutput.ProgressBarFrame;
-import org.bric.imageEditParameters.OutputParameters;
 import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;
 import org.bric.imageEditParameters.WatermarkParameters;
@@ -57,7 +58,6 @@ public class ImageProcessHandler {
     private int duplicateAction = Utils.NOT_SET;
 
     AtomicInteger numberingIndex;
-    String outputExtension;
     String outputPath;
 
     //pdf
@@ -66,7 +66,6 @@ public class ImageProcessHandler {
     public ImageProcessHandler(OutputParameters outputParameters, DefaultListModel<ImportedImage> model) {
         this.outputParameters = outputParameters;
         numberingIndex = new AtomicInteger(outputParameters.getNumberingStartIndex());
-        outputExtension = outputParameters.getOutputFormat().toLowerCase();
         outputPath = outputParameters.getOutputPath();
 
         modelSize = model.size();
@@ -76,7 +75,8 @@ public class ImageProcessHandler {
             inputQueue.add(model.get(i));
         }
 
-        this.fileNameService = new FileNameService(outputPath, outputExtension, outputParameters.getNumberingStartIndex(), model.size());
+        this.fileNameService = new FileNameService(outputParameters.getOutputPath(),
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), model.size());
     }
 
     public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
@@ -121,7 +121,7 @@ public class ImageProcessHandler {
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
 
-        if (outputExtension.equalsIgnoreCase("pdf")) {
+        if (outputParameters.getOutputType() == OutputType.PDF) {
             generatePDF();
         } else {
             ExecutorService executorService;
@@ -154,7 +154,7 @@ public class ImageProcessHandler {
             String inputExtension = importedImage.getImageType();
 
             if (inputExtension.equalsIgnoreCase("pdf")) {
-                if(outputExtension.equalsIgnoreCase("same as first")){
+                if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST){
                     generateSeparatePDF(importedImage);
                 } else {
                     pdfProcess(resizer, rotator, watermarker, importedImage);
@@ -186,7 +186,7 @@ public class ImageProcessHandler {
             currentImage = watermarker.process(currentImage);
         }
 
-        if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
+        if (outputParameters.getOutputType() == OutputType.PDF || pdfInput) {
             addImageToPDF(currentImage);
         } else {
             save(currentImage, fileNameService.generateFilePath(importedImage));
