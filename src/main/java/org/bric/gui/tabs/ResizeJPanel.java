@@ -1,19 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.gui.tabs;
 
 import org.bric.imageEditParameters.ResizeParameters;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Properties;
 
-/**
- *
- * @author vasilis
- */
-public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
+public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab, StatefulComponent {
 
     /**
      * Creates new form ResizeJPanel
@@ -469,5 +462,34 @@ public class ResizeJPanel extends javax.swing.JPanel implements ImageEditTab {
     private void handleSharpenParameters(boolean handle) {
         sharpenComboBox.setEnabled(handle);
         jLabel3.setEnabled(handle);
+    }
+
+    @Override
+    public Properties saveState(Properties properties) {
+        properties.setProperty("resizeAntialising", String.valueOf(getAntialisingCheckBox()));
+        properties.setProperty("resizeAspect", String.valueOf(getAspectCheckBox()));
+        properties.setProperty("resizeHeight", getHeightSpinner());
+        properties.setProperty("resizeOrientation", String.valueOf(getOrientationCheckBox()));
+        properties.setProperty("resizeRendering", Integer.toString(getRenderingComboBox()));
+        properties.setProperty("resizeEnable", String.valueOf(getResizeEnableCheckBox()));
+        properties.setProperty("resizeFilter", Integer.toString(getResizeFilterComboBox()));
+        properties.setProperty("resizeSharpen", Integer.toString(getSharpenComboBox()));
+        properties.setProperty("resizeUnits", Integer.toString(getUnitCombo()));
+        properties.setProperty("resizeWidth", getWidthSpinner());
+        return properties;
+    }
+
+    @Override
+    public void restoreState(Properties properties) {
+        setAntialisingCheckBox(Boolean.parseBoolean(properties.getProperty("resizeAntialising", Boolean.TRUE.toString())));
+        setAspectCheckBox(Boolean.parseBoolean(properties.getProperty("resizeAspect", Boolean.TRUE.toString())));
+        setHeightSpinner(properties.getProperty("resizeHeight"));
+        setOrientationCheckBox(Boolean.parseBoolean(properties.getProperty("resizeOrientation", Boolean.TRUE.toString())));
+        setRenderingComboBox(Integer.parseInt(properties.getProperty("resizeRendering")));
+        setResizeEnableCheckBox(Boolean.parseBoolean(properties.getProperty("resizeEnable", Boolean.TRUE.toString())));
+        setResizeFilterComboBox(Integer.parseInt(properties.getProperty("resizeFilter")));
+        setSharpenComboBox(Integer.parseInt(properties.getProperty("resizeSharpen")));
+        setUnitCombo(Integer.parseInt(properties.getProperty("resizeUnits")));
+        setWidthSpinner(Integer.parseInt(properties.getProperty("resizeWidth")));
     }
 }

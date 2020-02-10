@@ -322,17 +322,7 @@ public class BricUI extends JFrame {
             out = new FileOutputStream(new File(file));
 
             properties = outputTab.saveState(properties);
-
-            properties.setProperty("resizeAntialising", resizeTab.getAntialisingCheckBox() ? "1" : "0");
-            properties.setProperty("resizeAspect", resizeTab.getAspectCheckBox() ? "1" : "0");
-            properties.setProperty("resizeHeight", resizeTab.getHeightSpinner());
-            properties.setProperty("resizeOrientation", resizeTab.getOrientationCheckBox() ? "1" : "0");
-            properties.setProperty("resizeRendering", Integer.toString(resizeTab.getRenderingComboBox()));
-            properties.setProperty("resizeEnable", resizeTab.getResizeEnableCheckBox() ? "1" : "0");
-            properties.setProperty("resizeFilter", Integer.toString(resizeTab.getResizeFilterComboBox()));
-            properties.setProperty("resizeSharpen", Integer.toString(resizeTab.getSharpenComboBox()));
-            properties.setProperty("resizeUnits", Integer.toString(resizeTab.getUnitCombo()));
-            properties.setProperty("resizeWidth", resizeTab.getWidthSpinner());
+            properties = resizeTab.saveState(properties);
 
             properties.setProperty("rotateEnable", rotateTab.getRotateEnableCheckBox() ? "1" : "0");
             properties.setProperty("rotateAction", Integer.toString(rotateTab.getActionsComboBox()));
@@ -383,17 +373,7 @@ public class BricUI extends JFrame {
             properties.load(fileInput);
 
             outputTab.restoreState(properties);
-
-            resizeTab.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1"));
-            resizeTab.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1"));
-            resizeTab.setHeightSpinner(properties.getProperty("resizeHeight"));
-            resizeTab.setOrientationCheckBox(properties.getProperty("resizeOrientation").equals("1"));
-            resizeTab.setRenderingComboBox(Integer.parseInt(properties.getProperty("resizeRendering")));
-            resizeTab.setResizeEnableCheckBox(properties.getProperty("resizeEnable").equals("1"));
-            resizeTab.setResizeFilterComboBox(Integer.parseInt(properties.getProperty("resizeFilter")));
-            resizeTab.setSharpenComboBox(Integer.parseInt(properties.getProperty("resizeSharpen")));
-            resizeTab.setUnitCombo(Integer.parseInt(properties.getProperty("resizeUnits")));
-            resizeTab.setWidthSpinner(Integer.parseInt(properties.getProperty("resizeWidth")));
+            resizeTab.restoreState(properties);
 
             rotateTab.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1"));
             rotateTab.setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
