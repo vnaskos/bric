@@ -45,9 +45,6 @@ public class Utils {
     
     public static Preferences prefs = Preferences.userRoot();
     
-    public static String[] supportedOutputExtensions = 
-            {"jpg", "jpeg", "png", "bmp", "pnm", "ppm", "pgm", "pbm", "tif", "tiff", "gif", "pdf"};
-    
     public static String[] supportedInputExtensions = 
             {"jpg", "jpeg", "png", "bmp", "tiff", "tif", "gif", "psd", "pnm", "ppm", "pgm", "pbm", "wbmp", "pdf"};
     
