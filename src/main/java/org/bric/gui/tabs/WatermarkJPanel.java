@@ -1,10 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.gui.tabs;
 
 import com.jhlabs.image.RotateFilter;
+import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.swing.JPlacer;
 import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.utils.Utils;
@@ -13,13 +10,10 @@ import say.swing.JFontChooser;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
-/**
- *
- * @author vasilis
- */
-public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab {
+public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab, StatefulComponent {
 
     static ResourceBundle bundle;
     
@@ -632,5 +626,30 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
 
     public void setWatermarkImageText(String watermarkImageText) {
         this.watermarkImageText.setText(watermarkImageText);
+    }
+
+    @Override
+    public Properties saveState(Properties properties) {
+        properties.setProperty("watermarkColumns", getColoumnsSpinner());
+        properties.setProperty("watermarkText", getEditorTextPane());
+        properties.setProperty("watermarkMode", Integer.toString(getModeComboBox()));
+        properties.setProperty("watermarkOpacity", getOpacitySlider());
+        properties.setProperty("watermarkPattern", Integer.toString(getPatternComboBox()));
+        properties.setProperty("watermarkRows", getRowsSlidder());
+        properties.setProperty("watermarkEnable", getWatermarkEnableCheckBox() ? "1" : "0");
+        properties.setProperty("watermarkImage", getWatermarkImageText());
+        return properties;
+    }
+
+    @Override
+    public void restoreState(Properties properties) {
+        setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColumns")));
+        setEditorTextPane(properties.getProperty("watermarkText"));
+        setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
+        setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
+        setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
+        setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
+        setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1"));
+        setWatermarkImageText(properties.getProperty("watermarkImage"));
     }
 }

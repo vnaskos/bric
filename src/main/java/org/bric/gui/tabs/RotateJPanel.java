@@ -1,19 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.gui.tabs;
 
+import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.swing.JRotator;
 import org.bric.imageEditParameters.RotateParameters;
 
+import java.util.Properties;
 import java.util.Random;
 
-/**
- *
- * @author vasilis
- */
-public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
+public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab, StatefulComponent {
 
     private int rotationUpLimit = 360,
             rotationDownLimit = 0;
@@ -505,5 +499,33 @@ public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
     public void setToSpinner(int toSpinner) {
         this.toSpinner.getModel().setValue(toSpinner);
     }
-    
+
+    @Override
+    public Properties saveState(Properties properties) {
+        properties.setProperty("rotateEnable", getRotateEnableCheckBox() ? "1" : "0");
+        properties.setProperty("rotateAction", Integer.toString(getActionsComboBox()));
+        properties.setProperty("rotateAngle", getAngleSlider());
+        properties.setProperty("rotateCustom", getCustomRadioButton() ? "1" : "0");
+        properties.setProperty("rotateDifferentValue", getDifferentValueCheckBox() ? "1" : "0");
+        properties.setProperty("rotateMinLimit", getFromSpinner());
+        properties.setProperty("rotateLimit", getLimitCheckBox() ? "1" : "0");
+        properties.setProperty("rotatePredifiend", getPredefinedRadioButton() ? "1" : "0");
+        properties.setProperty("rotateRandom", getRandomCheckBox() ? "1" : "0");
+        properties.setProperty("rotateMaxLimit", getToSpinner());
+        return properties;
+    }
+
+    @Override
+    public void restoreState(Properties properties) {
+        setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1"));
+        setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
+        setAngleSlider(Integer.parseInt(properties.getProperty("rotateAngle")));
+        setCustomRadioButton(properties.getProperty("rotateCustom").equals("1"));
+        setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1"));
+        setFromSpinner(Integer.parseInt(properties.getProperty("rotateMinLimit")));
+        setLimitCheckBox(properties.getProperty("rotateLimit").equals("1"));
+        setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1"));
+        setRandomCheckBox(properties.getProperty("rotateRandom").equals("1"));
+        setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
+    }
 }
