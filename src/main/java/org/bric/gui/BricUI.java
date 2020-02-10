@@ -10,6 +10,7 @@ import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
+import org.bric.gui.swing.ArrayListTransferHandler;
 import org.bric.gui.tabs.ImageEditTab;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
@@ -18,7 +19,6 @@ import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;
 import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.processor.ImageProcessHandler;
-import org.bric.utils.ArrayListTransferHandler;
 import org.bric.utils.Utils;
 
 import javax.swing.*;

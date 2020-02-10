@@ -4,6 +4,7 @@
  */
 package org.bric.gui.tabs;
 
+import org.bric.gui.swing.JRotator;
 import org.bric.imageEditParameters.RotateParameters;
 
 import java.util.Random;
@@ -53,7 +54,7 @@ public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
         toLimitLabel = new javax.swing.JLabel();
         actionsLabel = new javax.swing.JLabel();
         actionsComboBox = new javax.swing.JComboBox();
-        rotator = new org.bric.gui.rotate.JRotator();
+        rotator = new JRotator();
         jSeparator1 = new javax.swing.JSeparator();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/tabs/RotateJPanel"); // NOI18N
@@ -335,7 +336,7 @@ public class RotateJPanel extends javax.swing.JPanel  implements ImageEditTab{
     private javax.swing.JCheckBox limitCheckBox;
     private javax.swing.JRadioButton predefinedRadioButton;
     private javax.swing.JCheckBox randomCheckBox;
-    private org.bric.gui.rotate.JRotator rotator;
+    private JRotator rotator;
     private javax.swing.JLabel toLimitLabel;
     private javax.swing.JSpinner toSpinner;
     // End of variables declaration//GEN-END:variables
