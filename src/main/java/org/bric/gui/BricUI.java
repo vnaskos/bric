@@ -583,10 +583,10 @@ public class BricUI extends JFrame {
         }
 
         ExecutorService executorService;
-        if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
+        if (Utils.prefs.getInt("importNumThreads", 0) == 0) {
             executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
         } else {
-            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
+            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("importNumThreads", 1));
         }
 
         final ProgressBarFrame importer = new ProgressBarFrame();
