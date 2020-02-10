@@ -29,9 +29,7 @@ public class DirectoryScanner {
 
         for (File child : children) {
             if (child.isFile() && child.getName().contains(".")) {
-                String extension = child.toString().substring(child.toString().lastIndexOf('.') + 1);
-
-                if (InputType.isSupported(extension)) {
+                if (InputType.isSupported(child.getAbsolutePath())) {
                     list.add(child.getPath());
                 }
             } else if (child.isDirectory()) {

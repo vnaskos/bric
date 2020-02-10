@@ -8,6 +8,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.sanselan.ImageFormat;
 import org.apache.sanselan.Sanselan;
 import org.bric.core.model.ImportedImage;
+import org.bric.core.model.input.InputType;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
 import org.bric.gui.inputOutput.ProgressBarFrame;
@@ -106,7 +107,7 @@ public class ImageProcessHandler {
             if (firstItem == null) {
                 return;
             }
-            if (firstItem.getImageType().equalsIgnoreCase("pdf")) {
+            if (firstItem.getType() == InputType.PDF) {
                 JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
                 return;
             }
@@ -146,10 +147,8 @@ public class ImageProcessHandler {
             RotateProcessor rotator = new RotateProcessor(rotateParameters);
             WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
 
-            String inputExtension = importedImage.getImageType();
-
-            if (inputExtension.equalsIgnoreCase("pdf")) {
-                if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST){
+            if (importedImage.getType() == InputType.PDF) {
+                if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
                     generateSeparatePDF(importedImage);
                 } else {
                     pdfProcess(resizer, rotator, watermarker, importedImage);

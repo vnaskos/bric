@@ -136,7 +136,7 @@ public class Utils {
     
     public static void setMetadataThumbnail(ImportedImage image, boolean metadata, boolean thumbnail){
         if (thumbnail) {
-            if (image.getImageType().equalsIgnoreCase("PDF")) {
+            if (image.getType() == InputType.PDF) {
                 image.setThumbnailImageIcon(new ImageIcon(Thumbnail.generate(image.getPath())));
             } else {
                 BufferedImage importImage = Utils.loadImage(image.getPath());
@@ -151,7 +151,7 @@ public class Utils {
         if (metadata) {
             try {
                 image.setSize(new File(image.getPath()).length());
-                if (image.getImageType().equalsIgnoreCase("PDF")) {
+                if (image.getType() == InputType.PDF) {
                     image.setDimensions("unknown");
                 } else {
                     ImageInputStream in = ImageIO.createImageInputStream(new File(image.getPath()));

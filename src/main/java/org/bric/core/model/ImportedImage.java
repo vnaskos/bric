@@ -1,5 +1,6 @@
 package org.bric.core.model;
 
+import org.bric.core.model.input.InputType;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
@@ -9,7 +10,7 @@ public class ImportedImage {
     private String path;
     private String dimensions;
     private String name;
-    private String imageType;
+    private InputType type;
     private long size;
     private boolean corrupted = false;
 
@@ -27,7 +28,7 @@ public class ImportedImage {
         if(this.name.contains(".")){
             this.name = name.substring(0, name.lastIndexOf("."));
         }
-        this.imageType = path.substring(path.lastIndexOf('.')+1);
+        this.type = InputType.from(path);
         
         Utils.setMetadataThumbnail(this, metadata, thumbnail);
         
@@ -65,12 +66,8 @@ public class ImportedImage {
         return name;
     }
     
-    public void setImageType(String imageType){
-        this.imageType = imageType;
-    }
-    
-    public String getImageType(){
-        return imageType;
+    public InputType getType(){
+        return type;
     }
     
     public long getSize() {
@@ -93,15 +90,4 @@ public class ImportedImage {
     public String toString() {
         return path;
     }
-
-    @Override
-    public ImportedImage clone() throws CloneNotSupportedException {
-        ImportedImage clone = new ImportedImage();
-        clone.setPath(path);
-        clone.setName(name);
-        clone.setImageType(imageType);
-        return clone;
-    }
-    
-    
 }

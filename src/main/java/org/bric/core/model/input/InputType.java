@@ -23,9 +23,15 @@ public enum InputType {
         this.name = name;
     }
 
-    public static boolean isSupported(String extension) {
+    public static InputType from(String filepath) {
+        String extension = filepath.substring(filepath.lastIndexOf('.')+1);
+
+        return InputType.valueOf(extension.toUpperCase());
+    }
+
+    public static boolean isSupported(String filepath) {
         try {
-            InputType.valueOf(extension.toUpperCase());
+            InputType.from(filepath);
             return true;
         } catch (IllegalArgumentException ex) {
             return false;
