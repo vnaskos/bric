@@ -2,39 +2,31 @@ package org.bric.core.model;
 
 import org.bric.core.model.input.GenerationMethod;
 import org.bric.core.model.input.InputType;
+import org.bric.core.model.input.Metadata;
 import org.bric.core.model.input.Thumbnail;
-import org.bric.utils.Utils;
 
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 
 public class ImportedImage {
 
-    private Thumbnail thumbnail;
     private String path;
-    private String dimensions;
-    private String name;
     private InputType type;
-    private long size;
+    private Metadata metadata;
+    private Thumbnail thumbnail;
+
     private boolean corrupted = false;
 
     public ImportedImage(String path) {
         this.path = path;
-        this.name = path.substring(path.lastIndexOf(Utils.FS)+1);
-
-        if(this.name.contains(".")){
-            this.name = name.substring(0, name.lastIndexOf("."));
-        }
         this.type = InputType.from(path);
-        
-        Utils.setMetadataThumbnail(this, GenerationMethod.metadata() == GenerationMethod.ON_IMPORT);
 
         if (GenerationMethod.thumbnail() == GenerationMethod.ON_IMPORT) {
             generateThumbnail();
         }
-//        if (GenerationMethod.metadata() == GenerationMethod.ON_IMPORT) {
-//            generateMetadata();
-//        }
+        if (GenerationMethod.metadata() == GenerationMethod.ON_IMPORT) {
+            generateMetadata();
+        }
     }
 
     private void generateThumbnail() {
@@ -47,49 +39,44 @@ public class ImportedImage {
         }
         return Optional.ofNullable(thumbnail.get());
     }
-    
-    public void setPath(String path){
-        this.path = path;
+
+    public void generateMetadata() {
+        this.metadata = Metadata.generate(this);
+    }
+
+    public Optional<Metadata> getMetadata() {
+        if (!corrupted && metadata == null && GenerationMethod.metadata() == GenerationMethod.ON_DEMAND) {
+            generateMetadata();
+        }
+        return Optional.ofNullable(metadata);
     }
     
     public String getPath(){
         return path;
     }
-    
-    public void setDimensions(String dimensions){
-        this.dimensions = dimensions;
-    }
-    
-    public String getDimensions(){
-        return dimensions;
-    }
-    
-    public void setName(String name){
-        this.name = name;
-    }
-    
-    public String getName(){
-        return name;
-    }
-    
+
     public InputType getType(){
         return type;
     }
-    
+
+    public String getName() {
+        return getMetadata().map(Metadata::getName).orElse(path);
+    }
+
+    public String getDimensions() {
+        return getMetadata().map(Metadata::getDimensions).orElse("");
+    }
+
     public long getSize() {
-        return size;
+        return getMetadata().map(Metadata::getSize).orElse(0L);
     }
 
-    public void setSize(long size) {
-        this.size = size;
-    }
-    
-    public boolean isCorrupted() {
-        return corrupted;
+    public boolean isNotCorrupted() {
+        return !corrupted;
     }
 
-    public void setCorrupted(boolean corrupted) {
-        this.corrupted = corrupted;
+    public void setCorrupted() {
+        this.corrupted = true;
     }
 
     @Override

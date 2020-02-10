@@ -150,7 +150,7 @@ public class InputTab extends JPanel {
             inputDetailsPanel.updateIcon(selectedItem.getThumbnail()
                     .map(ImageIcon::new)
                     .orElseThrow(Exception::new));
-            inputDetailsPanel.updateDetails(selectedItem.getPath(), selectedItem.getDimensions(), selectedItem.getSize());
+            inputDetailsPanel.updateDetails(selectedItem.getName(), selectedItem.getDimensions(), selectedItem.getSize());
         } catch (Exception e) {
             inputDetailsPanel.clearPreview();
         }
@@ -237,11 +237,11 @@ public class InputTab extends JPanel {
 
             ImportedImage im = new ImportedImage(path);
 
-            if (!im.isCorrupted()) {
+            if (im.isNotCorrupted()) {
                 addToModel(im);
             }
 
-            progressBar.updateValue(!im.isCorrupted());
+            progressBar.updateValue(im.isNotCorrupted());
             progressBar.showProgress(path);
             return null;
         };

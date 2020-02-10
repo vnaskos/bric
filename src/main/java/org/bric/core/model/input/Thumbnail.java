@@ -33,7 +33,7 @@ public class Thumbnail {
             BufferedImage scaledImage = scaleImage(image);
             return new Thumbnail(scaledImage);
         } catch (Exception ex) {
-            importedImage.setCorrupted(true);
+            importedImage.setCorrupted();
             return null;
         }
     }
