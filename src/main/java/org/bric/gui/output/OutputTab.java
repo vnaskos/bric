@@ -2,13 +2,15 @@ package org.bric.gui.output;
 
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
+import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.tabs.ImageEditTab;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
-public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
+public class OutputTab extends javax.swing.JPanel implements ImageEditTab, StatefulComponent {
 
     private javax.swing.JComboBox<OutputType> fileTypeCombo;
     private javax.swing.JTextField outputPathText;
@@ -182,5 +184,22 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
                 fileTypeCombo.getItemAt(fileTypeCombo.getSelectedIndex()),
                 numberingModel.getNumber().intValue(),
                 qualitySlider.getValue()/100.0F);
+    }
+
+    @Override
+    public Properties saveState(Properties properties) {
+        properties.setProperty("fileTypeCombo", Integer.toString(getFileTypeComboIndex()));
+        properties.setProperty("outputPathText", getOutputPathText());
+        properties.setProperty("qualityValue", Integer.toString(getQualitySliderValue()));
+        properties.setProperty("startIndexValue", Integer.toString(getStartIndexSpinnerValue()));
+        return properties;
+    }
+
+    @Override
+    public void restoreState(Properties properties) {
+        setFileTypeComboIndex(properties.getProperty("fileTypeCombo"));
+        setOutputPathText(properties.getProperty("outputPathText"));
+        setQualitySliderValue(properties.getProperty("qualityValue"));
+        setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
     }
 }

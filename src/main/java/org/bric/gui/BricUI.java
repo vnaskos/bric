@@ -1,10 +1,11 @@
 package org.bric.gui;
 
-import org.bric.core.model.ImportedImage;
+import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.input.InputTab;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
+import org.bric.gui.state.StateManager;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
@@ -15,16 +16,11 @@ import org.bric.processor.ImageProcessHandler;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class BricUI extends JFrame {
 
@@ -35,14 +31,13 @@ public class BricUI extends JFrame {
     private final PreferencesFrame preferencesFrame;
     private final About aboutFrame;
 
+    private final StateManager stateManager;
+
     private final InputTab inputTab;
     private final OutputTab outputTab;
     private final ResizeJPanel resizeTab;
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
-
-    JFileChooser propertiesChooser;
-    Properties properties;
     
     /**
      * Creates new form Main
@@ -66,14 +61,11 @@ public class BricUI extends JFrame {
         resizeTab = new ResizeJPanel();
         rotateTab = new RotateJPanel();
         watermarkTab = new WatermarkJPanel();
-
+        stateManager = new StateManager(outputTab, resizeTab, rotateTab, watermarkTab);
 
         initComponents();
-
-        properties = new Properties();
         
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
-        initializeProperties();
     }
     
     private void initComponents() {
@@ -138,14 +130,14 @@ public class BricUI extends JFrame {
         saveButton.setBorderPainted(false);
         saveButton.setContentAreaFilled(false);
         saveButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-floopy_p.png"))); // NOI18N
-        saveButton.addActionListener(evt -> saveSettings());
+        saveButton.addActionListener(evt -> stateManager.saveState());
 
         loadButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd.png"))); // NOI18N
         loadButton.setToolTipText(bundle.getString("BricUI.loadButton.toolTipText")); // NOI18N
         loadButton.setBorderPainted(false);
         loadButton.setContentAreaFilled(false);
         loadButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd_p.png"))); // NOI18N
-        loadButton.addActionListener(evt -> loadSettings());
+        loadButton.addActionListener(evt -> stateManager.restoreState());
 
         aboutButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/info.png"))); // NOI18N
         aboutButton.setToolTipText(bundle.getString("BricUI.aboutButton.toolTipText")); // NOI18N
@@ -298,137 +290,5 @@ public class BricUI extends JFrame {
         mainProcess.setWatermarkParameters(watermarkParameters);
 
         mainProcess.start();
-    }
-    
-    private void initializeProperties(){
-        propertiesChooser = new JFileChooser();
-        propertiesChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        propertiesChooser.setFileFilter(new FileNameExtensionFilter("properties file(*.properties)", "PROPERTIES"));
-    }
-    
-    private void saveSettings() {
-        FileOutputStream out = null;
-        try {
-            propertiesChooser.setDialogTitle("Save properties");
-            
-            if (propertiesChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
-                return;
-            }
-            String file = propertiesChooser.getSelectedFile().getPath();
-            if(!file.matches(".+\\.properties")){
-                file = propertiesChooser.getSelectedFile().getPath()+".properties";
-            }
-            out = new FileOutputStream(new File(file));
-
-            properties.setProperty("fileTypeCombo", Integer.toString(outputTab.getFileTypeComboIndex()));
-            properties.setProperty("outputPathText", outputTab.getOutputPathText());
-            properties.setProperty("qualityValue", Integer.toString(outputTab.getQualitySliderValue()));
-            properties.setProperty("startIndexValue", Integer.toString(outputTab.getStartIndexSpinnerValue()));
-
-            properties.setProperty("resizeAntialising", resizeTab.getAntialisingCheckBox() ? "1" : "0");
-            properties.setProperty("resizeAspect", resizeTab.getAspectCheckBox() ? "1" : "0");
-            properties.setProperty("resizeHeight", resizeTab.getHeightSpinner());
-            properties.setProperty("resizeOrientation", resizeTab.getOrientationCheckBox() ? "1" : "0");
-            properties.setProperty("resizeRendering", Integer.toString(resizeTab.getRenderingComboBox()));
-            properties.setProperty("resizeEnable", resizeTab.getResizeEnableCheckBox() ? "1" : "0");
-            properties.setProperty("resizeFilter", Integer.toString(resizeTab.getResizeFilterComboBox()));
-            properties.setProperty("resizeSharpen", Integer.toString(resizeTab.getSharpenComboBox()));
-            properties.setProperty("resizeUnits", Integer.toString(resizeTab.getUnitCombo()));
-            properties.setProperty("resizeWidth", resizeTab.getWidthSpinner());
-
-            properties.setProperty("rotateEnable", rotateTab.getRotateEnableCheckBox() ? "1" : "0");
-            properties.setProperty("rotateAction", Integer.toString(rotateTab.getActionsComboBox()));
-            properties.setProperty("rotateAngle", rotateTab.getAngleSlider());
-            properties.setProperty("rotateCustom", rotateTab.getCustomRadioButton() ? "1" : "0");
-            properties.setProperty("rotateDifferentValue", rotateTab.getDifferentValueCheckBox() ? "1" : "0");
-            properties.setProperty("rotateMinLimit", rotateTab.getFromSpinner());
-            properties.setProperty("rotateLimit", rotateTab.getLimitCheckBox() ? "1" : "0");
-            properties.setProperty("rotatePredifiend", rotateTab.getPredefinedRadioButton() ? "1" : "0");
-            properties.setProperty("rotateRandom", rotateTab.getRandomCheckBox() ? "1" : "0");
-            properties.setProperty("rotateMaxLimit", rotateTab.getToSpinner());
-
-            properties.setProperty("watermarkColumns", watermarkTab.getColoumnsSpinner());
-            properties.setProperty("watermarkText", watermarkTab.getEditorTextPane());
-            properties.setProperty("watermarkMode", Integer.toString(watermarkTab.getModeComboBox()));
-            properties.setProperty("watermarkOpacity", watermarkTab.getOpacitySlider());
-            properties.setProperty("watermarkPattern", Integer.toString(watermarkTab.getPatternComboBox()));
-            properties.setProperty("watermarkRows", watermarkTab.getRowsSlidder());
-            properties.setProperty("watermarkEnable", watermarkTab.getWatermarkEnableCheckBox() ? "1" : "0");
-            properties.setProperty("watermarkImage", watermarkTab.getWatermarkImageText());
-            
-            properties.store(out, "");
-        } catch (IOException ex) {
-            Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if(out != null){
-                    out.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    private void loadSettings() {
-        FileInputStream fileInput = null;
-        try {
-            propertiesChooser.setDialogTitle("Load properties");
-
-            if (propertiesChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
-                return;
-            }
-            
-            File file = propertiesChooser.getSelectedFile();
-            fileInput = new FileInputStream(file);
-            properties.load(fileInput);
-
-            outputTab.setFileTypeComboIndex(properties.getProperty("fileTypeCombo"));
-            outputTab.setOutputPathText(properties.getProperty("outputPathText"));
-            outputTab.setQualitySliderValue(properties.getProperty("qualityValue"));
-            outputTab.setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
-
-            resizeTab.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1"));
-            resizeTab.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1"));
-            resizeTab.setHeightSpinner(properties.getProperty("resizeHeight"));
-            resizeTab.setOrientationCheckBox(properties.getProperty("resizeOrientation").equals("1"));
-            resizeTab.setRenderingComboBox(Integer.parseInt(properties.getProperty("resizeRendering")));
-            resizeTab.setResizeEnableCheckBox(properties.getProperty("resizeEnable").equals("1"));
-            resizeTab.setResizeFilterComboBox(Integer.parseInt(properties.getProperty("resizeFilter")));
-            resizeTab.setSharpenComboBox(Integer.parseInt(properties.getProperty("resizeSharpen")));
-            resizeTab.setUnitCombo(Integer.parseInt(properties.getProperty("resizeUnits")));
-            resizeTab.setWidthSpinner(Integer.parseInt(properties.getProperty("resizeWidth")));
-
-            rotateTab.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1"));
-            rotateTab.setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
-            rotateTab.setAngleSlider(Integer.parseInt(properties.getProperty("rotateAngle")));
-            rotateTab.setCustomRadioButton(properties.getProperty("rotateCustom").equals("1"));
-            rotateTab.setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1"));
-            rotateTab.setFromSpinner(Integer.parseInt(properties.getProperty("rotateMinLimit")));
-            rotateTab.setLimitCheckBox(properties.getProperty("rotateLimit").equals("1"));
-            rotateTab.setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1"));
-            rotateTab.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1"));
-            rotateTab.setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
-
-            watermarkTab.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColumns")));
-            watermarkTab.setEditorTextPane(properties.getProperty("watermarkText"));
-            watermarkTab.setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
-            watermarkTab.setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
-            watermarkTab.setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
-            watermarkTab.setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
-            watermarkTab.setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1"));
-            watermarkTab.setWatermarkImageText(properties.getProperty("watermarkImage"));
-            
-        } catch (IOException ex) {
-            Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if(fileInput != null){
-                    fileInput.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 }

@@ -1,20 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.utils;
 
 import ij.IJ;
 import ij.ImagePlus;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
-import org.bric.core.model.ImportedImage;
-import org.bric.core.model.input.InputType;
-import org.bric.gui.inputOutput.GenerateThumbnail;
+import org.bric.core.input.model.InputType;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -22,14 +14,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
-/**
- *
- * @author vasilis
- */
 public class Utils {
 
     public static final Locale GREEK = new Locale("el", "GR");
@@ -132,61 +119,5 @@ public class Utils {
         int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
         frame.setLocation(x, y);
-    }
-    
-    public static void setMetadataThumbnail(ImportedImage image, boolean metadata, boolean thumbnail){
-        if (thumbnail) {
-            if (image.getImageType().equalsIgnoreCase("PDF")) {
-                image.setThumbnailImageIcon(new ImageIcon(GenerateThumbnail.generate(image.getPath(), 125, 125)));
-            } else {
-                BufferedImage importImage = Utils.loadImage(image.getPath());
-                if (importImage != null) {
-                    image.setThumbnailImageIcon(new ImageIcon(GenerateThumbnail.generate(importImage, 125, 125)));
-                } else {
-                    image.setCorrupted(true);
-                }
-            }
-        }
-
-        if (metadata) {
-            try {
-                image.setSize(new File(image.getPath()).length());
-                if (image.getImageType().equalsIgnoreCase("PDF")) {
-                    image.setDimensions("unknown");
-                } else {
-                    ImageInputStream in = ImageIO.createImageInputStream(new File(image.getPath()));
-                    try {
-                        final Iterator readers = ImageIO.getImageReaders(in);
-                        if (readers.hasNext()) {
-                            ImageReader reader = (ImageReader) readers.next();
-                            try {
-                                reader.setInput(in);
-                                image.setDimensions(reader.getWidth(0) + "x" + reader.getHeight(0));
-                            } finally {
-                                reader.dispose();
-                            }
-                        }
-                        if (image.getDimensions() == null || image.getDimensions().equals("unknown")) {
-                            throw new Exception();
-                        }
-                    } finally {
-                        if (in != null) {
-                            in.close();
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                BufferedImage importImage = Utils.loadImage(image.getPath());
-                if (importImage != null) {
-                    image.setDimensions(importImage.getWidth() + "x" + importImage.getHeight());
-                } else {
-                    image.setCorrupted(true);
-                }
-            }
-        }
-
-        if (image.getDimensions() == null) {
-            image.setDimensions("unknown");
-        }
     }
 }

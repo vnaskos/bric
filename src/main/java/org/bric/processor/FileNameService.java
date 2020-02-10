@@ -1,6 +1,6 @@
 package org.bric.processor;
 
-import org.bric.core.model.ImportedImage;
+import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputType;
 import org.bric.utils.Utils;
 
@@ -70,7 +70,7 @@ public class FileNameService {
     private String getOutputExtension(ImportedImage currentImage) {
         if (outputType == OutputType.SAME_AS_FIRST) {
             try {
-                return OutputType.valueOf(currentImage.getImageType().toUpperCase()).name.toLowerCase();
+                return OutputType.valueOf(currentImage.getType().name.toUpperCase()).name.toLowerCase();
             } catch (IllegalArgumentException ex) {
                 return Utils.prefs.get("defaultFileType", OutputType.DEFAULT.name.toLowerCase());
             }

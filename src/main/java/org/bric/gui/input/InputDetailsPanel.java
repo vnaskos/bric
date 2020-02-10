@@ -1,7 +1,5 @@
 package org.bric.gui.input;
 
-import org.bric.utils.Utils;
-
 import javax.swing.*;
 import java.util.ResourceBundle;
 
@@ -93,13 +91,15 @@ public class InputDetailsPanel extends JPanel {
         }
     }
 
-    public void updateDetails(String itemSource, String dimensions, long fileSize) {
+    public void updateDetails(String name, String dimensions, long fileSize) {
         String text = "<html><body>";
         text += "<b>" + bundle.getString("BricUI.metadata.name") + "</b><br />";
-        text += itemSource.substring(itemSource.lastIndexOf(Utils.FS) + 1) + "<br /><br />";
-        text += "<b>" + bundle.getString("BricUI.metadata.dimensions") +" </b><br />" + dimensions + "<br />";
+        text += name + "<br /><br />";
+        if (!dimensions.isEmpty() && !dimensions.equals("unknown")) {
+            text += "<b>" + bundle.getString("BricUI.metadata.dimensions") + " </b><br />" + dimensions + "<br /><br />";
+        }
         if (fileSize != 0) {
-            text += "<br /><b>" + bundle.getString("BricUI.metadata.filesize") + " </b><br />" + fileSize / 1024 + "KB<br />";
+            text += "<b>" + bundle.getString("BricUI.metadata.filesize") + " </b><br />" + fileSize / 1024 + "KB<br />";
         }
         text += "</body></html>";
         metadataPane.setText(text);
