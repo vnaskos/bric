@@ -323,17 +323,7 @@ public class BricUI extends JFrame {
 
             properties = outputTab.saveState(properties);
             properties = resizeTab.saveState(properties);
-
-            properties.setProperty("rotateEnable", rotateTab.getRotateEnableCheckBox() ? "1" : "0");
-            properties.setProperty("rotateAction", Integer.toString(rotateTab.getActionsComboBox()));
-            properties.setProperty("rotateAngle", rotateTab.getAngleSlider());
-            properties.setProperty("rotateCustom", rotateTab.getCustomRadioButton() ? "1" : "0");
-            properties.setProperty("rotateDifferentValue", rotateTab.getDifferentValueCheckBox() ? "1" : "0");
-            properties.setProperty("rotateMinLimit", rotateTab.getFromSpinner());
-            properties.setProperty("rotateLimit", rotateTab.getLimitCheckBox() ? "1" : "0");
-            properties.setProperty("rotatePredifiend", rotateTab.getPredefinedRadioButton() ? "1" : "0");
-            properties.setProperty("rotateRandom", rotateTab.getRandomCheckBox() ? "1" : "0");
-            properties.setProperty("rotateMaxLimit", rotateTab.getToSpinner());
+            properties = rotateTab.saveState(properties);
 
             properties.setProperty("watermarkColumns", watermarkTab.getColoumnsSpinner());
             properties.setProperty("watermarkText", watermarkTab.getEditorTextPane());
@@ -374,17 +364,8 @@ public class BricUI extends JFrame {
 
             outputTab.restoreState(properties);
             resizeTab.restoreState(properties);
+            rotateTab.restoreState(properties);
 
-            rotateTab.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1"));
-            rotateTab.setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
-            rotateTab.setAngleSlider(Integer.parseInt(properties.getProperty("rotateAngle")));
-            rotateTab.setCustomRadioButton(properties.getProperty("rotateCustom").equals("1"));
-            rotateTab.setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1"));
-            rotateTab.setFromSpinner(Integer.parseInt(properties.getProperty("rotateMinLimit")));
-            rotateTab.setLimitCheckBox(properties.getProperty("rotateLimit").equals("1"));
-            rotateTab.setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1"));
-            rotateTab.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1"));
-            rotateTab.setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
 
             watermarkTab.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColumns")));
             watermarkTab.setEditorTextPane(properties.getProperty("watermarkText"));
