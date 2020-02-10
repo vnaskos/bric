@@ -73,7 +73,7 @@ public class BricUI extends JFrame {
             defaultLocale = Utils.GREEK;
         }
         Locale.setDefault(defaultLocale);
-        
+
         bundle = ResourceBundle.getBundle("lang/gui/BricUI");
 
         preferencesFrame = new PreferencesFrame();
@@ -592,35 +592,30 @@ public class BricUI extends JFrame {
                 duplicatePane(path);
             }
 
-            if (duplicateAction == Utils.NOT_SET ||
-                    duplicateAction == Utils.REPLACE ||
-                    duplicateAction == Utils.REPLACE_ALL) {
-
-                ImportedImage im = new ImportedImage(path);
-                if(!im.isCorrupted()){
-                    addToModel(im);
-                    progressBar.updateValue(true);
-                }else{
-                    progressBar.updateValue(false);
-                }
-
-            } else {
+            if (duplicateAction == Utils.SKIP ||
+                    duplicateAction == Utils.SKIP_ALL) {
                 progressBar.updateValue(true);
+                progressBar.showProgress(path);
+                return null;
             }
 
-            progressBar.showProgress(path);
+            ImportedImage im = new ImportedImage(path);
 
+            if (!im.isCorrupted()) {
+                addToModel(im);
+            }
+
+            progressBar.updateValue(!im.isCorrupted());
+            progressBar.showProgress(path);
             return null;
         };
     }
     
     public void addToModel(final ImportedImage im) {
-        synchronized (this) {
-            SwingUtilities.invokeLater(() -> {
-                model.addElement(im);
-                updateItemsLabel();
-            });
-        }
+        SwingUtilities.invokeLater(() -> {
+            model.addElement(im);
+            updateItemsLabel();
+        });
     }
     
     public List<String> readImages(){
