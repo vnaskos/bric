@@ -1,13 +1,11 @@
 package org.bric.gui;
 
 import org.bric.core.model.ImportedImage;
-import org.bric.core.model.TabParameters;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
 import org.bric.gui.swing.ArrayListTransferHandler;
-import org.bric.gui.tabs.ImageEditTab;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
@@ -41,13 +39,18 @@ public class BricUI extends JFrame {
 
     private javax.swing.JToggleButton alwaysOnTopButton;
     private javax.swing.JPanel detailsPanel;
-    private javax.swing.JTabbedPane editPane;
     private javax.swing.JList<ImportedImage> inputList;
     private javax.swing.JLabel itemsCountLabel;
     private javax.swing.JTextPane metadataPane;
     private javax.swing.JLabel previewIcon;
 
+    private final PreferencesFrame preferencesFrame;
+    private final About aboutFrame;
+
     private final OutputTab outputTab;
+    private final ResizeJPanel resizeTab;
+    private final RotateJPanel rotateTab;
+    private final WatermarkJPanel watermarkTab;
 
     private static Set<String> hash = new ConcurrentSkipListSet<>();
 
@@ -55,12 +58,9 @@ public class BricUI extends JFrame {
     static int duplicateAction = Utils.NOT_SET;
     int previewState;
     
-    private PreferencesFrame preferencesFrame = new PreferencesFrame();
-    private About aboutFrame = new About();
+
     public static String lastOpenedDirectory = "";
 
-    ArrayListTransferHandler arrayListHandler;
-    
     JFileChooser propertiesChooser;
     Properties properties;
     
@@ -78,17 +78,15 @@ public class BricUI extends JFrame {
         
         bundle = ResourceBundle.getBundle("lang/gui/BricUI");
 
+        preferencesFrame = new PreferencesFrame();
+        aboutFrame = new About();
         outputTab = new OutputTab();
+        resizeTab = new ResizeJPanel();
+        rotateTab = new RotateJPanel();
+        watermarkTab = new WatermarkJPanel();
 
         initComponents();
-        arrayListHandler = new ArrayListTransferHandler();
-        inputList.setModel(model);
-        inputList.setTransferHandler(arrayListHandler);
-        inputList.setDragEnabled(true);
-        editPane.add(bundle.getString("BricUI.outputTab.name"), outputTab);
-        editPane.add(bundle.getString("BricUI.resizeTab.name"), new ResizeJPanel());
-        editPane.add(bundle.getString("BricUI.rotateTab.name"), new RotateJPanel());
-        editPane.add(bundle.getString("BricUI.watermarkTab.name"), new WatermarkJPanel());
+
         properties = new Properties();
         
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
@@ -106,7 +104,7 @@ public class BricUI extends JFrame {
         JButton loadButton = new JButton();
         JButton aboutButton = new JButton();
         JSplitPane workspace = new JSplitPane();
-        editPane = new javax.swing.JTabbedPane();
+        JTabbedPane editPane = new JTabbedPane();
         JPanel inputPane = new JPanel();
         JButton addButton = new JButton();
         JButton removeButton = new JButton();
@@ -235,6 +233,10 @@ public class BricUI extends JFrame {
 
         editPane.setMinimumSize(new java.awt.Dimension(370, 480));
         workspace.setRightComponent(editPane);
+        editPane.add(bundle.getString("BricUI.outputTab.name"), outputTab);
+        editPane.add(bundle.getString("BricUI.resizeTab.name"), resizeTab);
+        editPane.add(bundle.getString("BricUI.rotateTab.name"), rotateTab);
+        editPane.add(bundle.getString("BricUI.watermarkTab.name"), watermarkTab);
 
         inputPane.setMinimumSize(new java.awt.Dimension(355, 480));
 
@@ -297,6 +299,8 @@ public class BricUI extends JFrame {
                                         .addComponent(previewIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
+        inputList.setTransferHandler(new ArrayListTransferHandler());
+        inputList.setDragEnabled(true);
         inputList.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         inputList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -702,20 +706,9 @@ public class BricUI extends JFrame {
     public void startProcess(final boolean preview){
         new Thread(() -> {
             OutputParameters outputParameters = outputTab.getImageEditParameters();
-            ResizeParameters resizeParameters = null;
-            RotateParameters rotateParameters = null;
-            WatermarkParameters watermarkParameters = null;
-
-            for (int i = 0; i < editPane.getComponentCount(); i++) {
-                TabParameters tabParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
-                if (tabParameters instanceof ResizeParameters) {
-                    resizeParameters = (ResizeParameters) tabParameters;
-                } else if (tabParameters instanceof RotateParameters) {
-                    rotateParameters = (RotateParameters) tabParameters;
-                } else if (tabParameters instanceof WatermarkParameters) {
-                    watermarkParameters = (WatermarkParameters) tabParameters;
-                }
-            }
+            ResizeParameters resizeParameters = resizeTab.getImageEditParameters();
+            RotateParameters rotateParameters = rotateTab.getImageEditParameters();
+            WatermarkParameters watermarkParameters = watermarkTab.getImageEditParameters();
 
             ImageProcessHandler mainProcess;
             if(preview){
@@ -752,46 +745,42 @@ public class BricUI extends JFrame {
                 file = propertiesChooser.getSelectedFile().getPath()+".properties";
             }
             out = new FileOutputStream(new File(file));
-            
-            OutputTab outputTab = (OutputTab) editPane.getComponentAt(0);
+
             properties.setProperty("fileTypeCombo", Integer.toString(outputTab.getFileTypeComboIndex()));
             properties.setProperty("outputPathText", outputTab.getOutputPathText());
             properties.setProperty("qualityValue", Integer.toString(outputTab.getQualitySliderValue()));
             properties.setProperty("startIndexValue", Integer.toString(outputTab.getStartIndexSpinnerValue()));
-            
-            ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
-            properties.setProperty("resizeAntialising", resizeJPanel.getAntialisingCheckBox() ? "1" : "0");
-            properties.setProperty("resizeAspect", resizeJPanel.getAspectCheckBox() ? "1" : "0");
-            properties.setProperty("resizeHeight", resizeJPanel.getHeightSpinner());
-            properties.setProperty("resizeOrientation", resizeJPanel.getOrientationCheckBox() ? "1" : "0");
-            properties.setProperty("resizeRendering", Integer.toString(resizeJPanel.getRenderingComboBox()));
-            properties.setProperty("resizeEnable", resizeJPanel.getResizeEnableCheckBox() ? "1" : "0");
-            properties.setProperty("resizeFilter", Integer.toString(resizeJPanel.getResizeFilterComboBox()));
-            properties.setProperty("resizeSharpen", Integer.toString(resizeJPanel.getSharpenComboBox()));
-            properties.setProperty("resizeUnits", Integer.toString(resizeJPanel.getUnitCombo()));
-            properties.setProperty("resizeWidth", resizeJPanel.getWidthSpinner());
-            
-            RotateJPanel rotateJPanel = (RotateJPanel) editPane.getComponentAt(2);
-            properties.setProperty("rotateEnable", rotateJPanel.getRotateEnableCheckBox() ? "1" : "0");
-            properties.setProperty("rotateAction", Integer.toString(rotateJPanel.getActionsComboBox()));
-            properties.setProperty("rotateAngle", rotateJPanel.getAngleSlider());
-            properties.setProperty("rotateCustom", rotateJPanel.getCustomRadioButton() ? "1" : "0");
-            properties.setProperty("rotateDifferentValue", rotateJPanel.getDifferentValueCheckBox() ? "1" : "0");
-            properties.setProperty("rotateMinLimit", rotateJPanel.getFromSpinner());
-            properties.setProperty("rotateLimit", rotateJPanel.getLimitCheckBox() ? "1" : "0");
-            properties.setProperty("rotatePredifiend", rotateJPanel.getPredefinedRadioButton() ? "1" : "0");
-            properties.setProperty("rotateRandom", rotateJPanel.getRandomCheckBox() ? "1" : "0");
-            properties.setProperty("rotateMaxLimit", rotateJPanel.getToSpinner());
-            
-            WatermarkJPanel watermarkJPanel = (WatermarkJPanel) editPane.getComponentAt(3);
-            properties.setProperty("watermarkColoumns", watermarkJPanel.getColoumnsSpinner());
-            properties.setProperty("watermarkText", watermarkJPanel.getEditorTextPane());
-            properties.setProperty("watermarkMode", Integer.toString(watermarkJPanel.getModeComboBox()));
-            properties.setProperty("watermarkOpacity", watermarkJPanel.getOpacitySlider());
-            properties.setProperty("watermarkPattern", Integer.toString(watermarkJPanel.getPatternComboBox()));
-            properties.setProperty("watermarkRows", watermarkJPanel.getRowsSlidder());
-            properties.setProperty("watermarkEnable", watermarkJPanel.getWatermarkEnableCheckBox() ? "1" : "0");
-            properties.setProperty("watermarkImage", watermarkJPanel.getWatermarkImageText());
+
+            properties.setProperty("resizeAntialising", resizeTab.getAntialisingCheckBox() ? "1" : "0");
+            properties.setProperty("resizeAspect", resizeTab.getAspectCheckBox() ? "1" : "0");
+            properties.setProperty("resizeHeight", resizeTab.getHeightSpinner());
+            properties.setProperty("resizeOrientation", resizeTab.getOrientationCheckBox() ? "1" : "0");
+            properties.setProperty("resizeRendering", Integer.toString(resizeTab.getRenderingComboBox()));
+            properties.setProperty("resizeEnable", resizeTab.getResizeEnableCheckBox() ? "1" : "0");
+            properties.setProperty("resizeFilter", Integer.toString(resizeTab.getResizeFilterComboBox()));
+            properties.setProperty("resizeSharpen", Integer.toString(resizeTab.getSharpenComboBox()));
+            properties.setProperty("resizeUnits", Integer.toString(resizeTab.getUnitCombo()));
+            properties.setProperty("resizeWidth", resizeTab.getWidthSpinner());
+
+            properties.setProperty("rotateEnable", rotateTab.getRotateEnableCheckBox() ? "1" : "0");
+            properties.setProperty("rotateAction", Integer.toString(rotateTab.getActionsComboBox()));
+            properties.setProperty("rotateAngle", rotateTab.getAngleSlider());
+            properties.setProperty("rotateCustom", rotateTab.getCustomRadioButton() ? "1" : "0");
+            properties.setProperty("rotateDifferentValue", rotateTab.getDifferentValueCheckBox() ? "1" : "0");
+            properties.setProperty("rotateMinLimit", rotateTab.getFromSpinner());
+            properties.setProperty("rotateLimit", rotateTab.getLimitCheckBox() ? "1" : "0");
+            properties.setProperty("rotatePredifiend", rotateTab.getPredefinedRadioButton() ? "1" : "0");
+            properties.setProperty("rotateRandom", rotateTab.getRandomCheckBox() ? "1" : "0");
+            properties.setProperty("rotateMaxLimit", rotateTab.getToSpinner());
+
+            properties.setProperty("watermarkColoumns", watermarkTab.getColoumnsSpinner());
+            properties.setProperty("watermarkText", watermarkTab.getEditorTextPane());
+            properties.setProperty("watermarkMode", Integer.toString(watermarkTab.getModeComboBox()));
+            properties.setProperty("watermarkOpacity", watermarkTab.getOpacitySlider());
+            properties.setProperty("watermarkPattern", Integer.toString(watermarkTab.getPatternComboBox()));
+            properties.setProperty("watermarkRows", watermarkTab.getRowsSlidder());
+            properties.setProperty("watermarkEnable", watermarkTab.getWatermarkEnableCheckBox() ? "1" : "0");
+            properties.setProperty("watermarkImage", watermarkTab.getWatermarkImageText());
             
             properties.store(out, "");
         } catch (IOException ex) {
@@ -819,46 +808,42 @@ public class BricUI extends JFrame {
             File file = propertiesChooser.getSelectedFile();
             fileInput = new FileInputStream(file);
             properties.load(fileInput);
-            
-            OutputTab outputTab = (OutputTab) editPane.getComponentAt(0);
+
             outputTab.setFileTypeComboIndex(properties.getProperty("fileTypeCombo"));
             outputTab.setOutputPathText(properties.getProperty("outputPathText"));
             outputTab.setQualitySliderValue(properties.getProperty("qualityValue"));
             outputTab.setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
-            
-            ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
-            resizeJPanel.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1"));
-            resizeJPanel.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1"));
-            resizeJPanel.setHeightSpinner(properties.getProperty("resizeHeight"));
-            resizeJPanel.setOrientationCheckBox(properties.getProperty("resizeOrientation").equals("1"));
-            resizeJPanel.setRenderingComboBox(Integer.parseInt(properties.getProperty("resizeRendering")));
-            resizeJPanel.setResizeEnableCheckBox(properties.getProperty("resizeEnable").equals("1"));
-            resizeJPanel.setResizeFilterComboBox(Integer.parseInt(properties.getProperty("resizeFilter")));
-            resizeJPanel.setSharpenComboBox(Integer.parseInt(properties.getProperty("resizeSharpen")));
-            resizeJPanel.setUnitCombo(Integer.parseInt(properties.getProperty("resizeUnits")));
-            resizeJPanel.setWidthSpinner(Integer.parseInt(properties.getProperty("resizeWidth")));
-                    
-            RotateJPanel rotateJPanel = (RotateJPanel) editPane.getComponentAt(2);
-            rotateJPanel.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1"));
-            rotateJPanel.setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
-            rotateJPanel.setAngleSlider(Integer.parseInt(properties.getProperty("rotateAngle")));
-            rotateJPanel.setCustomRadioButton(properties.getProperty("rotateCustom").equals("1"));
-            rotateJPanel.setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1"));
-            rotateJPanel.setFromSpinner(Integer.parseInt(properties.getProperty("rotateMinLimit")));
-            rotateJPanel.setLimitCheckBox(properties.getProperty("rotateLimit").equals("1"));
-            rotateJPanel.setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1"));
-            rotateJPanel.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1"));
-            rotateJPanel.setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
-            
-            WatermarkJPanel watermarkJPanel = (WatermarkJPanel) editPane.getComponentAt(3);
-            watermarkJPanel.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColoumns")));
-            watermarkJPanel.setEditorTextPane(properties.getProperty("watermarkText"));
-            watermarkJPanel.setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
-            watermarkJPanel.setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
-            watermarkJPanel.setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
-            watermarkJPanel.setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
-            watermarkJPanel.setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1"));
-            watermarkJPanel.setWatermarkImageText(properties.getProperty("watermarkImage"));
+
+            resizeTab.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1"));
+            resizeTab.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1"));
+            resizeTab.setHeightSpinner(properties.getProperty("resizeHeight"));
+            resizeTab.setOrientationCheckBox(properties.getProperty("resizeOrientation").equals("1"));
+            resizeTab.setRenderingComboBox(Integer.parseInt(properties.getProperty("resizeRendering")));
+            resizeTab.setResizeEnableCheckBox(properties.getProperty("resizeEnable").equals("1"));
+            resizeTab.setResizeFilterComboBox(Integer.parseInt(properties.getProperty("resizeFilter")));
+            resizeTab.setSharpenComboBox(Integer.parseInt(properties.getProperty("resizeSharpen")));
+            resizeTab.setUnitCombo(Integer.parseInt(properties.getProperty("resizeUnits")));
+            resizeTab.setWidthSpinner(Integer.parseInt(properties.getProperty("resizeWidth")));
+
+            rotateTab.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1"));
+            rotateTab.setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
+            rotateTab.setAngleSlider(Integer.parseInt(properties.getProperty("rotateAngle")));
+            rotateTab.setCustomRadioButton(properties.getProperty("rotateCustom").equals("1"));
+            rotateTab.setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1"));
+            rotateTab.setFromSpinner(Integer.parseInt(properties.getProperty("rotateMinLimit")));
+            rotateTab.setLimitCheckBox(properties.getProperty("rotateLimit").equals("1"));
+            rotateTab.setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1"));
+            rotateTab.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1"));
+            rotateTab.setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
+
+            watermarkTab.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColoumns")));
+            watermarkTab.setEditorTextPane(properties.getProperty("watermarkText"));
+            watermarkTab.setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
+            watermarkTab.setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
+            watermarkTab.setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
+            watermarkTab.setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
+            watermarkTab.setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1"));
+            watermarkTab.setWatermarkImageText(properties.getProperty("watermarkImage"));
             
         } catch (IOException ex) {
             Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
