@@ -35,30 +35,15 @@ public class BricUI extends JFrame {
 
     private final ImageIcon DEFAULT_ICON = new javax.swing.ImageIcon(getClass().getResource("/resource/preview.png"));
 
-    private javax.swing.JButton aboutButton;
-    private javax.swing.JButton addButton;
     private javax.swing.JToggleButton alwaysOnTopButton;
-    private javax.swing.JButton clearButton;
     private javax.swing.JPanel detailsPanel;
     private javax.swing.JTabbedPane editPane;
-    private javax.swing.JButton hideDetailsButton;
-    private javax.swing.JList inputList;
-    private javax.swing.JScrollPane inputListScrollPane;
-    private javax.swing.JPanel inputPane;
+    private javax.swing.JList<ImportedImage> inputList;
     private javax.swing.JLabel itemsCountLabel;
-    private javax.swing.JButton loadButton;
     private javax.swing.JTextPane metadataPane;
-    private javax.swing.JScrollPane metadataScrollPane;
-    private javax.swing.JButton preferencesButton;
-    private javax.swing.JButton previewButton;
     private javax.swing.JLabel previewIcon;
-    private javax.swing.JButton removeButton;
-    private javax.swing.JButton saveButton;
-    private javax.swing.JButton startButton;
-    private javax.swing.JPanel toolBar;
-    private javax.swing.JSplitPane workspace;
 
-    DefaultListModel model = new DefaultListModel();
+    DefaultListModel<ImportedImage> model;
     static int duplicateAction = Utils.NOT_SET;
     int previewState;
     
@@ -102,28 +87,29 @@ public class BricUI extends JFrame {
     }
     
     private void initComponents() {
-        toolBar = new javax.swing.JPanel();
+        JPanel toolBar = new JPanel();
         alwaysOnTopButton = new javax.swing.JToggleButton();
-        hideDetailsButton = new javax.swing.JButton();
-        preferencesButton = new javax.swing.JButton();
-        startButton = new javax.swing.JButton();
-        previewButton = new javax.swing.JButton();
-        saveButton = new javax.swing.JButton();
-        loadButton = new javax.swing.JButton();
-        aboutButton = new javax.swing.JButton();
-        workspace = new javax.swing.JSplitPane();
+        JButton hideDetailsButton = new JButton();
+        JButton preferencesButton = new JButton();
+        JButton startButton = new JButton();
+        JButton previewButton = new JButton();
+        JButton saveButton = new JButton();
+        JButton loadButton = new JButton();
+        JButton aboutButton = new JButton();
+        JSplitPane workspace = new JSplitPane();
         editPane = new javax.swing.JTabbedPane();
-        inputPane = new javax.swing.JPanel();
-        addButton = new javax.swing.JButton();
-        removeButton = new javax.swing.JButton();
-        clearButton = new javax.swing.JButton();
+        JPanel inputPane = new JPanel();
+        JButton addButton = new JButton();
+        JButton removeButton = new JButton();
+        JButton clearButton = new JButton();
         itemsCountLabel = new javax.swing.JLabel();
         detailsPanel = new javax.swing.JPanel();
         previewIcon = new javax.swing.JLabel();
-        metadataScrollPane = new javax.swing.JScrollPane();
+        JScrollPane metadataScrollPane = new JScrollPane();
         metadataPane = new javax.swing.JTextPane();
-        inputListScrollPane = new javax.swing.JScrollPane();
-        inputList = new javax.swing.JList();
+        JScrollPane inputListScrollPane = new JScrollPane();
+        model = new DefaultListModel<>();
+        inputList = new javax.swing.JList<>(model);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/BricUI"); // NOI18N
