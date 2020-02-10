@@ -1,19 +1,22 @@
 package org.bric.processor;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfWriter;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.sanselan.ImageFormat;
 import org.apache.sanselan.Sanselan;
-import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.core.input.model.ImportedImage;
+import org.bric.core.input.model.InputType;
+import org.bric.core.model.output.OutputParameters;
+import org.bric.core.model.output.OutputType;
 import org.bric.gui.inputOutput.ProgressBarFrame;
-import org.bric.imageEditParameters.OutputParameters;
 import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;
 import org.bric.imageEditParameters.WatermarkParameters;
-import org.bric.utils.PDFToImage;
 import org.bric.utils.Utils;
 
 import javax.imageio.IIOImage;
@@ -25,17 +28,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,39 +51,31 @@ public class ImageProcessHandler {
     private final OutputParameters outputParameters;
     ProgressBarFrame progressBar;
 
+    private ResizeProcessor resizeProcessor;
+    private RotateProcessor rotateProcessor;
+    private WatermarkProcessor watermarkProcessor;
+
     int modelSize;
 
     private boolean preview = false;
     private int duplicateAction = Utils.NOT_SET;
 
-    AtomicInteger numberingIndex;
-    String outputExtension;
-    String outputPath;
+    private PDDocument document;
 
-    //pdf
-    Document document;
-
-    public ImageProcessHandler(OutputParameters outputParameters, DefaultListModel<ImportedImage> model) {
+    public ImageProcessHandler(OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
-        numberingIndex = new AtomicInteger(outputParameters.getNumberingStartIndex());
-        outputExtension = outputParameters.getOutputFormat().toLowerCase();
-        outputPath = outputParameters.getOutputPath();
 
-        modelSize = model.size();
+        modelSize = inputList.size();
 
-        inputQueue = new ConcurrentLinkedQueue<>();
-        for (int i=0; i<model.getSize(); i++) {
-            inputQueue.add(model.get(i));
-        }
+        inputQueue = new ConcurrentLinkedQueue<>(inputList);
 
-        this.fileNameService = new FileNameService(outputPath, outputExtension, outputParameters.getNumberingStartIndex(), model.size());
+        this.fileNameService = new FileNameService(outputParameters.getOutputPath(),
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputList.size());
     }
 
     public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
-        DefaultListModel<ImportedImage> previewModel = new DefaultListModel<>();
-        previewModel.addElement(imageToPreview);
-
-        ImageProcessHandler process = new ImageProcessHandler(outputParameters, previewModel);
+        ImageProcessHandler process = new ImageProcessHandler(outputParameters,
+                Collections.singletonList(imageToPreview));
         process.setPreview();
 
         return process;
@@ -95,14 +87,17 @@ public class ImageProcessHandler {
 
     public void setResizeParameters(ResizeParameters resizeParameters) {
         this.resizeParameters = resizeParameters;
+        this.resizeProcessor = new ResizeProcessor(resizeParameters);
     }
 
     public void setRotateParameters(RotateParameters rotateParameters) {
         this.rotateParameters = rotateParameters;
+        this.rotateProcessor = new RotateProcessor(rotateParameters);
     }
 
     public void setWatermarkParameters(WatermarkParameters watermarkParameters) {
         this.watermarkParameters = watermarkParameters;
+        this.watermarkProcessor = new WatermarkProcessor(watermarkParameters);
     }
 
     public void start() {
@@ -111,7 +106,7 @@ public class ImageProcessHandler {
             if (firstItem == null) {
                 return;
             }
-            if (firstItem.getImageType().equalsIgnoreCase("pdf")) {
+            if (firstItem.getType() == InputType.PDF) {
                 JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
                 return;
             }
@@ -121,7 +116,7 @@ public class ImageProcessHandler {
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
 
-        if (outputExtension.equalsIgnoreCase("pdf")) {
+        if (outputParameters.getOutputType() == OutputType.PDF) {
             generatePDF();
         } else {
             ExecutorService executorService;
@@ -132,132 +127,135 @@ public class ImageProcessHandler {
             }
 
             for (int i = 0; i < modelSize; i++) {
-                executorService.submit(task(progressBar));
+                ImportedImage item = inputQueue.poll();
+                if (item == null) {
+                    continue;
+                }
+                executorService.submit(task(item));
             }
         }
     }
 
-
-
-    public Callable<Void> task(final ProgressBarFrame progressBar) {
+    private Callable<Void> task(final ImportedImage item) {
         return () -> {
-            ImportedImage importedImage = inputQueue.poll();
-
-            if (!progressBar.isVisible() || importedImage == null) {
+            if (!progressBar.isVisible()) {
                 return null;
             }
 
-            ResizeProcessor resizer = new ResizeProcessor(resizeParameters);
-            RotateProcessor rotator = new RotateProcessor(rotateParameters);
-            WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
-
-            String inputExtension = importedImage.getImageType();
-
-            if (inputExtension.equalsIgnoreCase("pdf")) {
-                if(outputExtension.equalsIgnoreCase("same as first")){
-                    generateSeparatePDF(importedImage);
+            if (item.getType() == InputType.PDF) {
+                if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
+                    generateSeparatePDF(item);
                 } else {
-                    pdfProcess(resizer, rotator, watermarker, importedImage);
+                    pdfProcess(item);
                 }
             } else {
-                bufferedImageProcess(resizer, rotator, watermarker, importedImage, null, false);
+                bufferedImageProcess(item, null);
             }
 
-            progressBar.showProgress(importedImage.getPath());
+            progressBar.showProgress(item.getPath());
             progressBar.updateValue(true);
 
             return null;
         };
     }
 
-    private void bufferedImageProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, ImportedImage importedImage, BufferedImage currentImage, boolean pdfInput) {
+    private void bufferedImageProcess(ImportedImage importedImage, BufferedImage currentImage) {
         if (currentImage == null) {
             currentImage = Utils.loadImage(importedImage.getPath());
         }
         if (resizeParameters.isEnabled()) {
-            currentImage = resizer.process(currentImage);
+            currentImage = resizeProcessor.process(currentImage);
         }
 
         if (rotateParameters.isEnabled()) {
-            currentImage = rotator.process(currentImage);
+            currentImage = rotateProcessor.process(currentImage);
         }
 
         if (watermarkParameters.isEnabled()) {
-            currentImage = watermarker.process(currentImage);
+            currentImage = watermarkProcessor.process(currentImage);
         }
 
-        if (outputExtension.equalsIgnoreCase("pdf") || pdfInput) {
+        if (outputParameters.getOutputType() == OutputType.PDF) {
             addImageToPDF(currentImage);
         } else {
             save(currentImage, fileNameService.generateFilePath(importedImage));
         }
     }
 
-    private void pdfProcess(ResizeProcessor resizer, RotateProcessor rotator, WatermarkProcessor watermarker, ImportedImage importedImage) {
-        ArrayList<BufferedImage> extractedImages = (ArrayList<BufferedImage>) PDFToImage.getBImagesFromPDF(importedImage.getPath(), 1, Integer.MAX_VALUE);
-        for (BufferedImage currentImage : extractedImages) {
-            bufferedImageProcess(resizer, rotator, watermarker, importedImage, currentImage, true);
+    private void pdfProcess(ImportedImage importedImage) {
+        try (PDDocument doc = PDDocument.load(new File(importedImage.getPath()))) {
+
+            PDFRenderer pdfRenderer = new PDFRenderer(doc);
+            for (int page = 0; page < doc.getNumberOfPages(); page++) {
+                System.out.println(page);
+                BufferedImage image = pdfRenderer.renderImageWithDPI(page, 300);
+                bufferedImageProcess(importedImage, image);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void generateSeparatePDF(ImportedImage importedImage){
-        ResizeProcessor resizer = new ResizeProcessor(resizeParameters);
-        RotateProcessor rotator = new RotateProcessor(rotateParameters);
-        WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
+        document = new PDDocument();
 
-        openDocument(fileNameService.generateFilePath(importedImage));
+        pdfProcess(importedImage);
 
-        pdfProcess(resizer, rotator, watermarker, importedImage);
-
-        document.close();
+        try {
+            document.save(fileNameService.generateFilePath(importedImage));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                document.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void generatePDF() {
-        ResizeProcessor resizer = new ResizeProcessor(resizeParameters);
-        RotateProcessor rotator = new RotateProcessor(rotateParameters);
-        WatermarkProcessor watermarker = new WatermarkProcessor(watermarkParameters);
+        document = new PDDocument();
 
-        ImportedImage firstItem = inputQueue.poll();
-        if (firstItem == null) {
-            return;
-        }
-        openDocument(fileNameService.generateFilePath(firstItem));
+        final ImportedImage firstItem = inputQueue.peek();
 
-        String inputExtension;
         for (ImportedImage importedImage : inputQueue) {
-            inputExtension = getExtension(importedImage.getPath());
-            if (inputExtension.equalsIgnoreCase("pdf")) {
-                pdfProcess(resizer, rotator, watermarker, importedImage);
+            if (importedImage.getType() == InputType.PDF) {
+                pdfProcess(importedImage);
             } else {
-                bufferedImageProcess(resizer, rotator, watermarker, importedImage, null, false);
+                bufferedImageProcess(importedImage, null);
             }
             progressBar.showProgress(importedImage.getPath());
             progressBar.updateValue(true);
         }
-        document.close();
-    }
 
-    public void openDocument(String filepath) {
         try {
-            document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(new File(filepath)));
-            document.open();
-        } catch (FileNotFoundException | DocumentException ex) {
-            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
+            document.save(fileNameService.generateFilePath(Objects.requireNonNull(firstItem)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                document.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void addImageToPDF(BufferedImage image) {
         try {
-            Rectangle pageSize = new Rectangle(image.getWidth(), image.getHeight());
-            document.setPageSize(pageSize);
-            document.newPage();
-            Image iTextImage = Image.getInstance(image, null);
-            Image pdfImage = Image.getInstance(iTextImage);
-            pdfImage.setAbsolutePosition(0, 0);
-            document.add(pdfImage);
-        } catch (DocumentException | IOException ex) {
-            Logger.getLogger(ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
+            document.addPage(page);
+
+            PDImageXObject pdImage = LosslessFactory.createFromImage(document, image);
+
+            PDPageContentStream contents = new PDPageContentStream(document, page);
+
+            contents.drawImage(pdImage, 0, 0);
+
+            contents.close();
+        } catch (IOException e){
+            System.err.println("Exception while trying to create pdf document - " + e);
         }
     }
 

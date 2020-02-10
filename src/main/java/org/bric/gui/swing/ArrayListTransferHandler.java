@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.bric.utils;
+package org.bric.gui.swing;
 
-import org.bric.gui.inputOutput.ImportedImage;
+import org.bric.core.input.model.ImportedImage;
 
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;

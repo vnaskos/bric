@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.bric.gui.rotate;
+package org.bric.gui.swing;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

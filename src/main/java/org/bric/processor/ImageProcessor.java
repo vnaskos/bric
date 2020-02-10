@@ -5,7 +5,6 @@
 package org.bric.processor;
 
 import java.awt.image.BufferedImage;
-import org.bric.imageEditParameters.ImageEditParameters;
 
 /**
  *

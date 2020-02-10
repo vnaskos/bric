@@ -4,11 +4,13 @@
  */
 package org.bric.imageEditParameters;
 
+import org.bric.core.model.TabParameters;
+
 /**
  *
  * @author vasilis
  */
-public class RotateParameters implements ImageEditParameters {
+public class RotateParameters implements TabParameters {
     private boolean enabled;
     private boolean custom;
     private boolean predefined;
