@@ -3,6 +3,7 @@ package org.bric.gui;
 import org.bric.core.input.DirectoryScanner;
 import org.bric.core.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
+import org.bric.gui.input.InputDetailsPanel;
 import org.bric.gui.input.ListModel;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
@@ -36,14 +37,10 @@ public class BricUI extends JFrame {
 
     static ResourceBundle bundle;
 
-    private final ImageIcon DEFAULT_ICON = new javax.swing.ImageIcon(getClass().getResource("/resource/preview.png"));
-
     private javax.swing.JToggleButton alwaysOnTopButton;
-    private javax.swing.JPanel detailsPanel;
+
     private javax.swing.JList<ImportedImage> inputList;
     private javax.swing.JLabel itemsCountLabel;
-    private javax.swing.JTextPane metadataPane;
-    private javax.swing.JLabel previewIcon;
 
     private final PreferencesFrame preferencesFrame;
     private final About aboutFrame;
@@ -53,10 +50,10 @@ public class BricUI extends JFrame {
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
 
+    private final InputDetailsPanel inputDetailsPanel;
+
     private ListModel<ImportedImage> model;
     static int duplicateAction = Utils.NOT_SET;
-    int previewState;
-    
 
     public static String lastOpenedDirectory = "";
 
@@ -83,6 +80,7 @@ public class BricUI extends JFrame {
         resizeTab = new ResizeJPanel();
         rotateTab = new RotateJPanel();
         watermarkTab = new WatermarkJPanel();
+        inputDetailsPanel = new InputDetailsPanel();
 
         initComponents();
 
@@ -109,10 +107,9 @@ public class BricUI extends JFrame {
         JButton removeButton = new JButton();
         JButton clearButton = new JButton();
         itemsCountLabel = new javax.swing.JLabel();
-        detailsPanel = new javax.swing.JPanel();
-        previewIcon = new javax.swing.JLabel();
-        JScrollPane metadataScrollPane = new JScrollPane();
-        metadataPane = new javax.swing.JTextPane();
+
+
+
         JScrollPane inputListScrollPane = new JScrollPane();
         model = new ListModel<>();
         inputList = new javax.swing.JList<>(model);
@@ -138,7 +135,7 @@ public class BricUI extends JFrame {
         hideDetailsButton.setBorderPainted(false);
         hideDetailsButton.setContentAreaFilled(false);
         hideDetailsButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/refresh_p.png"))); // NOI18N
-        hideDetailsButton.addActionListener(evt -> hideDetailsButtonActionPerformed());
+        hideDetailsButton.addActionListener(evt -> inputDetailsPanel.updateViewState());
 
         preferencesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/configuration.png"))); // NOI18N
         preferencesButton.setToolTipText(bundle.getString("BricUI.preferencesButton.toolTipText")); // NOI18N
@@ -264,40 +261,6 @@ public class BricUI extends JFrame {
         itemsCountLabel.setFont(new java.awt.Font("DejaVu Sans Light", Font.PLAIN, 14)); // NOI18N
         itemsCountLabel.setText(bundle.getString("BricUI.itemsCountLabel.text")); // NOI18N
 
-        detailsPanel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        detailsPanel.setMinimumSize(new java.awt.Dimension(167, 136));
-
-        previewIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        previewIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/preview.png"))); // NOI18N
-        previewIcon.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        previewIcon.setMaximumSize(new java.awt.Dimension(130, 130));
-        previewIcon.setMinimumSize(new java.awt.Dimension(130, 130));
-        previewIcon.setPreferredSize(new java.awt.Dimension(130, 130));
-
-        metadataPane.setEditable(false);
-        metadataPane.setContentType("text/html"); // NOI18N
-        metadataPane.setMinimumSize(new java.awt.Dimension(6, 128));
-        metadataPane.setPreferredSize(new java.awt.Dimension(6, 128));
-        metadataScrollPane.setViewportView(metadataPane);
-
-        javax.swing.GroupLayout detailsPanelLayout = new javax.swing.GroupLayout(detailsPanel);
-        detailsPanel.setLayout(detailsPanelLayout);
-        detailsPanelLayout.setHorizontalGroup(
-                detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(detailsPanelLayout.createSequentialGroup()
-                                .addComponent(previewIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(metadataScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
-        );
-        detailsPanelLayout.setVerticalGroup(
-                detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailsPanelLayout.createSequentialGroup()
-                                .addGap(0, 0, 0)
-                                .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(metadataScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                                        .addComponent(previewIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        );
-
         inputList.setTransferHandler(new ArrayListTransferHandler());
         inputList.setDragEnabled(true);
         inputList.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -324,7 +287,7 @@ public class BricUI extends JFrame {
                                 .addComponent(itemsCountLabel)
                                 .addContainerGap())
                         .addComponent(inputListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
-                        .addComponent(detailsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(inputDetailsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         inputPaneLayout.setVerticalGroup(
                 inputPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -338,7 +301,7 @@ public class BricUI extends JFrame {
                                                 .addComponent(clearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addComponent(itemsCountLabel))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(detailsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(inputDetailsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(2, 2, 2))
         );
 
@@ -366,7 +329,7 @@ public class BricUI extends JFrame {
         try {
             removeImages();
         } catch (Exception e) {
-            previewIcon.setIcon(DEFAULT_ICON);
+            inputDetailsPanel.clearPreview();
         }
     }
 
@@ -374,34 +337,12 @@ public class BricUI extends JFrame {
         try {
             clearAll();
         } catch (Exception e) {
-            previewIcon.setIcon(DEFAULT_ICON);
+            inputDetailsPanel.clearPreview();
         }
     }
 
     private void alwaysOnTopButtonActionPerformed() {
         this.setAlwaysOnTop(alwaysOnTopButton.isSelected());
-    }
-
-    private void hideDetailsButtonActionPerformed() {
-        previewState++;
-        switch (previewState) {
-            case 0:
-                previewIcon.setVisible(true);
-                detailsPanel.setVisible(true);
-                break;
-            case 1:
-                previewIcon.setVisible(false);
-                break;
-            case 2:
-                previewIcon.setVisible(false);
-                detailsPanel.setVisible(false);
-                break;
-            case 3:
-                previewState = 0;
-            default:
-                previewIcon.setVisible(true);
-                detailsPanel.setVisible(true);
-        }
     }
 
     private void startButtonActionPerformed() {
@@ -415,14 +356,14 @@ public class BricUI extends JFrame {
 
     private void inputListValueChanged() {
         try {
-            ImportedImage importedImage = model.get(inputList.getSelectedIndex());
+            ImportedImage selectedItem = model.get(inputList.getSelectedIndex());
             
-            generateThumbnailMetadataOnDemand(importedImage);
+            generateThumbnailMetadataOnDemand(selectedItem);
             
-            previewIcon.setIcon(importedImage.getThumbnailImageIcon());
-            previewInfo(importedImage.getPath(), importedImage.getDimensions(), importedImage.getSize());
+            inputDetailsPanel.updateIcon(selectedItem.getThumbnailImageIcon());
+            inputDetailsPanel.updateDetails(selectedItem.getPath(), selectedItem.getDimensions(), selectedItem.getSize());
         } catch (Exception e) {
-            previewIcon.setIcon(DEFAULT_ICON);
+            inputDetailsPanel.clearPreview();
         }
     }
 
@@ -533,7 +474,7 @@ public class BricUI extends JFrame {
 
     private void removeImages() {
         model.remove(inputList.getSelectedIndices());
-        metadataPane.setText("");
+        inputDetailsPanel.clear();
         updateItemsLabel();
     }
 
@@ -547,21 +488,8 @@ public class BricUI extends JFrame {
 
     private void clearAll() {
         model.clear();
-        metadataPane.setText("");
+        inputDetailsPanel.clear();
         updateItemsLabel();
-    }
-
-    private void previewInfo(String listSelected, String dimensions, long filesize) {
-        String text = "<html><body>";
-        text += "<b>" + bundle.getString("BricUI.metadata.name") + "</b><br />";
-        text += listSelected.substring(listSelected.lastIndexOf(Utils.FS) + 1) + "<br /><br />";
-        text += "<b>" + bundle.getString("BricUI.metadata.dimensions") +" </b><br />" + dimensions + "<br />";
-        if (filesize != 0) {
-            text += "<br /><b>" + bundle.getString("BricUI.metadata.filesize") + " </b><br />" + filesize / 1024 + "KB<br />";
-        }
-        text += "</body></html>";
-        metadataPane.setText(text);
-        metadataPane.setCaretPosition(0);
     }
     
     public void importImages(){
