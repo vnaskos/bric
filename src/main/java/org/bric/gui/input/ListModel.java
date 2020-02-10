@@ -38,6 +38,13 @@ public class ListModel<E> extends AbstractListModel<E> {
         fireIntervalRemoved(this, index, index);
     }
 
+    public void remove(int[] indices) {
+        for (int i=indices.length-1; i>=0; i--) {
+            remove(indices[i]);
+        }
+        fireIntervalRemoved(this, indices[0], indices[indices.length-1]);
+    }
+
     public void clear() {
         elements.clear();
         fireIntervalRemoved(this, 0, elements.size()-1);

@@ -531,19 +531,7 @@ public class BricUI extends JFrame {
     }
 
     private void removeImages() {
-        ArrayList<Integer> toBeDeleted = new ArrayList<>();
-
-        for (int number : inputList.getSelectedIndices()) {
-            toBeDeleted.add(number);
-        }
-
-        Collections.reverse(toBeDeleted);
-
-        for (int value : toBeDeleted) {
-            model.remove(value);
-            
-        }
-
+        model.remove(inputList.getSelectedIndices());
         metadataPane.setText("");
         updateItemsLabel();
     }
