@@ -714,7 +714,7 @@ public class BricUI extends JFrame {
             properties.setProperty("rotateRandom", rotateTab.getRandomCheckBox() ? "1" : "0");
             properties.setProperty("rotateMaxLimit", rotateTab.getToSpinner());
 
-            properties.setProperty("watermarkColoumns", watermarkTab.getColoumnsSpinner());
+            properties.setProperty("watermarkColumns", watermarkTab.getColoumnsSpinner());
             properties.setProperty("watermarkText", watermarkTab.getEditorTextPane());
             properties.setProperty("watermarkMode", Integer.toString(watermarkTab.getModeComboBox()));
             properties.setProperty("watermarkOpacity", watermarkTab.getOpacitySlider());
@@ -777,7 +777,7 @@ public class BricUI extends JFrame {
             rotateTab.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1"));
             rotateTab.setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
 
-            watermarkTab.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColoumns")));
+            watermarkTab.setColoumnsSpinner(Integer.parseInt(properties.getProperty("watermarkColumns")));
             watermarkTab.setEditorTextPane(properties.getProperty("watermarkText"));
             watermarkTab.setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
             watermarkTab.setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
