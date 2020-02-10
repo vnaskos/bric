@@ -9,6 +9,7 @@ import ij.ImagePlus;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.bric.core.model.ImportedImage;
+import org.bric.core.model.input.InputType;
 import org.bric.gui.inputOutput.GenerateThumbnail;
 
 import javax.imageio.ImageIO;
@@ -20,6 +21,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.prefs.Preferences;
@@ -45,35 +47,35 @@ public class Utils {
     
     public static Preferences prefs = Preferences.userRoot();
     
-    public static String[] supportedOutputExtensions = 
-            {"jpg", "jpeg", "png", "bmp", "pnm", "ppm", "pgm", "pbm", "tif", "tiff", "gif", "pdf"};
-    
-    public static String[] supportedInputExtensions = 
-            {"jpg", "jpeg", "png", "bmp", "tiff", "tif", "gif", "psd", "pnm", "ppm", "pgm", "pbm", "wbmp", "pdf"};
-    
     public static void setFileChooserProperties(JFileChooser chooser) {
         chooser.setMultiSelectionEnabled(true);
-        //jFileChooser1.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         FileNameExtensionFilter[] filters = {
-            new FileNameExtensionFilter("JPEG Image(*.jpg, *.jpeg)", "JPG", "JPEG"),
-            new FileNameExtensionFilter("PNG Images(*.png)", "PNG"),
-            new FileNameExtensionFilter("BMP Images(*.bmp)", "BMP"),
-            new FileNameExtensionFilter("TIFF Images(*.tiff, *.tif)", "TIFF", "TIF"),
-            new FileNameExtensionFilter("GIF Images(*.gif)", "GIF"),
-            new FileNameExtensionFilter("Photoshop Files(*.psd)", "PSD"),
-            new FileNameExtensionFilter("PNM Images(*.pnm)", "PNM"),
-            new FileNameExtensionFilter("PPM Images(*.ppm)", "PPM"),
-            new FileNameExtensionFilter("PGM Images(*.pgm)", "PGM"),
-            new FileNameExtensionFilter("PBM Images(*.pbm)", "PBM"),
-            new FileNameExtensionFilter("WBMP Images(*.wbmp)", "WBMP"),
-            new FileNameExtensionFilter("PDF Files(*.pdf)", "PDF"),
-            new FileNameExtensionFilter("All supported file types", "JPG", "JPEG", "PNG", "GIF", "BMP", "TIFF", "TIF", "PNM", "PPM", "PGM", "PBM", "WBMP", "PSD", "PDF")
+                extensionFilter("JPEG Image(*.jpg, *.jpeg)", InputType.JPG, InputType.JPEG),
+                extensionFilter("PNG Images(*.png)", InputType.PNG),
+                extensionFilter("BMP Images(*.bmp)", InputType.BMP),
+                extensionFilter("TIFF Images(*.tiff, *.tif)", InputType.TIFF, InputType.TIF),
+                extensionFilter("GIF Images(*.gif)", InputType.GIF),
+                extensionFilter("Photoshop Files(*.psd)", InputType.PSD),
+                extensionFilter("PNM Images(*.pnm)", InputType.PNM),
+                extensionFilter("PPM Images(*.ppm)", InputType.PPM),
+                extensionFilter("PGM Images(*.pgm)", InputType.PGM),
+                extensionFilter("PBM Images(*.pbm)", InputType.PBM),
+                extensionFilter("WBMP Images(*.wbmp)", InputType.WBMP),
+                extensionFilter("PDF Files(*.pdf)", InputType.PDF),
+                extensionFilter("All supported file types", InputType.values())
         };
 
         for (FileNameExtensionFilter filter : filters) {
             chooser.setFileFilter(filter);
         }
+    }
+
+    private static FileNameExtensionFilter extensionFilter(String description, InputType... types) {
+        return new FileNameExtensionFilter(description,
+                Arrays.stream(types)
+                      .map(t -> t.name.toUpperCase())
+                      .toArray(String[]::new));
     }
     
     public static void outOfMemoryErrorMessage(){

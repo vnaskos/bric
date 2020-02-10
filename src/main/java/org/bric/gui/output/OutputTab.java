@@ -2,7 +2,6 @@ package org.bric.gui.output;
 
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
-import org.bric.gui.BricUI;
 import org.bric.gui.tabs.ImageEditTab;
 import org.bric.utils.Utils;
 
@@ -20,6 +19,8 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
     private SpinnerNumberModel numberingModel;
 
     ResourceBundle bundle;
+
+    private String lastOpenedDirectory = "";
 
     public OutputTab() {
 
@@ -121,13 +122,13 @@ public class OutputTab extends javax.swing.JPanel implements ImageEditTab {
     }
 
     private void browseButtonActionPerformed() {
-        JFileChooser chooser = new JFileChooser(BricUI.lastOpenedDirectory);
+        JFileChooser chooser = new JFileChooser(lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
         }
         outputPathText.setText(chooser.getSelectedFile().getPath() + Utils.FS);
-        BricUI.lastOpenedDirectory = chooser.getSelectedFile().getPath();
+        lastOpenedDirectory = chooser.getSelectedFile().getPath();
     }
 
     private void fileTypeComboItemStateChanged() {

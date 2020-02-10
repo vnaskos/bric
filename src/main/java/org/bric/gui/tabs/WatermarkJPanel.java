@@ -5,7 +5,6 @@
 package org.bric.gui.tabs;
 
 import com.jhlabs.image.RotateFilter;
-import org.bric.gui.BricUI;
 import org.bric.gui.swing.JPlacer;
 import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.utils.Utils;
@@ -27,6 +26,8 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     private Color color, defaultColor;
     private String plainText;
     private Font defaultFont, currentFont;
+
+    private String lastOpenedDirectory = "";
     
     /**
      * Creates new form WatermarkPanelNew
@@ -409,13 +410,13 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     }//GEN-LAST:event_modeComboBoxActionPerformed
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
-        JFileChooser chooser = new JFileChooser(BricUI.lastOpenedDirectory);
+        JFileChooser chooser = new JFileChooser(lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
         }
         watermarkImageText.setText(chooser.getSelectedFile().getPath());
-        BricUI.lastOpenedDirectory = chooser.getSelectedFile().getPath();
+        lastOpenedDirectory = chooser.getSelectedFile().getPath();
     }//GEN-LAST:event_browseButtonActionPerformed
 
     private void editorTextPaneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editorTextPaneKeyTyped
