@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.gui.inputOutput;
 
 import org.bric.utils.Utils;
@@ -9,18 +5,15 @@ import org.bric.utils.Utils;
 import javax.swing.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Vasilis
- */
 public class ProgressBarFrame extends javax.swing.JFrame {
 
-    int processed = 0;
-    int total = 0;
-    int errors = 0;
+    private int total = 0;
+    private AtomicInteger processed;
+    private AtomicInteger errors;
     private long startTime;
     private int sleepValue;
     
@@ -31,6 +24,8 @@ public class ProgressBarFrame extends javax.swing.JFrame {
     DefaultListModel model = new DefaultListModel();
     
     public ProgressBarFrame() {
+        processed = new AtomicInteger(0);
+        errors = new AtomicInteger(0);
         initComponents();
         inputOutputList.setModel(model);
         startTime = System.currentTimeMillis();
@@ -181,21 +176,21 @@ public class ProgressBarFrame extends javax.swing.JFrame {
     }
      
     public void updateValue(boolean succeded){
-        processed++;
-        progressBar.setValue((processed*100) / total);
+        int updatedProcessedValue = processed.incrementAndGet();
+        progressBar.setValue((updatedProcessedValue*100) / total);
         updateLabel();
         
         if(!succeded){
             updateErrors();
         }
         
-        if (processed == total) {
+        if (processed.get() == total) {
             close();
         }
     }
     
     public void skip(){
-        processed++;
+        processed.getAndIncrement();
         updateLabel();
     }
     
@@ -222,7 +217,7 @@ public class ProgressBarFrame extends javax.swing.JFrame {
     }
     
     public void updateErrors(){
-        errors++;
+        errors.incrementAndGet();
         errorsLabel.setText("Errors: " + errors);
     }
     
