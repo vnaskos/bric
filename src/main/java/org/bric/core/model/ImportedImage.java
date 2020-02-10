@@ -1,12 +1,16 @@
 package org.bric.core.model;
 
+import org.bric.core.model.input.GenerationMethod;
 import org.bric.core.model.input.InputType;
+import org.bric.gui.inputOutput.Thumbnail;
 import org.bric.utils.Utils;
 
-import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 public class ImportedImage {
-    private ImageIcon thumbnailImageIcon;
+
+    private Thumbnail thumbnail;
     private String path;
     private String dimensions;
     private String name;
@@ -14,32 +18,34 @@ public class ImportedImage {
     private long size;
     private boolean corrupted = false;
 
-    public ImportedImage() {
-        
-    }
-
     public ImportedImage(String path) {
         this.path = path;
         this.name = path.substring(path.lastIndexOf(Utils.FS)+1);
-        
-        boolean thumbnail = Utils.prefs.getBoolean("thumbnail", true) && Utils.prefs.getInt("thumbWay", 0) == 0;
-        boolean metadata = Utils.prefs.getBoolean("metadata", true) && Utils.prefs.getInt("metaWay", 0) == 0;
-        
+
         if(this.name.contains(".")){
             this.name = name.substring(0, name.lastIndexOf("."));
         }
         this.type = InputType.from(path);
         
-        Utils.setMetadataThumbnail(this, metadata, thumbnail);
-        
+        Utils.setMetadataThumbnail(this, GenerationMethod.metadata() == GenerationMethod.ON_IMPORT);
+
+        if (GenerationMethod.thumbnail() == GenerationMethod.ON_IMPORT) {
+            generateThumbnail();
+        }
+//        if (GenerationMethod.metadata() == GenerationMethod.ON_IMPORT) {
+//            generateMetadata();
+//        }
+    }
+
+    private void generateThumbnail() {
+        this.thumbnail = Thumbnail.generate(this);
     }
     
-    public void setThumbnailImageIcon(ImageIcon thumbnail){
-        this.thumbnailImageIcon = thumbnail;
-    }
-    
-    public ImageIcon getThumbnailImageIcon(){
-        return thumbnailImageIcon;
+    public Optional<BufferedImage> getThumbnail() {
+        if (!corrupted && thumbnail == null && GenerationMethod.thumbnail() == GenerationMethod.ON_DEMAND) {
+            generateThumbnail();
+        }
+        return Optional.ofNullable(thumbnail.get());
     }
     
     public void setPath(String path){

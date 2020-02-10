@@ -10,7 +10,6 @@ import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.bric.core.model.ImportedImage;
 import org.bric.core.model.input.InputType;
-import org.bric.gui.inputOutput.Thumbnail;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -134,20 +133,7 @@ public class Utils {
         frame.setLocation(x, y);
     }
     
-    public static void setMetadataThumbnail(ImportedImage image, boolean metadata, boolean thumbnail){
-        if (thumbnail) {
-            if (image.getType() == InputType.PDF) {
-                image.setThumbnailImageIcon(new ImageIcon(Thumbnail.generate(image.getPath())));
-            } else {
-                BufferedImage importImage = Utils.loadImage(image.getPath());
-                if (importImage != null) {
-                    image.setThumbnailImageIcon(new ImageIcon(Thumbnail.generate(importImage)));
-                } else {
-                    image.setCorrupted(true);
-                }
-            }
-        }
-
+    public static void setMetadataThumbnail(ImportedImage image, boolean metadata) {
         if (metadata) {
             try {
                 image.setSize(new File(image.getPath()).length());

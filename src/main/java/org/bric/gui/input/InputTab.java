@@ -147,9 +147,9 @@ public class InputTab extends JPanel {
         try {
             ImportedImage selectedItem = model.get(inputList.getSelectedIndex());
 
-            generateThumbnailMetadataOnDemand(selectedItem);
-
-            inputDetailsPanel.updateIcon(selectedItem.getThumbnailImageIcon());
+            inputDetailsPanel.updateIcon(selectedItem.getThumbnail()
+                    .map(ImageIcon::new)
+                    .orElseThrow(Exception::new));
             inputDetailsPanel.updateDetails(selectedItem.getPath(), selectedItem.getDimensions(), selectedItem.getSize());
         } catch (Exception e) {
             inputDetailsPanel.clearPreview();
@@ -198,19 +198,6 @@ public class InputTab extends JPanel {
             inputDetailsPanel.clearPreview();
         }
     }
-
-    private void generateThumbnailMetadataOnDemand(ImportedImage importedImage){
-        boolean thumbnail = Utils.prefs.getBoolean("thumbnail", true)
-                && Utils.prefs.getInt("thumbWay", 0) == 1
-                && importedImage.getThumbnailImageIcon() == null;
-
-        boolean metadata = Utils.prefs.getBoolean("metadata", true)
-                && Utils.prefs.getInt("metaWay", 0) == 1
-                && importedImage.getDimensions().equals("unknown");
-
-        Utils.setMetadataThumbnail(importedImage, metadata, thumbnail);
-    }
-
 
     public void importImages(){
         final java.util.List<String> imagesList = readImages();

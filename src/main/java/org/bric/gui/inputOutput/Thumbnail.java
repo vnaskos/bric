@@ -1,5 +1,7 @@
 package org.bric.gui.inputOutput;
 
+import org.bric.core.model.ImportedImage;
+import org.bric.core.model.input.InputType;
 import org.bric.utils.PDFToImage;
 import org.bric.utils.Utils;
 
@@ -11,28 +13,33 @@ public class Thumbnail {
     public static final int DEFAULT_WIDTH = 125;
     public static final int DEFAULT_HEIGHT = 125;
 
-    public static BufferedImage generate(String filename) {
-        return generate(filename, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    private final BufferedImage image;
+
+    private Thumbnail(BufferedImage image) {
+        this.image = image;
     }
 
-    public static BufferedImage generate(Image image) {
-        return generate(image, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    public BufferedImage get() {
+        return image;
     }
 
-    public static BufferedImage generate(String filename, int thumbWidth, int thumbHeight) {
-        if(filename == null){
+    public static Thumbnail generate(ImportedImage importedImage) {
+        try {
+            BufferedImage image;
+            if (importedImage.getType() == InputType.PDF) {
+                image = PDFToImage.getBImagesFromPDF(importedImage.getPath(), 1, 1).get(0);
+            } else {
+                image = Utils.loadImage(importedImage.getPath());
+            }
+            BufferedImage scaledImage = scaleImage(image, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            return new Thumbnail(scaledImage);
+        } catch (Exception ex) {
+            importedImage.setCorrupted(true);
             return null;
         }
-        Image image;
-        if(filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("pdf")){
-            image = PDFToImage.getBImagesFromPDF(filename, 1, 1).get(0);
-        } else {
-            image = Utils.loadImage(filename);
-        }
-        return generate(image, thumbWidth, thumbHeight);
     }
 
-    public static BufferedImage generate(Image image, int thumbWidth, int thumbHeight) {
+    private static BufferedImage scaleImage(Image image, int thumbWidth, int thumbHeight) {
         if(image.getWidth(null) >= image.getHeight(null)){
             thumbHeight = (thumbWidth * image.getHeight(null)) / image.getWidth(null); 
         } else {
@@ -44,5 +51,4 @@ public class Thumbnail {
         g.dispose();
         return resizedImage;
     }
-    
 }
