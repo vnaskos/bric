@@ -43,6 +43,10 @@ public class BricUI extends JFrame {
     private javax.swing.JTextPane metadataPane;
     private javax.swing.JLabel previewIcon;
 
+    private final OutputTab outputTab;
+
+    private static HashSet<String> hash = new HashSet<>();
+
     DefaultListModel<ImportedImage> model;
     static int duplicateAction = Utils.NOT_SET;
     int previewState;
@@ -70,13 +74,15 @@ public class BricUI extends JFrame {
         Locale.setDefault(defaultLocale);
         
         bundle = ResourceBundle.getBundle("lang/gui/BricUI");
-             
+
+        outputTab = new OutputTab();
+
         initComponents();
         arrayListHandler = new ArrayListTransferHandler();
         inputList.setModel(model);
         inputList.setTransferHandler(arrayListHandler);
         inputList.setDragEnabled(true);
-        editPane.add(bundle.getString("BricUI.outputTab.name"), new OutputTab());
+        editPane.add(bundle.getString("BricUI.outputTab.name"), outputTab);
         editPane.add(bundle.getString("BricUI.resizeTab.name"), new ResizeJPanel());
         editPane.add(bundle.getString("BricUI.rotateTab.name"), new RotateJPanel());
         editPane.add(bundle.getString("BricUI.watermarkTab.name"), new WatermarkJPanel());
@@ -125,88 +131,56 @@ public class BricUI extends JFrame {
         alwaysOnTopButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp_r.png"))); // NOI18N
         alwaysOnTopButton.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp_r.png"))); // NOI18N
         alwaysOnTopButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/clasp_p.png"))); // NOI18N
-        alwaysOnTopButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                alwaysOnTopButtonActionPerformed(evt);
-            }
-        });
+        alwaysOnTopButton.addActionListener(evt -> alwaysOnTopButtonActionPerformed());
 
         hideDetailsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/refresh.png"))); // NOI18N
         hideDetailsButton.setToolTipText(bundle.getString("BricUI.hideDetailsButton.toolTipText")); // NOI18N
         hideDetailsButton.setBorderPainted(false);
         hideDetailsButton.setContentAreaFilled(false);
         hideDetailsButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/refresh_p.png"))); // NOI18N
-        hideDetailsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                hideDetailsButtonActionPerformed(evt);
-            }
-        });
+        hideDetailsButton.addActionListener(evt -> hideDetailsButtonActionPerformed());
 
         preferencesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/configuration.png"))); // NOI18N
         preferencesButton.setToolTipText(bundle.getString("BricUI.preferencesButton.toolTipText")); // NOI18N
         preferencesButton.setBorderPainted(false);
         preferencesButton.setContentAreaFilled(false);
         preferencesButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/configuration_p.png"))); // NOI18N
-        preferencesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                preferencesButtonActionPerformed(evt);
-            }
-        });
+        preferencesButton.addActionListener(evt -> preferencesFrame.setVisible(true));
 
         startButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/tick.png"))); // NOI18N
         startButton.setToolTipText(bundle.getString("BricUI.startButton.toolTipText")); // NOI18N
         startButton.setBorderPainted(false);
         startButton.setContentAreaFilled(false);
         startButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/tick_p.png"))); // NOI18N
-        startButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startButtonActionPerformed(evt);
-            }
-        });
+        startButton.addActionListener(evt -> startButtonActionPerformed());
 
         previewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/photo-camera.png"))); // NOI18N
         previewButton.setToolTipText(bundle.getString("BricUI.previewButton.toolTipText")); // NOI18N
         previewButton.setBorderPainted(false);
         previewButton.setContentAreaFilled(false);
         previewButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/photo-camera_p.png"))); // NOI18N
-        previewButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                previewButtonActionPerformed(evt);
-            }
-        });
+        previewButton.addActionListener( evt -> previewButtonActionPerformed());
 
         saveButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-floopy.png"))); // NOI18N
         saveButton.setToolTipText(bundle.getString("BricUI.saveButton.toolTipText")); // NOI18N
         saveButton.setBorderPainted(false);
         saveButton.setContentAreaFilled(false);
         saveButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-floopy_p.png"))); // NOI18N
-        saveButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveButtonActionPerformed(evt);
-            }
-        });
+        saveButton.addActionListener(evt -> saveSettings());
 
         loadButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd.png"))); // NOI18N
         loadButton.setToolTipText(bundle.getString("BricUI.loadButton.toolTipText")); // NOI18N
         loadButton.setBorderPainted(false);
         loadButton.setContentAreaFilled(false);
         loadButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/disc-cd_p.png"))); // NOI18N
-        loadButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadButtonActionPerformed(evt);
-            }
-        });
+        loadButton.addActionListener(evt -> loadSettings());
 
         aboutButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/info.png"))); // NOI18N
         aboutButton.setToolTipText(bundle.getString("BricUI.aboutButton.toolTipText")); // NOI18N
         aboutButton.setBorderPainted(false);
         aboutButton.setContentAreaFilled(false);
         aboutButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/info_p.png"))); // NOI18N
-        aboutButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                aboutButtonActionPerformed(evt);
-            }
-        });
+        aboutButton.addActionListener(evt -> aboutFrame.setVisible(true));
 
         javax.swing.GroupLayout toolBarLayout = new javax.swing.GroupLayout(toolBar);
         toolBar.setLayout(toolBarLayout);
@@ -232,7 +206,7 @@ public class BricUI extends JFrame {
                                 .addGap(9, 9, 9))
         );
 
-        toolBarLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{aboutButton, hideDetailsButton});
+        toolBarLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, aboutButton, hideDetailsButton);
 
         toolBarLayout.setVerticalGroup(
                 toolBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -267,35 +241,23 @@ public class BricUI extends JFrame {
         addButton.setContentAreaFilled(false);
         addButton.setDoubleBuffered(true);
         addButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/add_p.png"))); // NOI18N
-        addButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addButtonActionPerformed(evt);
-            }
-        });
+        addButton.addActionListener(evt -> importImages());
 
         removeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/remove.png"))); // NOI18N
         removeButton.setToolTipText(bundle.getString("BricUI.removeButton.toolTipText")); // NOI18N
         removeButton.setBorderPainted(false);
         removeButton.setContentAreaFilled(false);
         removeButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/remove_p.png"))); // NOI18N
-        removeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeButtonActionPerformed(evt);
-            }
-        });
+        removeButton.addActionListener(evt -> removeButtonActionPerformed());
 
         clearButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/error.png"))); // NOI18N
         clearButton.setToolTipText(bundle.getString("BricUI.clearButton.toolTipText")); // NOI18N
         clearButton.setBorderPainted(false);
         clearButton.setContentAreaFilled(false);
         clearButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/error_p.png"))); // NOI18N
-        clearButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearButtonActionPerformed(evt);
-            }
-        });
+        clearButton.addActionListener(evt -> clearButtonActionPerformed());
 
-        itemsCountLabel.setFont(new java.awt.Font("DejaVu Sans Light", 0, 14)); // NOI18N
+        itemsCountLabel.setFont(new java.awt.Font("DejaVu Sans Light", Font.PLAIN, 14)); // NOI18N
         itemsCountLabel.setText(bundle.getString("BricUI.itemsCountLabel.text")); // NOI18N
 
         detailsPanel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -338,11 +300,7 @@ public class BricUI extends JFrame {
                 inputListMouseClicked(evt);
             }
         });
-        inputList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                inputListValueChanged(evt);
-            }
-        });
+        inputList.addListSelectionListener(evt -> inputListValueChanged());
         inputListScrollPane.setViewportView(inputList);
 
         javax.swing.GroupLayout inputPaneLayout = new javax.swing.GroupLayout(inputPane);
@@ -398,11 +356,7 @@ public class BricUI extends JFrame {
         pack();
     }
 
-    private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        importImages();
-    }
-
-    private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void removeButtonActionPerformed() {
         try {
             removeImages();
         } catch (Exception e) {
@@ -410,7 +364,7 @@ public class BricUI extends JFrame {
         }
     }
 
-    private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void clearButtonActionPerformed() {
         try {
             clearAll();
         } catch (Exception e) {
@@ -418,15 +372,11 @@ public class BricUI extends JFrame {
         }
     }
 
-    private void preferencesButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        preferencesFrame.setVisible(true);
-    }
-
-    private void alwaysOnTopButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void alwaysOnTopButtonActionPerformed() {
         this.setAlwaysOnTop(alwaysOnTopButton.isSelected());
     }
 
-    private void hideDetailsButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void hideDetailsButtonActionPerformed() {
         previewState++;
         switch (previewState) {
             case 0:
@@ -448,16 +398,18 @@ public class BricUI extends JFrame {
         }
     }
 
-    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        if(!model.isEmpty()){
-            startProcess(false);
+    private void startButtonActionPerformed() {
+        if (model.isEmpty()) {
+            return;
         }
+
+        startProcess(false);
     }
 
 
-    private void inputListValueChanged(javax.swing.event.ListSelectionEvent evt) {
+    private void inputListValueChanged() {
         try {
-            ImportedImage importedImage = (ImportedImage) model.get(inputList.getSelectedIndex());
+            ImportedImage importedImage = model.get(inputList.getSelectedIndex());
             
             generateThumbnailMetadataOnDemand(importedImage);
             
@@ -468,10 +420,12 @@ public class BricUI extends JFrame {
         }
     }
 
-    private void previewButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        if(inputList.getSelectedValue() != null){
-            startProcess(true);
+    private void previewButtonActionPerformed() {
+        if (inputList.getSelectedValue() == null) {
+            return;
         }
+
+        startProcess(true);
     }
 
     private void inputListMouseClicked(java.awt.event.MouseEvent evt) {
@@ -480,7 +434,7 @@ public class BricUI extends JFrame {
                 if(model.isEmpty()){
                    return; 
                 }
-                ImportedImage image = (ImportedImage) model.get(inputList.getSelectedIndex());
+                ImportedImage image = model.get(inputList.getSelectedIndex());
                 Desktop.getDesktop().open(new File(image.getPath()));
             } catch (IOException ex) {
                 Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -488,22 +442,10 @@ public class BricUI extends JFrame {
         }
     }
 
-    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        saveSettings();
-    }
-
-    private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        loadSettings();
-    }
-
-    private void aboutButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        aboutFrame.setVisible(true);
-    }
-
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         /*
          * Set the Nimbus look and feel
          */
@@ -520,13 +462,7 @@ public class BricUI extends JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(BricUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(BricUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(BricUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException ex) {
             java.util.logging.Logger.getLogger(BricUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
@@ -534,14 +470,10 @@ public class BricUI extends JFrame {
         /*
          * Create and display the form
          */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                JFrame bricUI = new BricUI();
-                Utils.centerWindow(bricUI);
-                bricUI.setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            JFrame bricUI = new BricUI();
+            Utils.centerWindow(bricUI);
+            bricUI.setVisible(true);
         });
     }
 
@@ -594,7 +526,7 @@ public class BricUI extends JFrame {
     }
 
     private void removeImages() {
-        ArrayList<Integer> toBeDeleted = new ArrayList<Integer>();
+        ArrayList<Integer> toBeDeleted = new ArrayList<>();
 
         for (int number : inputList.getSelectedIndices()) {
             toBeDeleted.add(number);
@@ -603,7 +535,7 @@ public class BricUI extends JFrame {
         Collections.reverse(toBeDeleted);
 
         for (int value : toBeDeleted) {
-            removeFromHash(((ImportedImage)model.get(value)).getPath());
+            removeFromHash(model.get(value).getPath());
             model.remove(value);
             
         }
@@ -632,7 +564,7 @@ public class BricUI extends JFrame {
     private void previewInfo(String listSelected, String dimensions, long filesize) {
         String text = "<html><body>";
         text += "<b>" + bundle.getString("BricUI.metadata.name") + "</b><br />";
-        text += listSelected.substring(listSelected.lastIndexOf(Utils.FS) + 1, listSelected.length()) + "<br /><br />";
+        text += listSelected.substring(listSelected.lastIndexOf(Utils.FS) + 1) + "<br /><br />";
         text += "<b>" + bundle.getString("BricUI.metadata.dimensions") +" </b><br />" + dimensions + "<br />";
         if (filesize != 0) {
             text += "<br /><b>" + bundle.getString("BricUI.metadata.filesize") + " </b><br />" + filesize / 1024 + "KB<br />";
@@ -649,69 +581,59 @@ public class BricUI extends JFrame {
             return;
         }
         
-        Thread a  = new Thread(new Runnable() {
+        Thread a  = new Thread(() -> {
+            final ProgressBarFrame importer = new ProgressBarFrame();
+            importer.setImagesCount(imagesList.size());
+            importer.setVisible(true);
 
-            @Override
-            public void run() {
-                final ProgressBarFrame importer = new ProgressBarFrame();
-                importer.setImagesCount(imagesList.size());
-                importer.setVisible(true);
+            int processors;
+            if(Utils.prefs.getInt("importNumThreads", 0) == 0){
+                processors = Runtime.getRuntime().availableProcessors();
+            } else {
+                processors = Utils.prefs.getInt("importNumThreads", 1);
+            }
+            final int step = (int) Math.ceil((double) imagesList.size() / processors);
 
-                int processors;
-                if(Utils.prefs.getInt("importNumThreads", 0) == 0){
-                    processors = Runtime.getRuntime().availableProcessors();
-                } else {
-                    processors = Utils.prefs.getInt("importNumThreads", 1);
-                }
-                final int step = (int) Math.ceil((double) imagesList.size() / processors);
-
-                for (int j = 0; j < imagesList.size(); j += step) {
-                    importImageThread(importer, j, step);
-                }
+            for (int j = 0; j < imagesList.size(); j += step) {
+                importImageThread(importer, j, step);
             }
         });
         a.start();
     }
     
     private void importImageThread(final ProgressBarFrame importer, final int from, final int step) {
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                for (int i = from; i < from + step; i++) {
-                    if (!importer.isVisible()) {
-                        return;
-                    }
-                    if (i < imagesList.size()) {
-                        
-                        if (hash.contains(imagesList.get(i))) {
-                            duplicatePane(imagesList.get(i));
-                        }
-
-                        if (duplicateAction == Utils.REPLACE || duplicateAction == Utils.REPLACE_ALL || !hash.contains(imagesList.get(i))) {
-                            ImportedImage im = new ImportedImage( imagesList.get(i) );
-                            if(!im.isCorrupted()){
-                                addToModel(im);
-                                importer.updateValue(true);
-                            }else{
-                                importer.updateValue(false);
-                            }
-                        } else {
-                            importer.updateValue(true);
-                        }
-                        
-                        importer.showProgress(imagesList.get(i));
-                    } else {
-                        break;
-                    }
+        new Thread(() -> {
+            for (int i = from; i < from + step; i++) {
+                if (!importer.isVisible()) {
+                    return;
                 }
-                
+                if (i < imagesList.size()) {
+
+                    if (hash.contains(imagesList.get(i))) {
+                        duplicatePane(imagesList.get(i));
+                    }
+
+                    if (duplicateAction == Utils.REPLACE || duplicateAction == Utils.REPLACE_ALL || !hash.contains(imagesList.get(i))) {
+                        ImportedImage im = new ImportedImage( imagesList.get(i) );
+                        if(!im.isCorrupted()){
+                            addToModel(im);
+                            importer.updateValue(true);
+                        }else{
+                            importer.updateValue(false);
+                        }
+                    } else {
+                        importer.updateValue(true);
+                    }
+
+                    importer.showProgress(imagesList.get(i));
+                } else {
+                    break;
+                }
             }
+
         }).start();
     }
-    
-    private static HashSet<String> hash = new HashSet<String>();
-    
+
     public static void removeFromHash(String path){
         hash.remove(path);
     }
@@ -721,33 +643,30 @@ public class BricUI extends JFrame {
     }
     
     public synchronized void addToModel(final ImportedImage im) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if(hash.contains(im.getPath())){
-                    model.removeElement(im);
-                } else {
-                    hash.add(im.getPath());
-                }
-                model.addElement(im);
-                updateItemsLabel();
+        SwingUtilities.invokeLater(() -> {
+            if(hash.contains(im.getPath())){
+                model.removeElement(im);
+            } else {
+                hash.add(im.getPath());
             }
+            model.addElement(im);
+            updateItemsLabel();
         });
     }
     
     public List<String> readImages(){
-        ArrayList<String> imagePaths = new ArrayList<String>();
+        ArrayList<String> imagePaths = new ArrayList<>();
         JFileChooser chooser = new JFileChooser(lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         //Open the dialog
         if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         lastOpenedDirectory = chooser.getSelectedFile().getParent();
         
         for(File path : chooser.getSelectedFiles()){
             if(path.isDirectory()){
-                ArrayList<String> directoryChildren = new ArrayList<String>();
+                ArrayList<String> directoryChildren = new ArrayList<>();
                 scanDirectory(path, directoryChildren);
                 imagePaths.addAll(directoryChildren);
             }else{
@@ -791,42 +710,36 @@ public class BricUI extends JFrame {
     }
     
     public void startProcess(final boolean preview){
-        new Thread(new Runnable() {
+        new Thread(() -> {
+            OutputParameters outputParameters = outputTab.getImageEditParameters();
+            ResizeParameters resizeParameters = null;
+            RotateParameters rotateParameters = null;
+            WatermarkParameters watermarkParameters = null;
 
-            @Override
-            public void run() {
-                OutputParameters outputParameters = null;
-                ResizeParameters resizeParameters = null;
-                RotateParameters rotateParameters = null;
-                WatermarkParameters watermarkParameters = null;
-
-                for (int i = 0; i < editPane.getComponentCount(); i++) {
-                    TabParameters tabParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
-                    if (tabParameters instanceof OutputParameters) {
-                        outputParameters = (OutputParameters) tabParameters;
-                    } else if (tabParameters instanceof ResizeParameters) {
-                        resizeParameters = (ResizeParameters) tabParameters;
-                    } else if (tabParameters instanceof RotateParameters) {
-                        rotateParameters = (RotateParameters) tabParameters;
-                    } else if (tabParameters instanceof WatermarkParameters) {
-                        watermarkParameters = (WatermarkParameters) tabParameters;
-                    }
+            for (int i = 0; i < editPane.getComponentCount(); i++) {
+                TabParameters tabParameters = ((ImageEditTab) editPane.getComponentAt(i)).getImageEditParameters();
+                if (tabParameters instanceof ResizeParameters) {
+                    resizeParameters = (ResizeParameters) tabParameters;
+                } else if (tabParameters instanceof RotateParameters) {
+                    rotateParameters = (RotateParameters) tabParameters;
+                } else if (tabParameters instanceof WatermarkParameters) {
+                    watermarkParameters = (WatermarkParameters) tabParameters;
                 }
-
-                ImageProcessHandler mainProcess;
-                if(preview){
-                    ImportedImage imageToPreview = (ImportedImage) model.get(inputList.getSelectedIndex());
-                    mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
-                } else {
-                    mainProcess = new ImageProcessHandler(outputParameters, model);
-                }
-                mainProcess.setResizeParameters(resizeParameters);
-                mainProcess.setRotateParameters(rotateParameters);
-                mainProcess.setWatermarkParameters(watermarkParameters);
-
-                mainProcess.start();
-                
             }
+
+            ImageProcessHandler mainProcess;
+            if(preview){
+                ImportedImage imageToPreview = model.get(inputList.getSelectedIndex());
+                mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
+            } else {
+                mainProcess = new ImageProcessHandler(outputParameters, model);
+            }
+            mainProcess.setResizeParameters(resizeParameters);
+            mainProcess.setRotateParameters(rotateParameters);
+            mainProcess.setWatermarkParameters(watermarkParameters);
+
+            mainProcess.start();
+
         }).start();
     }
     
@@ -857,27 +770,27 @@ public class BricUI extends JFrame {
             properties.setProperty("startIndexValue", Integer.toString(outputTab.getStartIndexSpinnerValue()));
             
             ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
-            properties.setProperty("resizeAntialising", resizeJPanel.getAntialisingCheckBox() == true ? "1" : "0");
-            properties.setProperty("resizeAspect", resizeJPanel.getAspectCheckBox() == true ? "1" : "0");
+            properties.setProperty("resizeAntialising", resizeJPanel.getAntialisingCheckBox() ? "1" : "0");
+            properties.setProperty("resizeAspect", resizeJPanel.getAspectCheckBox() ? "1" : "0");
             properties.setProperty("resizeHeight", resizeJPanel.getHeightSpinner());
-            properties.setProperty("resizeOrientation", resizeJPanel.getOrientationCheckBox() == true ? "1" : "0");
+            properties.setProperty("resizeOrientation", resizeJPanel.getOrientationCheckBox() ? "1" : "0");
             properties.setProperty("resizeRendering", Integer.toString(resizeJPanel.getRenderingComboBox()));
-            properties.setProperty("resizeEnable", resizeJPanel.getResizeEnableCheckBox() == true ? "1" : "0");
+            properties.setProperty("resizeEnable", resizeJPanel.getResizeEnableCheckBox() ? "1" : "0");
             properties.setProperty("resizeFilter", Integer.toString(resizeJPanel.getResizeFilterComboBox()));
             properties.setProperty("resizeSharpen", Integer.toString(resizeJPanel.getSharpenComboBox()));
             properties.setProperty("resizeUnits", Integer.toString(resizeJPanel.getUnitCombo()));
             properties.setProperty("resizeWidth", resizeJPanel.getWidthSpinner());
             
             RotateJPanel rotateJPanel = (RotateJPanel) editPane.getComponentAt(2);
-            properties.setProperty("rotateEnable", rotateJPanel.getRotateEnableCheckBox() == true ? "1" : "0");
+            properties.setProperty("rotateEnable", rotateJPanel.getRotateEnableCheckBox() ? "1" : "0");
             properties.setProperty("rotateAction", Integer.toString(rotateJPanel.getActionsComboBox()));
             properties.setProperty("rotateAngle", rotateJPanel.getAngleSlider());
-            properties.setProperty("rotateCustom", rotateJPanel.getCustomRadioButton() == true ? "1" : "0");
-            properties.setProperty("rotateDifferentValue", rotateJPanel.getDifferentValueCheckBox() == true ? "1" : "0");
+            properties.setProperty("rotateCustom", rotateJPanel.getCustomRadioButton() ? "1" : "0");
+            properties.setProperty("rotateDifferentValue", rotateJPanel.getDifferentValueCheckBox() ? "1" : "0");
             properties.setProperty("rotateMinLimit", rotateJPanel.getFromSpinner());
-            properties.setProperty("rotateLimit", rotateJPanel.getLimitCheckBox() == true ? "1" : "0");
-            properties.setProperty("rotatePredifiend", rotateJPanel.getPredefinedRadioButton() == true ? "1" : "0");
-            properties.setProperty("rotateRandom", rotateJPanel.getRandomCheckBox() == true ? "1" : "0");
+            properties.setProperty("rotateLimit", rotateJPanel.getLimitCheckBox() ? "1" : "0");
+            properties.setProperty("rotatePredifiend", rotateJPanel.getPredefinedRadioButton() ? "1" : "0");
+            properties.setProperty("rotateRandom", rotateJPanel.getRandomCheckBox() ? "1" : "0");
             properties.setProperty("rotateMaxLimit", rotateJPanel.getToSpinner());
             
             WatermarkJPanel watermarkJPanel = (WatermarkJPanel) editPane.getComponentAt(3);
@@ -887,7 +800,7 @@ public class BricUI extends JFrame {
             properties.setProperty("watermarkOpacity", watermarkJPanel.getOpacitySlider());
             properties.setProperty("watermarkPattern", Integer.toString(watermarkJPanel.getPatternComboBox()));
             properties.setProperty("watermarkRows", watermarkJPanel.getRowsSlidder());
-            properties.setProperty("watermarkEnable", watermarkJPanel.getWatermarkEnableCheckBox() == true ? "1" : "0");
+            properties.setProperty("watermarkEnable", watermarkJPanel.getWatermarkEnableCheckBox() ? "1" : "0");
             properties.setProperty("watermarkImage", watermarkJPanel.getWatermarkImageText());
             
             properties.store(out, "");
@@ -924,27 +837,27 @@ public class BricUI extends JFrame {
             outputTab.setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
             
             ResizeJPanel resizeJPanel = (ResizeJPanel) editPane.getComponentAt(1);
-            resizeJPanel.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1") ? true : false);
-            resizeJPanel.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1") ? true : false);
+            resizeJPanel.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1"));
+            resizeJPanel.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1"));
             resizeJPanel.setHeightSpinner(properties.getProperty("resizeHeight"));
-            resizeJPanel.setOrientationCheckBox(properties.getProperty("resizeOrientation").equals("1") ? true : false);
+            resizeJPanel.setOrientationCheckBox(properties.getProperty("resizeOrientation").equals("1"));
             resizeJPanel.setRenderingComboBox(Integer.parseInt(properties.getProperty("resizeRendering")));
-            resizeJPanel.setResizeEnableCheckBox(properties.getProperty("resizeEnable").equals("1") ? true : false);
+            resizeJPanel.setResizeEnableCheckBox(properties.getProperty("resizeEnable").equals("1"));
             resizeJPanel.setResizeFilterComboBox(Integer.parseInt(properties.getProperty("resizeFilter")));
             resizeJPanel.setSharpenComboBox(Integer.parseInt(properties.getProperty("resizeSharpen")));
             resizeJPanel.setUnitCombo(Integer.parseInt(properties.getProperty("resizeUnits")));
             resizeJPanel.setWidthSpinner(Integer.parseInt(properties.getProperty("resizeWidth")));
                     
             RotateJPanel rotateJPanel = (RotateJPanel) editPane.getComponentAt(2);
-            rotateJPanel.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1") ? true : false);
+            rotateJPanel.setRotateEnableCheckBox(properties.getProperty("rotateEnable").equals("1"));
             rotateJPanel.setActionsComboBox(Integer.parseInt(properties.getProperty("rotateAction")));
             rotateJPanel.setAngleSlider(Integer.parseInt(properties.getProperty("rotateAngle")));
-            rotateJPanel.setCustomRadioButton(properties.getProperty("rotateCustom").equals("1") ? true : false);
-            rotateJPanel.setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1") ? true : false);
+            rotateJPanel.setCustomRadioButton(properties.getProperty("rotateCustom").equals("1"));
+            rotateJPanel.setDifferentValueCheckBox(properties.getProperty("rotateDifferentValue").equals("1"));
             rotateJPanel.setFromSpinner(Integer.parseInt(properties.getProperty("rotateMinLimit")));
-            rotateJPanel.setLimitCheckBox(properties.getProperty("rotateLimit").equals("1") ? true : false);
-            rotateJPanel.setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1") ? true : false);
-            rotateJPanel.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1") ? true : false);
+            rotateJPanel.setLimitCheckBox(properties.getProperty("rotateLimit").equals("1"));
+            rotateJPanel.setPredefinedRadioButton(properties.getProperty("rotatePredifiend").equals("1"));
+            rotateJPanel.setRandomCheckBox(properties.getProperty("rotateRandom").equals("1"));
             rotateJPanel.setToSpinner(Integer.parseInt(properties.getProperty("rotateMaxLimit")));
             
             WatermarkJPanel watermarkJPanel = (WatermarkJPanel) editPane.getComponentAt(3);
@@ -954,7 +867,7 @@ public class BricUI extends JFrame {
             watermarkJPanel.setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
             watermarkJPanel.setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
             watermarkJPanel.setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
-            watermarkJPanel.setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1") ? true : false);
+            watermarkJPanel.setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1"));
             watermarkJPanel.setWatermarkImageText(properties.getProperty("watermarkImage"));
             
         } catch (IOException ex) {
