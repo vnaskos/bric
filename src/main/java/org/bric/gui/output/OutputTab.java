@@ -2,8 +2,8 @@ package org.bric.gui.output;
 
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
+import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.tabs.ImageEditTab;
-import org.bric.gui.tabs.StatefulComponent;
 import org.bric.utils.Utils;
 
 import javax.swing.*;

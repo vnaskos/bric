@@ -1,5 +1,6 @@
 package org.bric.gui.tabs;
 
+import org.bric.gui.state.StatefulComponent;
 import org.bric.imageEditParameters.ResizeParameters;
 
 import javax.swing.*;

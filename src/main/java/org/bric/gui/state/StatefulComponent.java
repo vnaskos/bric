@@ -1,4 +1,4 @@
-package org.bric.gui.tabs;
+package org.bric.gui.state;
 
 import java.util.Properties;
 

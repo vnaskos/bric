@@ -1,5 +1,6 @@
 package org.bric.gui.tabs;
 
+import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.swing.JRotator;
 import org.bric.imageEditParameters.RotateParameters;
 
