@@ -41,7 +41,7 @@ public class BricUI extends JFrame {
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
 
-    JFileChooser propertiesChooser;
+
     Properties properties;
     
     /**
@@ -73,7 +73,6 @@ public class BricUI extends JFrame {
         properties = new Properties();
         
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
-        initializeProperties();
     }
     
     private void initComponents() {
@@ -300,15 +299,17 @@ public class BricUI extends JFrame {
         mainProcess.start();
     }
     
-    private void initializeProperties(){
-        propertiesChooser = new JFileChooser();
+    private static JFileChooser propertiesFileChooser() {
+        JFileChooser propertiesChooser = new JFileChooser();
         propertiesChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         propertiesChooser.setFileFilter(new FileNameExtensionFilter("properties file(*.properties)", "PROPERTIES"));
+        return propertiesChooser;
     }
     
     private void saveSettings() {
         FileOutputStream out = null;
         try {
+            JFileChooser propertiesChooser = BricUI.propertiesFileChooser();
             propertiesChooser.setDialogTitle("Save properties");
             
             if (propertiesChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
@@ -320,10 +321,7 @@ public class BricUI extends JFrame {
             }
             out = new FileOutputStream(new File(file));
 
-            properties.setProperty("fileTypeCombo", Integer.toString(outputTab.getFileTypeComboIndex()));
-            properties.setProperty("outputPathText", outputTab.getOutputPathText());
-            properties.setProperty("qualityValue", Integer.toString(outputTab.getQualitySliderValue()));
-            properties.setProperty("startIndexValue", Integer.toString(outputTab.getStartIndexSpinnerValue()));
+            properties = outputTab.saveState(properties);
 
             properties.setProperty("resizeAntialising", resizeTab.getAntialisingCheckBox() ? "1" : "0");
             properties.setProperty("resizeAspect", resizeTab.getAspectCheckBox() ? "1" : "0");
@@ -373,6 +371,7 @@ public class BricUI extends JFrame {
     private void loadSettings() {
         FileInputStream fileInput = null;
         try {
+            JFileChooser propertiesChooser = BricUI.propertiesFileChooser();
             propertiesChooser.setDialogTitle("Load properties");
 
             if (propertiesChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
@@ -383,10 +382,7 @@ public class BricUI extends JFrame {
             fileInput = new FileInputStream(file);
             properties.load(fileInput);
 
-            outputTab.setFileTypeComboIndex(properties.getProperty("fileTypeCombo"));
-            outputTab.setOutputPathText(properties.getProperty("outputPathText"));
-            outputTab.setQualitySliderValue(properties.getProperty("qualityValue"));
-            outputTab.setStartIndexSpinnerValue(Integer.parseInt(properties.getProperty("startIndexValue")));
+            outputTab.restoreState(properties);
 
             resizeTab.setAntialisingCheckBox(properties.getProperty("resizeAntialising").equals("1"));
             resizeTab.setAspectCheckBox(properties.getProperty("resizeAspect").equals("1"));
