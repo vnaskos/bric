@@ -26,6 +26,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +49,7 @@ public class BricUI extends JFrame {
 
     private final OutputTab outputTab;
 
-    private static HashSet<String> hash = new HashSet<>();
+    private static Set<String> hash = new ConcurrentSkipListSet<>();
 
     DefaultListModel<ImportedImage> model;
     static int duplicateAction = Utils.NOT_SET;
@@ -54,8 +58,7 @@ public class BricUI extends JFrame {
     private PreferencesFrame preferencesFrame = new PreferencesFrame();
     private About aboutFrame = new About();
     public static String lastOpenedDirectory = "";
-    
-    List<String> imagesList;
+
     ArrayListTransferHandler arrayListHandler;
     
     JFileChooser propertiesChooser;
@@ -554,9 +557,7 @@ public class BricUI extends JFrame {
 
     private void clearAll() {
         model.clear();
-        imagesList.clear();
         clearHash();
-        System.gc();
         metadataPane.setText("");
         updateItemsLabel();
     }
@@ -575,63 +576,50 @@ public class BricUI extends JFrame {
     }
     
     public void importImages(){
-        imagesList = readImages();
+        final List<String> imagesList = readImages();
         
-        if(imagesList == Collections.EMPTY_LIST){
+        if(imagesList.isEmpty()){
             return;
         }
-        
-        Thread a  = new Thread(() -> {
-            final ProgressBarFrame importer = new ProgressBarFrame();
-            importer.setImagesCount(imagesList.size());
-            importer.setVisible(true);
 
-            int processors;
-            if(Utils.prefs.getInt("importNumThreads", 0) == 0){
-                processors = Runtime.getRuntime().availableProcessors();
-            } else {
-                processors = Utils.prefs.getInt("importNumThreads", 1);
-            }
-            final int step = (int) Math.ceil((double) imagesList.size() / processors);
+        ExecutorService executorService;
+        if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
+            executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
+        } else {
+            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
+        }
 
-            for (int j = 0; j < imagesList.size(); j += step) {
-                importImageThread(importer, j, step);
-            }
-        });
-        a.start();
+        final ProgressBarFrame importer = new ProgressBarFrame();
+        importer.setImagesCount(imagesList.size());
+        importer.setVisible(true);
+
+        for (String s : imagesList) {
+            executorService.submit(importFile(importer, s));
+        }
     }
-    
-    private void importImageThread(final ProgressBarFrame importer, final int from, final int step) {
-        new Thread(() -> {
-            for (int i = from; i < from + step; i++) {
-                if (!importer.isVisible()) {
-                    return;
-                }
-                if (i < imagesList.size()) {
 
-                    if (hash.contains(imagesList.get(i))) {
-                        duplicatePane(imagesList.get(i));
-                    }
-
-                    if (duplicateAction == Utils.REPLACE || duplicateAction == Utils.REPLACE_ALL || !hash.contains(imagesList.get(i))) {
-                        ImportedImage im = new ImportedImage( imagesList.get(i) );
-                        if(!im.isCorrupted()){
-                            addToModel(im);
-                            importer.updateValue(true);
-                        }else{
-                            importer.updateValue(false);
-                        }
-                    } else {
-                        importer.updateValue(true);
-                    }
-
-                    importer.showProgress(imagesList.get(i));
-                } else {
-                    break;
-                }
+    private Callable<Void> importFile(final ProgressBarFrame progressBar, final String path) {
+        return () -> {
+            if (hash.contains(path)) {
+                duplicatePane(path);
             }
 
-        }).start();
+            if (duplicateAction == Utils.REPLACE || duplicateAction == Utils.REPLACE_ALL || !hash.contains(path)) {
+                ImportedImage im = new ImportedImage(path);
+                if(!im.isCorrupted()){
+                    addToModel(im);
+                    progressBar.updateValue(true);
+                }else{
+                    progressBar.updateValue(false);
+                }
+            } else {
+                progressBar.updateValue(true);
+            }
+
+            progressBar.showProgress(path);
+
+            return null;
+        };
     }
 
     public static void removeFromHash(String path){
@@ -642,20 +630,22 @@ public class BricUI extends JFrame {
         hash.clear();
     }
     
-    public synchronized void addToModel(final ImportedImage im) {
-        SwingUtilities.invokeLater(() -> {
-            if(hash.contains(im.getPath())){
-                model.removeElement(im);
-            } else {
-                hash.add(im.getPath());
-            }
-            model.addElement(im);
-            updateItemsLabel();
-        });
+    public void addToModel(final ImportedImage im) {
+        synchronized (this) {
+            SwingUtilities.invokeLater(() -> {
+                if (hash.contains(im.getPath())) {
+                    model.removeElement(im);
+                } else {
+                    hash.add(im.getPath());
+                }
+                model.addElement(im);
+                updateItemsLabel();
+            });
+        }
     }
     
     public List<String> readImages(){
-        ArrayList<String> imagePaths = new ArrayList<>();
+        List<String> imagePaths = new ArrayList<>();
         JFileChooser chooser = new JFileChooser(lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         //Open the dialog
