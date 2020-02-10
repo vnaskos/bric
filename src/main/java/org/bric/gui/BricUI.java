@@ -648,26 +648,23 @@ public class BricUI extends JFrame {
     }
     
     public void startProcess(final boolean preview){
-        new Thread(() -> {
-            OutputParameters outputParameters = outputTab.getImageEditParameters();
-            ResizeParameters resizeParameters = resizeTab.getImageEditParameters();
-            RotateParameters rotateParameters = rotateTab.getImageEditParameters();
-            WatermarkParameters watermarkParameters = watermarkTab.getImageEditParameters();
+        OutputParameters outputParameters = outputTab.getImageEditParameters();
+        ResizeParameters resizeParameters = resizeTab.getImageEditParameters();
+        RotateParameters rotateParameters = rotateTab.getImageEditParameters();
+        WatermarkParameters watermarkParameters = watermarkTab.getImageEditParameters();
 
-            ImageProcessHandler mainProcess;
-            if(preview){
-                ImportedImage imageToPreview = model.get(inputList.getSelectedIndex());
-                mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
-            } else {
-                mainProcess = new ImageProcessHandler(outputParameters, model.getElements());
-            }
-            mainProcess.setResizeParameters(resizeParameters);
-            mainProcess.setRotateParameters(rotateParameters);
-            mainProcess.setWatermarkParameters(watermarkParameters);
+        ImageProcessHandler mainProcess;
+        if(preview){
+            ImportedImage imageToPreview = model.get(inputList.getSelectedIndex());
+            mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
+        } else {
+            mainProcess = new ImageProcessHandler(outputParameters, model.getElements());
+        }
+        mainProcess.setResizeParameters(resizeParameters);
+        mainProcess.setRotateParameters(rotateParameters);
+        mainProcess.setWatermarkParameters(watermarkParameters);
 
-            mainProcess.start();
-
-        }).start();
+        mainProcess.start();
     }
     
     private void initializeProperties(){
