@@ -1,7 +1,7 @@
 package org.bric.gui;
 
+import org.bric.core.input.DirectoryScanner;
 import org.bric.core.model.ImportedImage;
-import org.bric.core.model.input.InputType;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.input.ListModel;
 import org.bric.gui.inputOutput.ProgressBarFrame;
@@ -620,7 +620,6 @@ public class BricUI extends JFrame {
     }
     
     public List<String> readImages(){
-        List<String> imagePaths = new ArrayList<>();
         JFileChooser chooser = new JFileChooser(lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         //Open the dialog
@@ -628,15 +627,10 @@ public class BricUI extends JFrame {
             return Collections.emptyList();
         }
         lastOpenedDirectory = chooser.getSelectedFile().getParent();
-        
-        for(File path : chooser.getSelectedFiles()){
-            if(path.isDirectory()){
-                ArrayList<String> directoryChildren = new ArrayList<>();
-                scanDirectory(path, directoryChildren);
-                imagePaths.addAll(directoryChildren);
-            }else{
-                imagePaths.add(path.getPath());
-            }
+
+        List<String> imagePaths = new ArrayList<>();
+        for (File source : chooser.getSelectedFiles()) {
+            imagePaths.addAll(DirectoryScanner.listFiles(source));
         }
         return imagePaths;
     }
@@ -651,26 +645,6 @@ public class BricUI extends JFrame {
                 && importedImage.getDimensions().equals("unknown");
 
         Utils.setMetadataThumbnail(importedImage, metadata, thumbnail);
-    }
-    
-    private void scanDirectory(File file, ArrayList<String> list) {
-        File[] children = file.listFiles();
-
-        if (children == null) {
-            return;
-        }
-
-        for (File child : children) {
-            if (child.isFile() && child.getName().contains(".")) {
-                String extension = child.toString().substring(child.toString().lastIndexOf('.') + 1);
-
-                if (InputType.isSupported(extension)) {
-                    list.add(child.getPath());
-                }
-            } else if (child.isDirectory()) {
-                scanDirectory(child, list);
-            }
-        }
     }
     
     public void startProcess(final boolean preview){
