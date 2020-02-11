@@ -60,8 +60,6 @@ public class ImageProcessHandler {
     private boolean preview = false;
     private int duplicateAction = Utils.NOT_SET;
 
-    private PDDocument document;
-
     public ImageProcessHandler(OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
 
@@ -146,10 +144,10 @@ public class ImageProcessHandler {
                 if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
                     generateSeparatePDF(item);
                 } else {
-                    pdfProcess(item);
+                    pdfProcess(null, item);
                 }
             } else {
-                bufferedImageProcess(item, null);
+                bufferedImageProcess(null, item, null);
             }
 
             progressBar.showProgress(item.getPath());
@@ -159,37 +157,37 @@ public class ImageProcessHandler {
         };
     }
 
-    private void bufferedImageProcess(ImportedImage importedImage, BufferedImage currentImage) {
+    private void bufferedImageProcess(PDDocument doc, ImportedImage importedImage, BufferedImage currentImage) {
         if (currentImage == null) {
             currentImage = Utils.loadImage(importedImage.getPath());
         }
-        if (resizeParameters.isEnabled()) {
+        if (resizeParameters != null && resizeParameters.isEnabled()) {
             currentImage = resizeProcessor.process(currentImage);
         }
 
-        if (rotateParameters.isEnabled()) {
+        if (rotateParameters != null && rotateParameters.isEnabled()) {
             currentImage = rotateProcessor.process(currentImage);
         }
 
-        if (watermarkParameters.isEnabled()) {
+        if (watermarkParameters != null && watermarkParameters.isEnabled()) {
             currentImage = watermarkProcessor.process(currentImage);
         }
 
-        if (outputParameters.getOutputType() == OutputType.PDF) {
-            addImageToPDF(currentImage);
+        if (outputParameters.getOutputType() == OutputType.PDF ||
+                (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST && importedImage.getType() == InputType.PDF)) {
+            addImageToPDF(doc, currentImage);
         } else {
             save(currentImage, fileNameService.generateFilePath(importedImage));
         }
     }
 
-    private void pdfProcess(ImportedImage importedImage) {
+    private void pdfProcess(PDDocument document, ImportedImage importedImage) {
         try (PDDocument doc = PDDocument.load(new File(importedImage.getPath()))) {
 
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
             for (int page = 0; page < doc.getNumberOfPages(); page++) {
-                System.out.println(page);
                 BufferedImage image = pdfRenderer.renderImageWithDPI(page, 300);
-                bufferedImageProcess(importedImage, image);
+                bufferedImageProcess(document, importedImage, image);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,12 +195,12 @@ public class ImageProcessHandler {
     }
 
     public void generateSeparatePDF(ImportedImage importedImage){
-        document = new PDDocument();
+        PDDocument document = new PDDocument();
 
-        pdfProcess(importedImage);
+        pdfProcess(document, importedImage);
 
         try {
-            document.save(fileNameService.generateFilePath(importedImage));
+            document.save(fileNameService.generateFilePath(Objects.requireNonNull(importedImage)));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -215,15 +213,15 @@ public class ImageProcessHandler {
     }
 
     public void generatePDF() {
-        document = new PDDocument();
+        PDDocument document = new PDDocument();
 
         final ImportedImage firstItem = inputQueue.peek();
 
         for (ImportedImage importedImage : inputQueue) {
             if (importedImage.getType() == InputType.PDF) {
-                pdfProcess(importedImage);
+                pdfProcess(document, importedImage);
             } else {
-                bufferedImageProcess(importedImage, null);
+                bufferedImageProcess(document, importedImage, null);
             }
             progressBar.showProgress(importedImage.getPath());
             progressBar.updateValue(true);
@@ -242,14 +240,14 @@ public class ImageProcessHandler {
         }
     }
 
-    public void addImageToPDF(BufferedImage image) {
+    public void addImageToPDF(PDDocument doc, BufferedImage image) {
         try {
             PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
-            document.addPage(page);
+            doc.addPage(page);
 
-            PDImageXObject pdImage = LosslessFactory.createFromImage(document, image);
+            PDImageXObject pdImage = LosslessFactory.createFromImage(doc, image);
 
-            PDPageContentStream contents = new PDPageContentStream(document, page);
+            PDPageContentStream contents = new PDPageContentStream(doc, page);
 
             contents.drawImage(pdImage, 0, 0);
 
