@@ -38,100 +38,119 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ImageProcessHandler {
 
-    private FileNameService fileNameService;
-
-    private Queue<ImportedImage> inputQueue;
-
-    ResizeParameters resizeParameters;
-    RotateParameters rotateParameters;
-    WatermarkParameters watermarkParameters;
+    private final Queue<ImportedImage> inputQueue;
     private final OutputParameters outputParameters;
-    ProgressBarFrame progressBar;
+    private final List<ImageProcessor<?>> processors;
 
-    private ResizeProcessor resizeProcessor;
-    private RotateProcessor rotateProcessor;
-    private WatermarkProcessor watermarkProcessor;
+    private final FileNameService fileNameService;
+    private ProgressBarFrame progressBar;
 
-    int modelSize;
-
-    private boolean preview = false;
+    private int modelSize;
     private int duplicateAction = Utils.NOT_SET;
 
-    public ImageProcessHandler(OutputParameters outputParameters, List<ImportedImage> inputList) {
+    public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
+        this.processors = new ArrayList<>();
 
-        modelSize = inputList.size();
+        inputQueue = inputList.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
 
-        inputQueue = new ConcurrentLinkedQueue<>(inputList);
+        modelSize = inputQueue.size();
 
-        this.fileNameService = new FileNameService(outputParameters.getOutputPath(),
-                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputList.size());
+        this.fileNameService = fileNameService;
+
     }
 
-    public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
-        ImageProcessHandler process = new ImageProcessHandler(outputParameters,
+    public static void preview(ImportedImage imageToPreview, ImageProcessor<?>... processors) {
+        File temporary;
+        try {
+            temporary = File.createTempFile("preview", ".jpg");
+            temporary.deleteOnExit();
+        } catch (IOException ex) {
+            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+
+        OutputParameters outputParameters = new OutputParameters(
+                temporary.getAbsolutePath().replace(".jpg", ""),
+                OutputType.JPG, 1, 1);
+        FileNameService fileNameService = new FileNameService(
+                outputParameters.getOutputPath(), outputParameters.getOutputType(),
+                outputParameters.getNumberingStartIndex(), 1);
+        ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
                 Collections.singletonList(imageToPreview));
-        process.setPreview();
-
-        return process;
+        handler.addProcessors(processors);
+        handler.preview(temporary);
     }
 
-    private void setPreview() {
-        this.preview = true;
+    private void preview(File temporary) {
+        final ImportedImage item = inputQueue.peek();
+        if (item == null) {
+            return;
+        }
+        if (item.getType() == InputType.PDF) {
+            JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
+            return;
+        }
+
+        duplicateAction = Utils.OVERWRITE_ALL;
+        progressBar = new ProgressBarFrame();
+        progressBar.setVisible(true);
+        progressBar.setImagesCount(modelSize);
+
+        try {
+            task(inputQueue.poll()).call();
+            Desktop.getDesktop().open(temporary);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addProcessors(ImageProcessor<?>... processors) {
+        Collections.addAll(this.processors, processors);
     }
 
     public void setResizeParameters(ResizeParameters resizeParameters) {
-        this.resizeParameters = resizeParameters;
-        this.resizeProcessor = new ResizeProcessor(resizeParameters);
+        processors.add(new ResizeProcessor(resizeParameters));
     }
 
     public void setRotateParameters(RotateParameters rotateParameters) {
-        this.rotateParameters = rotateParameters;
-        this.rotateProcessor = new RotateProcessor(rotateParameters);
+        processors.add(new RotateProcessor(rotateParameters));
     }
 
     public void setWatermarkParameters(WatermarkParameters watermarkParameters) {
-        this.watermarkParameters = watermarkParameters;
-        this.watermarkProcessor = new WatermarkProcessor(watermarkParameters);
+        processors.add(new WatermarkProcessor(watermarkParameters));
     }
 
     public void start() {
-        if(preview){
-            ImportedImage firstItem = inputQueue.poll();
-            if (firstItem == null) {
-                return;
-            }
-            if (firstItem.getType() == InputType.PDF) {
-                JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
-                return;
-            }
-        }
-
         progressBar = new ProgressBarFrame();
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
 
         if (outputParameters.getOutputType() == OutputType.PDF) {
-            generatePDF();
+            generatePDF(inputQueue);
         } else {
-            ExecutorService executorService;
-            if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
-                executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
-            } else {
-                executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
-            }
+            ExecutorService executorService = getExecutorService();
 
-            for (int i = 0; i < modelSize; i++) {
-                ImportedImage item = inputQueue.poll();
-                if (item == null) {
-                    continue;
-                }
-                executorService.submit(task(item));
+            while (!inputQueue.isEmpty()) {
+                executorService.submit(task(inputQueue.poll()));
             }
         }
+    }
+
+    private ExecutorService getExecutorService() {
+        ExecutorService executorService;
+        if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
+            executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
+        } else {
+            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
+        }
+        return executorService;
     }
 
     private Callable<Void> task(final ImportedImage item) {
@@ -142,7 +161,9 @@ public class ImageProcessHandler {
 
             if (item.getType() == InputType.PDF) {
                 if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
-                    generateSeparatePDF(item);
+                    generatePDF(new LinkedList<ImportedImage>() {
+                        {add(item);}
+                    });
                 } else {
                     pdfProcess(null, item);
                 }
@@ -161,16 +182,11 @@ public class ImageProcessHandler {
         if (currentImage == null) {
             currentImage = Utils.loadImage(importedImage.getPath());
         }
-        if (resizeParameters != null && resizeParameters.isEnabled()) {
-            currentImage = resizeProcessor.process(currentImage);
-        }
 
-        if (rotateParameters != null && rotateParameters.isEnabled()) {
-            currentImage = rotateProcessor.process(currentImage);
-        }
-
-        if (watermarkParameters != null && watermarkParameters.isEnabled()) {
-            currentImage = watermarkProcessor.process(currentImage);
+        for (ImageProcessor<?> processor : processors) {
+            if (processor.isEnabled()) {
+                currentImage = processor.process(currentImage);
+            }
         }
 
         if (outputParameters.getOutputType() == OutputType.PDF ||
@@ -194,30 +210,16 @@ public class ImageProcessHandler {
         }
     }
 
-    public void generateSeparatePDF(ImportedImage importedImage){
+    public void generatePDF(Queue<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
-        pdfProcess(document, importedImage);
+        final ImportedImage firstItem = input.peek();
 
-        try {
-            document.save(fileNameService.generateFilePath(Objects.requireNonNull(importedImage)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                document.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (firstItem == null) {
+            return;
         }
-    }
 
-    public void generatePDF() {
-        PDDocument document = new PDDocument();
-
-        final ImportedImage firstItem = inputQueue.peek();
-
-        for (ImportedImage importedImage : inputQueue) {
+        for (ImportedImage importedImage : input) {
             if (importedImage.getType() == InputType.PDF) {
                 pdfProcess(document, importedImage);
             } else {
@@ -228,7 +230,7 @@ public class ImageProcessHandler {
         }
 
         try {
-            document.save(fileNameService.generateFilePath(Objects.requireNonNull(firstItem)));
+            document.save(fileNameService.generateFilePath(firstItem));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -334,25 +336,8 @@ public class ImageProcessHandler {
         }
         return duplicateAction == Utils.SKIP || duplicateAction == Utils.SKIP_ALL;
     }
-    
-    public void previewProcess(BufferedImage image){
-        try {
-            File temporary = File.createTempFile("preview", ".jpg");
-            temporary.deleteOnExit();
-            ImageIO.write(image,"jpg",temporary);
-            Desktop.getDesktop().open(temporary);
-        } catch (IOException ex) {
-            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
 
-    public void save(BufferedImage imageForSave, String newFilepath) {
-        if(preview){
-            previewProcess(imageForSave);
-            return;
-        }
-
+    private void save(BufferedImage imageForSave, String newFilepath) {
         if (fileExistsCheck(newFilepath)) {
             return;
         }
@@ -405,15 +390,6 @@ public class ImageProcessHandler {
             iwp.setCompressionQuality(outputParameters.getQuality());   // a float between 0 and 1
             FileImageOutputStream output = new FileImageOutputStream(outputfile);
             writer.setOutput(output);
-
-            //DPI
-//            IIOMetadata data = writer.getDefaultImageMetadata(new ImageTypeSpecifier(imageForSave), iwp);
-//            Element tree = (Element) data.getAsTree("javax_imageio_jpeg_image_1.0");
-//            Element jfif = (Element) tree.getElementsByTagName("app0JFIF").item(0);
-//            jfif.setAttribute("Xdensity", Integer.toString(outputParameters.getDpiHorizontal()));
-//            jfif.setAttribute("Ydensity", Integer.toString(outputParameters.getDpiVertical()));
-//            jfif.setAttribute("resUnits", "1"); // density is dots per inch	
-//            data.setFromTree("javax_imageio_jpeg_image_1.0", tree);
 
             IIOImage image2 = new IIOImage(imageForSave, null, null);
             writer.write(null, image2, iwp);

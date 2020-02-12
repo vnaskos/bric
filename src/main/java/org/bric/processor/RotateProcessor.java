@@ -1,39 +1,34 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.processor;
 
 import com.jhlabs.image.FlipFilter;
 import com.jhlabs.image.RotateFilter;
-import java.awt.image.BufferedImage;
-import java.util.Random;
 import org.bric.imageEditParameters.RotateParameters;
 
-/**
- *
- * @author vasilis
- */
-public class RotateProcessor implements ImageProcessor {
+import java.awt.image.BufferedImage;
+import java.util.Random;
 
-    RotateParameters rotateParameters;
+public class RotateProcessor extends ImageProcessor<RotateParameters> {
 
-    public RotateProcessor(RotateParameters rotateParameters) {
-        this.rotateParameters = rotateParameters;
+    public RotateProcessor(RotateParameters params) {
+        super(params);
     }
-    
+
     @Override
     public BufferedImage process(BufferedImage image) {
-        if(rotateParameters.isCustom()){
+        if(params.isCustom()){
             return customRotate(image);
         } else {
             return predefinedRotate(image);
         }
     }
-    
+
+    @Override
+    public boolean isEnabled() {
+        return params.isEnabled();
+    }
     
     private BufferedImage predefinedRotate(BufferedImage image) {
-        int action = rotateParameters.getAction();
+        int action = params.getAction();
         switch(action){
             case 0:
             case 4:
@@ -57,18 +52,18 @@ public class RotateProcessor implements ImageProcessor {
     }
 
     public BufferedImage customRotate(BufferedImage image) {
-        int angle = rotateParameters.getAngle();
-        if(rotateParameters.isDifferentValues()){
+        int angle = params.getAngle();
+        if(params.isDifferentValues()){
             Random rand = new Random();
-            int max = rotateParameters.getTo();
-            int min = rotateParameters.getFrom();
-            if(rotateParameters.isLimit()) {
+            int max = params.getTo();
+            int min = params.getFrom();
+            if(params.isLimit()) {
                 angle = rand.nextInt(max-min+1)+min;
             } else {
                 angle = rand.nextInt(360);
             }
-        }else if(rotateParameters.isRandom()){
-            angle = rotateParameters.getRandomAngle();
+        }else if(params.isRandom()){
+            angle = params.getRandomAngle();
         }
         
         float radAngle = (float) (((360-angle)*Math.PI)/180);

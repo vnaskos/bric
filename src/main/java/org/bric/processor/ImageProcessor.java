@@ -1,15 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.processor;
+
+import org.bric.core.model.TabParameters;
 
 import java.awt.image.BufferedImage;
 
-/**
- *
- * @author vasilis
- */
-public interface ImageProcessor {
-    public BufferedImage process(BufferedImage src);
+public abstract class ImageProcessor<T extends TabParameters> {
+
+    protected T params;
+
+    public ImageProcessor(T params) {
+        this.params = params;
+    }
+
+    public abstract BufferedImage process(BufferedImage src);
+
+    public abstract boolean isEnabled();
 }
