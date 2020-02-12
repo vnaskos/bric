@@ -15,16 +15,11 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.apache.sanselan</groupId>
-      <artifactId>sanselan</artifactId>
-      <version>0.97-incubator</version>
-    </dependency>
-    <dependency>
       <groupId>net.imagej</groupId>
       <artifactId>ij</artifactId>
-      <version>1.48r</version>
+      <version>1.52t</version>
     </dependency>
-  
+
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
