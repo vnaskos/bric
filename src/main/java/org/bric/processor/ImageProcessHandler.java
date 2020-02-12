@@ -44,17 +44,15 @@ public class ImageProcessHandler {
 
     private final FileNameService fileNameService;
 
-    private Queue<ImportedImage> inputQueue;
+    private final Queue<ImportedImage> inputQueue;
+    private final OutputParameters outputParameters;
+    private final List<ImageProcessor<?>> processors;
 
     ResizeParameters resizeParameters;
     RotateParameters rotateParameters;
     WatermarkParameters watermarkParameters;
-    private final OutputParameters outputParameters;
-    ProgressBarFrame progressBar;
 
-    private ResizeProcessor resizeProcessor;
-    private RotateProcessor rotateProcessor;
-    private WatermarkProcessor watermarkProcessor;
+    ProgressBarFrame progressBar;
 
     int modelSize;
 
@@ -63,6 +61,7 @@ public class ImageProcessHandler {
 
     public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
+        this.processors = new ArrayList<>();
 
         inputQueue = inputList.stream()
                 .filter(Objects::nonNull)
@@ -71,6 +70,7 @@ public class ImageProcessHandler {
         modelSize = inputQueue.size();
 
         this.fileNameService = fileNameService;
+
     }
 
     public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
@@ -89,17 +89,17 @@ public class ImageProcessHandler {
 
     public void setResizeParameters(ResizeParameters resizeParameters) {
         this.resizeParameters = resizeParameters;
-        this.resizeProcessor = new ResizeProcessor(resizeParameters);
+        processors.add(new ResizeProcessor(resizeParameters));
     }
 
     public void setRotateParameters(RotateParameters rotateParameters) {
         this.rotateParameters = rotateParameters;
-        this.rotateProcessor = new RotateProcessor(rotateParameters);
+        processors.add(new RotateProcessor(rotateParameters));
     }
 
     public void setWatermarkParameters(WatermarkParameters watermarkParameters) {
         this.watermarkParameters = watermarkParameters;
-        this.watermarkProcessor = new WatermarkProcessor(watermarkParameters);
+        processors.add(new WatermarkProcessor(watermarkParameters));
     }
 
     public void start() {
@@ -168,16 +168,9 @@ public class ImageProcessHandler {
         if (currentImage == null) {
             currentImage = Utils.loadImage(importedImage.getPath());
         }
-        if (resizeParameters != null && resizeParameters.isEnabled()) {
-            currentImage = resizeProcessor.process(currentImage);
-        }
 
-        if (rotateParameters != null && rotateParameters.isEnabled()) {
-            currentImage = rotateProcessor.process(currentImage);
-        }
-
-        if (watermarkParameters != null && watermarkParameters.isEnabled()) {
-            currentImage = watermarkProcessor.process(currentImage);
+        for (ImageProcessor<?> processor : processors) {
+            currentImage = processor.process(currentImage);
         }
 
         if (outputParameters.getOutputType() == OutputType.PDF ||
