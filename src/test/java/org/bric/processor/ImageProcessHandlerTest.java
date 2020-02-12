@@ -22,7 +22,7 @@ public class ImageProcessHandlerTest {
 
         new ImageProcessHandler(fakeFileNameService, output, input).start();
 
-        Mockito.verify(fakeFileNameService, Mockito.times(0)).generateFilePath(Mockito.any());
+        Mockito.verify(fakeFileNameService, Mockito.never()).generateFilePath(Mockito.any());
     }
 
     @Test
@@ -33,6 +33,6 @@ public class ImageProcessHandlerTest {
 
         new ImageProcessHandler(fakeFileNameService, output, input).start();
 
-        Mockito.verify(fakeFileNameService, Mockito.times(0)).generateFilePath(Mockito.any());
+        Mockito.verify(fakeFileNameService, Mockito.never()).generateFilePath(Mockito.any());
     }
 }
