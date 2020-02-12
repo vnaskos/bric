@@ -1,5 +1,7 @@
 package org.bric.processor;
 
+import ij.ImagePlus;
+import ij.io.FileSaver;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -7,8 +9,6 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.sanselan.ImageFormat;
-import org.apache.sanselan.Sanselan;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.input.model.InputType;
 import org.bric.core.model.output.OutputParameters;
@@ -349,32 +349,21 @@ public class ImageProcessHandler {
         File outputFile = new File(newFilepath);
         String extension = getExtension(outputFile.getPath());
         try {
+            ImagePlus img = new ImagePlus("bric-image", imageForSave);
+            FileSaver fileSaver = new FileSaver(img);
+
             if ((extension.equalsIgnoreCase("jpg")) || (extension.equalsIgnoreCase("jpeg"))) {
                 saveJPG(imageForSave, outputFile);
             } else if (extension.equalsIgnoreCase("gif")) {
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_GIF;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
-            } else if (extension.equalsIgnoreCase("tif")) {
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_TIFF;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
+                fileSaver.saveAsGif(newFilepath);
+            } else if (extension.equalsIgnoreCase("tif") || extension.equalsIgnoreCase("tiff")) {
+                fileSaver.saveAsTiff(newFilepath);
             } else if(extension.equalsIgnoreCase("pgm")){
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_PGM;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
-            } else if(extension.equalsIgnoreCase("ppm")){
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_PPM;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
-            } else if(extension.equalsIgnoreCase("pnm")){
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_PNM;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
-            } else if (extension.equalsIgnoreCase("pbm")) {
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_PBM;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
+                fileSaver.saveAsPgm(newFilepath);
             } else if (extension.equalsIgnoreCase("bmp")) {
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_BMP;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
+                fileSaver.saveAsBmp(newFilepath);
             } else if(extension.equalsIgnoreCase("png")){
-                ImageFormat format = ImageFormat.IMAGE_FORMAT_PNG;
-                Sanselan.writeImage(imageForSave, outputFile, format, null);
+                fileSaver.saveAsPng(newFilepath);
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);

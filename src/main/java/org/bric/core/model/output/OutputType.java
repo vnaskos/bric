@@ -11,9 +11,6 @@ public enum OutputType {
     TIF("TIF"),
     TIFF("TIFF"),
     PGM("PGM"),
-    PBM("PBM"),
-    PNM("PNM"),
-    PPM("PPM"),
     PDF("PDF");
 
     public static final OutputType DEFAULT = JPG;

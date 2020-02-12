@@ -2,8 +2,6 @@ package org.bric.utils;
 
 import ij.IJ;
 import ij.ImagePlus;
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.Sanselan;
 import org.bric.core.input.model.InputType;
 
 import javax.imageio.ImageIO;
@@ -73,10 +71,7 @@ public class Utils {
     }
     
     public static BufferedImage loadImage(String filename) {
-        BufferedImage image = librarySwitch(filename, 0);
-        if(image == null){
-            image = librarySwitch(filename, 1);
-        }
+        BufferedImage image = librarySwitch(filename, 1);
         if(image == null){
             image = librarySwitch(filename, 2);
         }
@@ -86,10 +81,7 @@ public class Utils {
     public static BufferedImage librarySwitch(String filename, int library) {
         try {
             switch (library){
-                case 0:{    
-                    BufferedImage newImage = Sanselan.getBufferedImage(new File(filename));
-                    return newImage;
-                } case 1:{
+                case 1:{
                     BufferedImage newImage = ImageIO.read(new File(filename));
                     return newImage;
                 } case 2:{
@@ -98,8 +90,6 @@ public class Utils {
                     return newImage;
                 } 
             }
-        } catch (ImageReadException ex) {
-            return null;
         } catch (IOException ex) {
             return null;
         } catch (OutOfMemoryError ex) {
