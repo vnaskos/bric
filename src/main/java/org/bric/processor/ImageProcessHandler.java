@@ -42,19 +42,14 @@ import java.util.stream.Collectors;
 
 public class ImageProcessHandler {
 
-    private final FileNameService fileNameService;
-
     private final Queue<ImportedImage> inputQueue;
     private final OutputParameters outputParameters;
     private final List<ImageProcessor<?>> processors;
 
-    ResizeParameters resizeParameters;
-    RotateParameters rotateParameters;
-    WatermarkParameters watermarkParameters;
+    private final FileNameService fileNameService;
+    private ProgressBarFrame progressBar;
 
-    ProgressBarFrame progressBar;
-
-    int modelSize;
+    private int modelSize;
 
     private boolean preview = false;
     private int duplicateAction = Utils.NOT_SET;
@@ -88,17 +83,14 @@ public class ImageProcessHandler {
     }
 
     public void setResizeParameters(ResizeParameters resizeParameters) {
-        this.resizeParameters = resizeParameters;
         processors.add(new ResizeProcessor(resizeParameters));
     }
 
     public void setRotateParameters(RotateParameters rotateParameters) {
-        this.rotateParameters = rotateParameters;
         processors.add(new RotateProcessor(rotateParameters));
     }
 
     public void setWatermarkParameters(WatermarkParameters watermarkParameters) {
-        this.watermarkParameters = watermarkParameters;
         processors.add(new WatermarkProcessor(watermarkParameters));
     }
 
