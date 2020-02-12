@@ -12,6 +12,7 @@ import org.bric.gui.tabs.WatermarkJPanel;
 import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;
 import org.bric.imageEditParameters.WatermarkParameters;
+import org.bric.processor.FileNameService;
 import org.bric.processor.ImageProcessHandler;
 import org.bric.utils.Utils;
 
@@ -283,7 +284,9 @@ public class BricUI extends JFrame {
             ImportedImage imageToPreview = inputItems.get(0);
             mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
         } else {
-            mainProcess = new ImageProcessHandler(outputParameters, inputItems);
+            FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
+                    outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size());
+            mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
         }
         mainProcess.setResizeParameters(resizeParameters);
         mainProcess.setRotateParameters(rotateParameters);

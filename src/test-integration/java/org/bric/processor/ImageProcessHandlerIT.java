@@ -1,9 +1,8 @@
-package org.bric.core.process;
+package org.bric.processor;
 
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
-import org.bric.processor.ImageProcessHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -15,7 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class HypervisorIT {
+public class ImageProcessHandlerIT {
 
     private static final String DUCK_JPG = "duck.jpg";
     private static final String DOG_JPEG = "dog.jpeg";
@@ -29,7 +28,7 @@ public class HypervisorIT {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(DUCK_JPG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.JPG, 1, 1);
 
-        new ImageProcessHandler(output, input).start();
+        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
 
         Thread.sleep(1000);
         Assertions.assertTrue(outputPath.resolve("out1.jpg").toFile().exists());
@@ -40,7 +39,7 @@ public class HypervisorIT {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(DUCK_JPG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(output, input).start();
+        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
 
         Thread.sleep(1000);
         Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
@@ -51,7 +50,7 @@ public class HypervisorIT {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("page*").toString(), OutputType.JPG, 1, 1);
 
-        new ImageProcessHandler(output, input).start();
+        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
 
         Thread.sleep(2000);
         Assertions.assertTrue(outputPath.resolve("page1.jpg").toFile().exists());
@@ -65,7 +64,7 @@ public class HypervisorIT {
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.SAME_AS_FIRST, 1, 1);
 
-        new ImageProcessHandler(output, input).start();
+        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
 
         Thread.sleep(2000);
         Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
@@ -79,7 +78,7 @@ public class HypervisorIT {
                 new ImportedImage(file(DOG_JPEG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(output, input).start();
+        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
 
         Thread.sleep(1000);
         Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
@@ -90,7 +89,7 @@ public class HypervisorIT {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(output, input).start();
+        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
 
         Thread.sleep(1000);
         Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
@@ -104,7 +103,7 @@ public class HypervisorIT {
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(output, input).start();
+        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
 
         Thread.sleep(1000);
         Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
@@ -114,6 +113,11 @@ public class HypervisorIT {
     private File file(String name) {
         URL url = this.getClass().getResource(File.separator + name);
         return new File(url.getFile());
+    }
+
+    private FileNameService getFileNameService(OutputParameters output, List<ImportedImage> input) {
+        return new FileNameService(output.getOutputPath(), output.getOutputType(),
+                output.getNumberingStartIndex(), input.size());
     }
 
 }

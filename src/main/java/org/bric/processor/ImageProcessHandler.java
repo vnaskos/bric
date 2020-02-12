@@ -38,10 +38,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ImageProcessHandler {
 
-    private FileNameService fileNameService;
+    private final FileNameService fileNameService;
 
     private Queue<ImportedImage> inputQueue;
 
@@ -60,19 +61,22 @@ public class ImageProcessHandler {
     private boolean preview = false;
     private int duplicateAction = Utils.NOT_SET;
 
-    public ImageProcessHandler(OutputParameters outputParameters, List<ImportedImage> inputList) {
+    public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
 
-        modelSize = inputList.size();
+        inputQueue = inputList.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
 
-        inputQueue = new ConcurrentLinkedQueue<>(inputList);
+        modelSize = inputQueue.size();
 
-        this.fileNameService = new FileNameService(outputParameters.getOutputPath(),
-                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputList.size());
+        this.fileNameService = fileNameService;
     }
 
     public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
-        ImageProcessHandler process = new ImageProcessHandler(outputParameters,
+        FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), 1);
+        ImageProcessHandler process = new ImageProcessHandler(fileNameService, outputParameters,
                 Collections.singletonList(imageToPreview));
         process.setPreview();
 
@@ -117,21 +121,22 @@ public class ImageProcessHandler {
         if (outputParameters.getOutputType() == OutputType.PDF) {
             generatePDF();
         } else {
-            ExecutorService executorService;
-            if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
-                executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
-            } else {
-                executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
-            }
+            ExecutorService executorService = getExecutorService();
 
-            for (int i = 0; i < modelSize; i++) {
-                ImportedImage item = inputQueue.poll();
-                if (item == null) {
-                    continue;
-                }
-                executorService.submit(task(item));
+            while (!inputQueue.isEmpty()) {
+                executorService.submit(task(inputQueue.poll()));
             }
         }
+    }
+
+    private ExecutorService getExecutorService() {
+        ExecutorService executorService;
+        if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
+            executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
+        } else {
+            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
+        }
+        return executorService;
     }
 
     private Callable<Void> task(final ImportedImage item) {
@@ -217,6 +222,10 @@ public class ImageProcessHandler {
 
         final ImportedImage firstItem = inputQueue.peek();
 
+        if (firstItem == null) {
+            return;
+        }
+
         for (ImportedImage importedImage : inputQueue) {
             if (importedImage.getType() == InputType.PDF) {
                 pdfProcess(document, importedImage);
@@ -228,7 +237,7 @@ public class ImageProcessHandler {
         }
 
         try {
-            document.save(fileNameService.generateFilePath(Objects.requireNonNull(firstItem)));
+            document.save(fileNameService.generateFilePath(firstItem));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
