@@ -119,7 +119,7 @@ public class ImageProcessHandler {
         progressBar.setImagesCount(modelSize);
 
         if (outputParameters.getOutputType() == OutputType.PDF) {
-            generatePDF();
+            generatePDF(inputQueue);
         } else {
             ExecutorService executorService = getExecutorService();
 
@@ -147,7 +147,9 @@ public class ImageProcessHandler {
 
             if (item.getType() == InputType.PDF) {
                 if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
-                    generateSeparatePDF(item);
+                    generatePDF(new LinkedList<ImportedImage>() {
+                        {add(item);}
+                    });
                 } else {
                     pdfProcess(null, item);
                 }
@@ -197,28 +199,6 @@ public class ImageProcessHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void generateSeparatePDF(ImportedImage importedImage){
-        PDDocument document = new PDDocument();
-
-        pdfProcess(document, importedImage);
-
-        try {
-            document.save(fileNameService.generateFilePath(Objects.requireNonNull(importedImage)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                document.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void generatePDF() {
-        generatePDF(inputQueue);
     }
 
     public void generatePDF(Queue<ImportedImage> input) {
