@@ -415,15 +415,6 @@ public class ImageProcessHandler {
             FileImageOutputStream output = new FileImageOutputStream(outputfile);
             writer.setOutput(output);
 
-            //DPI
-//            IIOMetadata data = writer.getDefaultImageMetadata(new ImageTypeSpecifier(imageForSave), iwp);
-//            Element tree = (Element) data.getAsTree("javax_imageio_jpeg_image_1.0");
-//            Element jfif = (Element) tree.getElementsByTagName("app0JFIF").item(0);
-//            jfif.setAttribute("Xdensity", Integer.toString(outputParameters.getDpiHorizontal()));
-//            jfif.setAttribute("Ydensity", Integer.toString(outputParameters.getDpiVertical()));
-//            jfif.setAttribute("resUnits", "1"); // density is dots per inch	
-//            data.setFromTree("javax_imageio_jpeg_image_1.0", tree);
-
             IIOImage image2 = new IIOImage(imageForSave, null, null);
             writer.write(null, image2, iwp);
             output.flush();
