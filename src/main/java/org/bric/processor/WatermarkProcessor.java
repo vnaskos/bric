@@ -1,26 +1,16 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.processor;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import org.bric.imageEditParameters.WatermarkParameters;
 
-/**
- *
- * @author vasilis
- */
-public class WatermarkProcessor implements ImageProcessor {
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
-    WatermarkParameters watermarkParameter;
-    
-    public WatermarkProcessor(WatermarkParameters watermarkParameter) {
-        this.watermarkParameter = watermarkParameter;
+public class WatermarkProcessor extends ImageProcessor<WatermarkParameters> {
+
+    public WatermarkProcessor(WatermarkParameters params) {
+        super(params);
     }
 
-    
     @Override
     public BufferedImage process(BufferedImage image) {
         int type = image.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : image.getType();
@@ -28,41 +18,41 @@ public class WatermarkProcessor implements ImageProcessor {
         Graphics2D g2 = watermarkImage.createGraphics();
 
         g2.drawImage(image, 0, 0, null);
-        if( watermarkParameter.getPattern() == 0){
-            int newX = watermarkParameter.getX(image.getWidth())-watermarkParameter.getWatermarkImage().getWidth()/2;
-            int newY = watermarkParameter.getY(image.getHeight())-watermarkParameter.getWatermarkImage().getHeight()/2;
-            g2.drawImage(watermarkParameter.getWatermarkImage(), newX, newY, null);
+        if( params.getPattern() == 0){
+            int newX = params.getX(image.getWidth())- params.getWatermarkImage().getWidth()/2;
+            int newY = params.getY(image.getHeight())- params.getWatermarkImage().getHeight()/2;
+            g2.drawImage(params.getWatermarkImage(), newX, newY, null);
         } else {
-            int columns = watermarkParameter.getTiledColumns();
-            int rows = watermarkParameter.getTiledRows();
+            int columns = params.getTiledColumns();
+            int rows = params.getTiledRows();
             
             if(columns == 0){
-                columns = image.getWidth() / watermarkParameter.getWatermarkImage().getWidth();
+                columns = image.getWidth() / params.getWatermarkImage().getWidth();
             }
             
             if(rows == 0){
-                rows = image.getHeight() / watermarkParameter.getWatermarkImage().getHeight();
+                rows = image.getHeight() / params.getWatermarkImage().getHeight();
             }
             
-            double rowsStep = image.getHeight() / rows;
-            double columnsStep = image.getWidth() / columns;
+            int rowsStep = image.getHeight() / rows;
+            int columnsStep = image.getWidth() / columns;
             
-            if( rowsStep < watermarkParameter.getWatermarkHeight() / 2){
-                rows = image.getHeight() / watermarkParameter.getWatermarkImage().getHeight();
+            if( rowsStep < params.getWatermarkHeight() / 2){
+                rows = image.getHeight() / params.getWatermarkImage().getHeight();
                 rowsStep = image.getHeight() / rows;
             }
             
-            if( columnsStep < watermarkParameter.getWatermarkWidth() / 2) {
-                columns = image.getWidth() / watermarkParameter.getWatermarkImage().getWidth();
+            if( columnsStep < params.getWatermarkWidth() / 2) {
+                columns = image.getWidth() / params.getWatermarkImage().getWidth();
                 columnsStep = image.getWidth() / columns;
             }
             
-            int row = ((image.getHeight() / rows) / 2) - watermarkParameter.getWatermarkImage().getHeight() / 2;
-            int column = ((image.getWidth() / columns) / 2) - watermarkParameter.getWatermarkImage().getWidth() / 2;
+            int row = ((image.getHeight() / rows) / 2) - params.getWatermarkImage().getHeight() / 2;
+            int column = ((image.getWidth() / columns) / 2) - params.getWatermarkImage().getWidth() / 2;
             
             for(int c = 0; c < columns; c++){
                 for(int r = 0; r < rows; r++){
-                    g2.drawImage(watermarkParameter.getWatermarkImage(),(int) (column + (columnsStep*c)), (int) (row + (rowsStep*r)) , null);
+                    g2.drawImage(params.getWatermarkImage(), column + (columnsStep*c), row + (rowsStep*r), null);
                 }
             }
         }

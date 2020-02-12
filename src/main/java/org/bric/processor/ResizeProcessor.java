@@ -1,81 +1,71 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.processor;
 
 import com.mortennobel.imagescaling.*;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import org.bric.imageEditParameters.ResizeParameters;
 
-/**
- *
- * @author vasilis
- */
-public class ResizeProcessor implements ImageProcessor  {
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+public class ResizeProcessor extends ImageProcessor<ResizeParameters>  {
 
     private int width;
     private int height;
-    ResizeParameters resizeParameters;
 
-    public ResizeProcessor(ResizeParameters resizeParameters) {
-        this.resizeParameters = resizeParameters;
+    public ResizeProcessor(ResizeParameters params) {
+        super(params);
     }
 
     @Override
     public BufferedImage process(BufferedImage image) {
         computeWidthHeight(image);
-        
+
         ResampleOp resampleOp = new ResampleOp(width, height);
-        resampleOp.setUnsharpenMask(getSharpen(resizeParameters));
+        resampleOp.setUnsharpenMask(getSharpen());
 
         BufferedImage resizedImage;
 
-        if (resizeParameters.getFilter().equalsIgnoreCase("auto")) {
+        if (params.getFilter().equalsIgnoreCase("auto")) {
             if (image.getWidth() < width || image.getHeight() < height) {
                 resizedImage = graphicsFilters(image, "bicubic", width, height);
             } else {
                 resizedImage = graphicsFilters(image, "bilenear", width, height);
             }
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("bicubic")) {
+        } else if (params.getFilter().equalsIgnoreCase("bicubic")) {
             resampleOp.setFilter(ResampleFilters.getBiCubicFilter());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("bicubichighfreqresponse")) {
+        } else if (params.getFilter().equalsIgnoreCase("bicubichighfreqresponse")) {
             resampleOp.setFilter(ResampleFilters.getBiCubicHighFreqResponse());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("lanczos3")) {
+        } else if (params.getFilter().equalsIgnoreCase("lanczos3")) {
             resampleOp.setFilter(ResampleFilters.getLanczos3Filter());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("multistep")) {
+        } else if (params.getFilter().equalsIgnoreCase("multistep")) {
             MultiStepRescaleOp multiStepRescaleOp = new MultiStepRescaleOp(width, height);
-            multiStepRescaleOp.setUnsharpenMask(getSharpen(resizeParameters));
+            multiStepRescaleOp.setUnsharpenMask(getSharpen());
             resizedImage = multiStepRescaleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("bell")) {
+        } else if (params.getFilter().equalsIgnoreCase("bell")) {
             resampleOp.setFilter(ResampleFilters.getBellFilter());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("box")) {
+        } else if (params.getFilter().equalsIgnoreCase("box")) {
             resampleOp.setFilter(ResampleFilters.getBoxFilter());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("hermite")) {
+        } else if (params.getFilter().equalsIgnoreCase("hermite")) {
             resampleOp.setFilter(ResampleFilters.getHermiteFilter());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("mitchell")) {
+        } else if (params.getFilter().equalsIgnoreCase("mitchell")) {
             resampleOp.setFilter(ResampleFilters.getMitchellFilter());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("triangle")) {
+        } else if (params.getFilter().equalsIgnoreCase("triangle")) {
             resampleOp.setFilter(ResampleFilters.getTriangleFilter());
             resizedImage = resampleOp.filter(image, null);
-        } else if (resizeParameters.getFilter().equalsIgnoreCase("thumpnail")) {
+        } else if (params.getFilter().equalsIgnoreCase("thumpnail")) {
             ThumpnailRescaleOp thumpnailRescaleOp = new ThumpnailRescaleOp(width, height);
-            thumpnailRescaleOp.setUnsharpenMask(getSharpen(resizeParameters));
+            thumpnailRescaleOp.setUnsharpenMask(getSharpen());
             resizedImage = thumpnailRescaleOp.filter(image, null);
         } else {
-            if (resizeParameters.getFilter().equalsIgnoreCase("nearest_neighbor")) {
+            if (params.getFilter().equalsIgnoreCase("nearest_neighbor")) {
                 resizedImage = graphicsFilters(image, "nearest_neighbor", width, height);
-            } else if(resizeParameters.getFilter().equalsIgnoreCase("bilinear")) { 
+            } else if(params.getFilter().equalsIgnoreCase("bilinear")) {
                 resizedImage = graphicsFilters(image, "bilinear", width, height);
             } else {
                 resizedImage = graphicsFilters(image, "bicubic", width, height);
@@ -84,28 +74,29 @@ public class ResizeProcessor implements ImageProcessor  {
 
         return resizedImage;
     }
-    
-    public AdvancedResizeOp.UnsharpenMask getSharpen(ResizeParameters resizeParameters){
-        if(resizeParameters.getSharpen().equals("none")){
-            return AdvancedResizeOp.UnsharpenMask.None;
-        } else if(resizeParameters.getSharpen().equals("normal")){
-            return AdvancedResizeOp.UnsharpenMask.Normal;
-        } else if(resizeParameters.getSharpen().equals("oversharpened")){
-            return AdvancedResizeOp.UnsharpenMask.Oversharpened;
-        } else if(resizeParameters.getSharpen().equals("soft")){
-            return AdvancedResizeOp.UnsharpenMask.Soft;
-        } else {
-            return AdvancedResizeOp.UnsharpenMask.VerySharp;
+
+    public AdvancedResizeOp.UnsharpenMask getSharpen(){
+        switch (params.getSharpen()) {
+            case "none":
+                return AdvancedResizeOp.UnsharpenMask.None;
+            case "normal":
+                return AdvancedResizeOp.UnsharpenMask.Normal;
+            case "oversharpened":
+                return AdvancedResizeOp.UnsharpenMask.Oversharpened;
+            case "soft":
+                return AdvancedResizeOp.UnsharpenMask.Soft;
+            default:
+                return AdvancedResizeOp.UnsharpenMask.VerySharp;
         }
     }
-    
+
     public BufferedImage graphicsFilters(BufferedImage srcImage, String filter, int width, int height) {
-        int type = ((BufferedImage) srcImage).getType() == 0 ? BufferedImage.TYPE_INT_ARGB : ((BufferedImage) srcImage).getType();
+        int type = srcImage.getType() == BufferedImage.TYPE_CUSTOM ? BufferedImage.TYPE_INT_ARGB : srcImage.getType();
         BufferedImage resizedImage = new BufferedImage(width, height, type);
         Graphics2D g = resizedImage.createGraphics();
         g.setComposite(AlphaComposite.Src);
 
-        if (resizeParameters.getRendering() == 0) {
+        if (params.getRendering() == 0) {
             g.setRenderingHint(RenderingHints.KEY_RENDERING,
                     RenderingHints.VALUE_RENDER_QUALITY);
         } else {
@@ -113,7 +104,7 @@ public class ResizeProcessor implements ImageProcessor  {
                     RenderingHints.VALUE_RENDER_SPEED);
         }
 
-        if (resizeParameters.isAntialising()) {
+        if (params.isAntialising()) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
         } else {
@@ -124,7 +115,7 @@ public class ResizeProcessor implements ImageProcessor  {
         if (filter.equalsIgnoreCase("nearest_neighbor")) {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                     RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        } else if(filter.equalsIgnoreCase("bilinear")) { 
+        } else if(filter.equalsIgnoreCase("bilinear")) {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                     RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         } else { //bicubic
@@ -133,16 +124,16 @@ public class ResizeProcessor implements ImageProcessor  {
         }
         g.drawImage(srcImage, 0, 0, width, height, null);
         g.dispose();
-        
+
         return resizedImage;
     }
-    
+
     private void computeWidthHeight(BufferedImage image){
-        width = resizeParameters.getWidth();
-        height = resizeParameters.getHeight();
-        boolean maintain = resizeParameters.isMaintainAspectRatio();
-        boolean consider = resizeParameters.isConsiderOrientation();
-        if (resizeParameters.getUnits() == 0) {
+        width = params.getWidth();
+        height = params.getHeight();
+        boolean maintain = params.isMaintainAspectRatio();
+        boolean consider = params.isConsiderOrientation();
+        if (params.getUnits() == 0) {
             if (maintain && !consider) {
                 if (height == 0) {
                     height = (width * image.getHeight()) / image.getWidth();
@@ -151,17 +142,17 @@ public class ResizeProcessor implements ImageProcessor  {
                 }
             } else if (!maintain && consider) {
                 if (image.getWidth() < image.getHeight()) { //portrait
-                    width = resizeParameters.getHeight();
-                    height = resizeParameters.getWidth();
+                    width = params.getHeight();
+                    height = params.getWidth();
                 }
-            } else if (maintain && consider) {
+            } else if (maintain) {
                 if (image.getWidth() >= image.getHeight()) { //landscape
                     height = (width * image.getHeight()) / image.getWidth();
                 } else { //portrait
                     width = (height * image.getWidth()) / image.getHeight();
                 }
             }
-        } else if (resizeParameters.getUnits() == 1) {
+        } else if (params.getUnits() == 1) {
             width = (image.getWidth() * width) / 100;
             height = (image.getHeight() * height) / 100;
         }
