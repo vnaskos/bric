@@ -40,11 +40,11 @@ public class FileNameServiceTest {
     @Test
     public void generateFilepath_GivenSameAsFirstOutputTypeWithUnsupportedExtension_ShouldAppendDefaultExtension() {
         String outputFilepath = "/test/123";
-        ImportedImage anUnsupportedImage = new ImportedImage("/image/path/img.UNSUPPORTED_EXT");
+        ImportedImage anUnsupportedOutputExtensionImage = new ImportedImage("/image/path/img.psd");
         FileNameService fileNameService = new FileNameService(outputFilepath, OutputType.SAME_AS_FIRST,
                 A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS);
 
-        String actual = fileNameService.generateFilePath(anUnsupportedImage);
+        String actual = fileNameService.generateFilePath(anUnsupportedOutputExtensionImage);
 
         String defaultExtension = "." + OutputType.DEFAULT.name.toLowerCase();
         Assertions.assertEquals(outputFilepath + defaultExtension, actual);

@@ -72,7 +72,7 @@ public class FileNameService {
             try {
                 return OutputType.valueOf(currentImage.getType().name.toUpperCase()).name.toLowerCase();
             } catch (IllegalArgumentException ex) {
-                return Utils.prefs.get("defaultFileType", OutputType.DEFAULT.name.toLowerCase());
+                return Utils.prefs.get("defaultFileType", OutputType.DEFAULT.name).toLowerCase();
             }
         }
 
