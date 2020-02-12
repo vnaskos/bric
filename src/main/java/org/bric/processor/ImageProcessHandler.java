@@ -50,8 +50,6 @@ public class ImageProcessHandler {
     private ProgressBarFrame progressBar;
 
     private int modelSize;
-
-    private boolean preview = false;
     private int duplicateAction = Utils.NOT_SET;
 
     public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
@@ -68,18 +66,53 @@ public class ImageProcessHandler {
 
     }
 
-    public static ImageProcessHandler createPreviewProcess(OutputParameters outputParameters, ImportedImage imageToPreview) {
-        FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
-                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), 1);
-        ImageProcessHandler process = new ImageProcessHandler(fileNameService, outputParameters,
-                Collections.singletonList(imageToPreview));
-        process.setPreview();
+    public static void preview(ImportedImage imageToPreview, ImageProcessor<?>... processors) {
+        File temporary;
+        try {
+            temporary = File.createTempFile("preview", ".jpg");
+            temporary.deleteOnExit();
+        } catch (IOException ex) {
+            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
 
-        return process;
+        OutputParameters outputParameters = new OutputParameters(
+                temporary.getAbsolutePath().replace(".jpg", ""),
+                OutputType.JPG, 1, 1);
+        FileNameService fileNameService = new FileNameService(
+                outputParameters.getOutputPath(), outputParameters.getOutputType(),
+                outputParameters.getNumberingStartIndex(), 1);
+        ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
+                Collections.singletonList(imageToPreview));
+        handler.addProcessors(processors);
+        handler.preview(temporary);
     }
 
-    private void setPreview() {
-        this.preview = true;
+    private void preview(File temporary) {
+        final ImportedImage item = inputQueue.peek();
+        if (item == null) {
+            return;
+        }
+        if (item.getType() == InputType.PDF) {
+            JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
+            return;
+        }
+
+        duplicateAction = Utils.OVERWRITE_ALL;
+        progressBar = new ProgressBarFrame();
+        progressBar.setVisible(true);
+        progressBar.setImagesCount(modelSize);
+
+        try {
+            task(inputQueue.poll()).call();
+            Desktop.getDesktop().open(temporary);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addProcessors(ImageProcessor<?>... processors) {
+        Collections.addAll(this.processors, processors);
     }
 
     public void setResizeParameters(ResizeParameters resizeParameters) {
@@ -95,17 +128,6 @@ public class ImageProcessHandler {
     }
 
     public void start() {
-        if(preview){
-            ImportedImage firstItem = inputQueue.poll();
-            if (firstItem == null) {
-                return;
-            }
-            if (firstItem.getType() == InputType.PDF) {
-                JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
-                return;
-            }
-        }
-
         progressBar = new ProgressBarFrame();
         progressBar.setVisible(true);
         progressBar.setImagesCount(modelSize);
@@ -162,7 +184,9 @@ public class ImageProcessHandler {
         }
 
         for (ImageProcessor<?> processor : processors) {
-            currentImage = processor.process(currentImage);
+            if (processor.isEnabled()) {
+                currentImage = processor.process(currentImage);
+            }
         }
 
         if (outputParameters.getOutputType() == OutputType.PDF ||
@@ -312,25 +336,8 @@ public class ImageProcessHandler {
         }
         return duplicateAction == Utils.SKIP || duplicateAction == Utils.SKIP_ALL;
     }
-    
-    public void previewProcess(BufferedImage image){
-        try {
-            File temporary = File.createTempFile("preview", ".jpg");
-            temporary.deleteOnExit();
-            ImageIO.write(image,"jpg",temporary);
-            Desktop.getDesktop().open(temporary);
-        } catch (IOException ex) {
-            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
 
-    public void save(BufferedImage imageForSave, String newFilepath) {
-        if(preview){
-            previewProcess(imageForSave);
-            return;
-        }
-
+    private void save(BufferedImage imageForSave, String newFilepath) {
         if (fileExistsCheck(newFilepath)) {
             return;
         }

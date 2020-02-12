@@ -12,13 +12,11 @@ import org.bric.gui.tabs.WatermarkJPanel;
 import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;
 import org.bric.imageEditParameters.WatermarkParameters;
-import org.bric.processor.FileNameService;
-import org.bric.processor.ImageProcessHandler;
+import org.bric.processor.*;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -227,11 +225,14 @@ public class BricUI extends JFrame {
     }
 
     private void startButtonActionPerformed() {
-        startProcess(inputTab.getInputItems(), false);
+        startProcess(inputTab.getInputItems());
     }
 
     private void previewButtonActionPerformed() {
-        startProcess(Collections.singletonList(inputTab.getSelectedItem()), true);
+        ImageProcessHandler.preview(inputTab.getSelectedItem(),
+                new ResizeProcessor(resizeTab.getImageEditParameters()),
+                new RotateProcessor(rotateTab.getImageEditParameters()),
+                new WatermarkProcessor(watermarkTab.getImageEditParameters()));
     }
 
     /**
@@ -269,7 +270,7 @@ public class BricUI extends JFrame {
         });
     }
     
-    public void startProcess(List<ImportedImage> inputItems, final boolean preview) {
+    public void startProcess(List<ImportedImage> inputItems) {
         if (inputItems == null || inputItems.isEmpty()) {
             return;
         }
@@ -279,15 +280,10 @@ public class BricUI extends JFrame {
         RotateParameters rotateParameters = rotateTab.getImageEditParameters();
         WatermarkParameters watermarkParameters = watermarkTab.getImageEditParameters();
 
-        ImageProcessHandler mainProcess;
-        if(preview){
-            ImportedImage imageToPreview = inputItems.get(0);
-            mainProcess = ImageProcessHandler.createPreviewProcess(outputParameters, imageToPreview);
-        } else {
-            FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
-                    outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size());
-            mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
-        }
+        FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size());
+        ImageProcessHandler mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
+
         mainProcess.setResizeParameters(resizeParameters);
         mainProcess.setRotateParameters(rotateParameters);
         mainProcess.setWatermarkParameters(watermarkParameters);

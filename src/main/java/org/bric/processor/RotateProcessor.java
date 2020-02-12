@@ -21,7 +21,11 @@ public class RotateProcessor extends ImageProcessor<RotateParameters> {
             return predefinedRotate(image);
         }
     }
-    
+
+    @Override
+    public boolean isEnabled() {
+        return params.isEnabled();
+    }
     
     private BufferedImage predefinedRotate(BufferedImage image) {
         int action = params.getAction();

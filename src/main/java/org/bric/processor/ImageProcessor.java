@@ -13,4 +13,6 @@ public abstract class ImageProcessor<T extends TabParameters> {
     }
 
     public abstract BufferedImage process(BufferedImage src);
+
+    public abstract boolean isEnabled();
 }

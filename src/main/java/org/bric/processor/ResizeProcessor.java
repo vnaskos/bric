@@ -75,6 +75,11 @@ public class ResizeProcessor extends ImageProcessor<ResizeParameters>  {
         return resizedImage;
     }
 
+    @Override
+    public boolean isEnabled() {
+        return params.isEnabled();
+    }
+
     public AdvancedResizeOp.UnsharpenMask getSharpen(){
         switch (params.getSharpen()) {
             case "none":

@@ -59,5 +59,10 @@ public class WatermarkProcessor extends ImageProcessor<WatermarkParameters> {
         g2.dispose();
         return watermarkImage;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return params.isEnabled();
+    }
     
 }
