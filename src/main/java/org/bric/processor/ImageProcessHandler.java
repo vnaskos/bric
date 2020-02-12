@@ -218,15 +218,19 @@ public class ImageProcessHandler {
     }
 
     public void generatePDF() {
+        generatePDF(inputQueue);
+    }
+
+    public void generatePDF(Queue<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
-        final ImportedImage firstItem = inputQueue.peek();
+        final ImportedImage firstItem = input.peek();
 
         if (firstItem == null) {
             return;
         }
 
-        for (ImportedImage importedImage : inputQueue) {
+        for (ImportedImage importedImage : input) {
             if (importedImage.getType() == InputType.PDF) {
                 pdfProcess(document, importedImage);
             } else {
