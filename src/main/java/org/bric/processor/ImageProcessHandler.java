@@ -142,7 +142,7 @@ public class ImageProcessHandler {
             bufferedImageProcess(null, item, null);
         }
 
-        progressListener.finished(item.getPath());
+        notifyFileProcessed(item);
         return item.getPath();
     }
 
@@ -181,7 +181,7 @@ public class ImageProcessHandler {
     public void generatePDF(List<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
-        if (input == null) {
+        if (input.isEmpty()) {
             return;
         }
 
@@ -193,7 +193,7 @@ public class ImageProcessHandler {
             } else {
                 bufferedImageProcess(document, importedImage, null);
             }
-            progressListener.finished(importedImage.getPath());
+            notifyFileProcessed(importedImage);
         }
 
         try {
@@ -207,6 +207,13 @@ public class ImageProcessHandler {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void notifyFileProcessed(ImportedImage importedImage) {
+        if (progressListener == null) {
+            return;
+        }
+        progressListener.finished(importedImage.getPath());
     }
 
     public void addImageToPDF(PDDocument doc, BufferedImage image) {
