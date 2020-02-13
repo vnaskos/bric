@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -206,19 +204,12 @@ public class InputTab extends JPanel {
             return;
         }
 
-        ExecutorService executorService;
-        if (Utils.prefs.getInt("importNumThreads", 0) == 0) {
-            executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
-        } else {
-            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("importNumThreads", 1));
-        }
-
         final ProgressBarFrame importer = new ProgressBarFrame();
         importer.setImagesCount(imagesList.size());
         importer.setVisible(true);
 
         for (String s : imagesList) {
-            executorService.submit(importFile(importer, s));
+            Utils.getExecutorService().submit(importFile(importer, s));
         }
     }
 

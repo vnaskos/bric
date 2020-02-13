@@ -3,6 +3,7 @@ package org.bric.gui;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.gui.input.InputTab;
+import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
 import org.bric.gui.preferences.PreferencesFrame;
 import org.bric.gui.state.StateManager;
@@ -20,6 +21,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class BricUI extends JFrame {
 
@@ -37,7 +39,7 @@ public class BricUI extends JFrame {
     private final ResizeJPanel resizeTab;
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
-    
+
     /**
      * Creates new form Main
      */
@@ -263,7 +265,7 @@ public class BricUI extends JFrame {
         /*
          * Create and display the form
          */
-        java.awt.EventQueue.invokeLater(() -> {
+        SwingUtilities.invokeLater(() -> {
             JFrame bricUI = new BricUI();
             Utils.centerWindow(bricUI);
             bricUI.setVisible(true);
@@ -288,6 +290,27 @@ public class BricUI extends JFrame {
         mainProcess.setRotateParameters(rotateParameters);
         mainProcess.setWatermarkParameters(watermarkParameters);
 
-        mainProcess.start();
+        ProgressBarFrame progress = new ProgressBarFrame();
+        progress.setImagesCount(inputItems.size());
+        progress.setVisible(true);
+        mainProcess.setProgressListener(path -> {
+            progress.showProgress(path);
+            progress.updateValue(true);
+        });
+
+        List<CompletableFuture<String>> processes = mainProcess.start();
+
+        CompletableFuture.allOf(processes.toArray(new CompletableFuture[0]))
+                .thenAccept(v -> progress.dispose());
+
+        progress.setCancelListener(() -> processes.forEach(p -> p.cancel(true)));
+    }
+
+    public interface ProgressListener {
+        void finished(String path);
+    }
+
+    public interface CancelListener {
+        void canceled();
     }
 }

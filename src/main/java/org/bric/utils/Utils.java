@@ -13,9 +13,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
 
 public class Utils {
+
+    private static final ExecutorService EXECUTOR_SERVICE =
+            Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
 
     public static final Locale GREEK = new Locale("el", "GR");
     
@@ -109,5 +114,9 @@ public class Utils {
         int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
         frame.setLocation(x, y);
+    }
+
+    public static ExecutorService getExecutorService() {
+        return EXECUTOR_SERVICE;
     }
 }

@@ -13,7 +13,7 @@ import org.bric.core.input.model.ImportedImage;
 import org.bric.core.input.model.InputType;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
-import org.bric.gui.inputOutput.ProgressBarFrame;
+import org.bric.gui.BricUI;
 import org.bric.imageEditParameters.ResizeParameters;
 import org.bric.imageEditParameters.RotateParameters;
 import org.bric.imageEditParameters.WatermarkParameters;
@@ -30,27 +30,22 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Queue;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ImageProcessHandler {
 
-    private final Queue<ImportedImage> inputQueue;
+    private final List<ImportedImage> inputQueue;
     private final OutputParameters outputParameters;
     private final List<ImageProcessor<?>> processors;
 
     private final FileNameService fileNameService;
-    private ProgressBarFrame progressBar;
 
-    private int modelSize;
     private int duplicateAction = Utils.NOT_SET;
+    private BricUI.ProgressListener progressListener;
 
     public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
@@ -58,9 +53,7 @@ public class ImageProcessHandler {
 
         inputQueue = inputList.stream()
                 .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
-
-        modelSize = inputQueue.size();
+                .collect(Collectors.toList());
 
         this.fileNameService = fileNameService;
 
@@ -89,22 +82,21 @@ public class ImageProcessHandler {
     }
 
     private void preview(File temporary) {
-        final ImportedImage item = inputQueue.peek();
-        if (item == null) {
+        if (inputQueue.isEmpty()) {
             return;
         }
+
+        ImportedImage item = inputQueue.get(0);
+
         if (item.getType() == InputType.PDF) {
             JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
             return;
         }
 
         duplicateAction = Utils.OVERWRITE_ALL;
-        progressBar = new ProgressBarFrame();
-        progressBar.setVisible(true);
-        progressBar.setImagesCount(modelSize);
 
         try {
-            task(inputQueue.poll()).call();
+            task(item);//.run();
             Desktop.getDesktop().open(temporary);
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,55 +119,31 @@ public class ImageProcessHandler {
         processors.add(new WatermarkProcessor(watermarkParameters));
     }
 
-    public void start() {
-        progressBar = new ProgressBarFrame();
-        progressBar.setVisible(true);
-        progressBar.setImagesCount(modelSize);
-
+    public List<CompletableFuture<String>> start() {
+        List<CompletableFuture<String>> futures = new ArrayList<>();
         if (outputParameters.getOutputType() == OutputType.PDF) {
             generatePDF(inputQueue);
         } else {
-            ExecutorService executorService = getExecutorService();
-
-            while (!inputQueue.isEmpty()) {
-                executorService.submit(task(inputQueue.poll()));
+            for (ImportedImage item : inputQueue) {
+                futures.add(CompletableFuture.supplyAsync(() -> task(item), Utils.getExecutorService()));
             }
         }
+        return futures;
     }
 
-    private ExecutorService getExecutorService() {
-        ExecutorService executorService;
-        if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
-            executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
-        } else {
-            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
-        }
-        return executorService;
-    }
-
-    private Callable<Void> task(final ImportedImage item) {
-        return () -> {
-            if (!progressBar.isVisible()) {
-                return null;
-            }
-
-            if (item.getType() == InputType.PDF) {
-                if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
-                    generatePDF(new LinkedList<ImportedImage>() {
-                        {add(item);}
-                    });
-                } else {
-                    pdfProcess(null, item);
-                }
+    private String task(final ImportedImage item) {
+        if (item.getType() == InputType.PDF) {
+            if (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
+                generatePDF(Collections.singletonList(item));
             } else {
-                bufferedImageProcess(null, item, null);
+                pdfProcess(null, item);
             }
+        } else {
+            bufferedImageProcess(null, item, null);
+        }
 
-            progressBar.showProgress(item.getPath());
-            progressBar.updateValue(true);
-
-            return null;
-        };
+        progressListener.finished(item.getPath());
+        return item.getPath();
     }
 
     private void bufferedImageProcess(PDDocument doc, ImportedImage importedImage, BufferedImage currentImage) {
@@ -210,14 +178,14 @@ public class ImageProcessHandler {
         }
     }
 
-    public void generatePDF(Queue<ImportedImage> input) {
+    public void generatePDF(List<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
-        final ImportedImage firstItem = input.peek();
-
-        if (firstItem == null) {
+        if (input == null) {
             return;
         }
+
+        final ImportedImage firstItem = input.get(0);
 
         for (ImportedImage importedImage : input) {
             if (importedImage.getType() == InputType.PDF) {
@@ -225,8 +193,7 @@ public class ImageProcessHandler {
             } else {
                 bufferedImageProcess(document, importedImage, null);
             }
-            progressBar.showProgress(importedImage.getPath());
-            progressBar.updateValue(true);
+            progressListener.finished(importedImage.getPath());
         }
 
         try {
@@ -388,5 +355,9 @@ public class ImageProcessHandler {
         } catch (IOException ex) {
             Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void setProgressListener(BricUI.ProgressListener progressListener) {
+        this.progressListener = progressListener;
     }
 }
