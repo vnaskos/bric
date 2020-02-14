@@ -1,8 +1,7 @@
-package org.bric.processor;
+package org.bric.core.process;
 
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputType;
-import org.bric.core.process.FileNameService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
