@@ -65,7 +65,7 @@ public class ImageProcessHandler {
     public List<CompletableFuture<String>> start() {
         List<CompletableFuture<String>> futures = new ArrayList<>();
         if (outputParameters.getOutputType() == OutputType.PDF) {
-            generatePDF(inputQueue);
+            futures.add(CompletableFuture.supplyAsync(() -> generatePDF(inputQueue), Utils.getExecutorService()));
         } else {
             for (ImportedImage item : inputQueue) {
                 futures.add(CompletableFuture.supplyAsync(() -> task(item), Utils.getExecutorService()));
@@ -121,11 +121,11 @@ public class ImageProcessHandler {
         }
     }
 
-    public void generatePDF(List<ImportedImage> input) {
+    public String generatePDF(List<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
         if (input.isEmpty()) {
-            return;
+            return "";
         }
 
         final ImportedImage firstItem = input.get(0);
@@ -150,6 +150,8 @@ public class ImageProcessHandler {
                 e.printStackTrace();
             }
         }
+
+        return firstItem.getPath();
     }
 
     private void notifyFileProcessed(ImportedImage importedImage) {
