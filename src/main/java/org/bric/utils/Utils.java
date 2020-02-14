@@ -1,7 +1,6 @@
 package org.bric.utils;
 
 import ij.IJ;
-import ij.ImagePlus;
 import org.bric.core.input.model.InputType;
 
 import javax.imageio.ImageIO;
@@ -10,7 +9,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -78,23 +76,17 @@ public class Utils {
         try {
             switch (library){
                 case 1:{
-                    BufferedImage newImage = ImageIO.read(new File(filename));
-                    return newImage;
+                    return ImageIO.read(new File(filename));
                 } case 2:{
-                    ImagePlus imp = IJ.openImage(filename);
-                    BufferedImage newImage = BufferedImageCreator.create(imp, 0);
-                    return newImage;
+                    return IJ.openImage(filename).getBufferedImage();
                 } 
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             return null;
         } catch (OutOfMemoryError ex) {
             if(library == 2) {
                 outOfMemoryErrorMessage();
             }
-            System.gc();
-            return null;
-        } catch (Exception e) {
             return null;
         }
         return null;
