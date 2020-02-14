@@ -72,16 +72,12 @@ public class ImageProcessHandler {
     }
 
     private String task(final ImportedImage item) {
-        if (item.getType() == InputType.PDF) {
-            if (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
-                mergeInputToSinglePdf(Collections.singletonList(item));
-            } else {
-                loadPdfPages(item.getPath(),
-                        page -> saveImage(item, applyProcessors(page)));
-            }
+        if (item.getType() == InputType.PDF && outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
+            mergeInputToSinglePdf(Collections.singletonList(item));
+        } else if (item.getType() == InputType.PDF) {
+            loadPdfPages(item.getPath(), page -> saveImage(item, applyProcessors(page)));
         } else {
-            BufferedImage image = Utils.loadImage(item.getPath());
-            saveImage(item, applyProcessors(image));
+            saveImage(item, applyProcessors(Utils.loadImage(item.getPath())));
         }
 
         notifyFileProcessed(item);
