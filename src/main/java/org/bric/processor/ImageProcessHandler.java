@@ -15,9 +15,6 @@ import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
 import org.bric.gui.BricUI;
-import org.bric.imageEditParameters.ResizeParameters;
-import org.bric.imageEditParameters.RotateParameters;
-import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.utils.Utils;
 
 import javax.imageio.IIOImage;
@@ -26,11 +23,9 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -57,67 +52,14 @@ public class ImageProcessHandler {
                 .collect(Collectors.toList());
 
         this.fileNameService = fileNameService;
-
     }
 
-    public static void preview(ImportedImage imageToPreview, ImageProcessor<?>... processors) {
-        File temporary;
-        try {
-            temporary = File.createTempFile("preview", ".jpg");
-            temporary.deleteOnExit();
-        } catch (IOException ex) {
-            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        }
-
-        OutputParameters outputParameters = new OutputParameters(
-                temporary.getAbsolutePath().replace(".jpg", ""),
-                OutputType.JPG, 1, 1);
-        FileNameService fileNameService = new FileNameService(
-                outputParameters.getOutputPath(), outputParameters.getOutputType(),
-                outputParameters.getNumberingStartIndex(), 1);
-        ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
-                Collections.singletonList(imageToPreview));
-        handler.addProcessors(processors);
-        handler.preview(temporary);
-    }
-
-    private void preview(File temporary) {
-        if (inputQueue.isEmpty()) {
-            return;
-        }
-
-        ImportedImage item = inputQueue.get(0);
-
-        if (item.getType() == InputType.PDF) {
-            JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
-            return;
-        }
-
-        duplicateAction = DuplicateAction.ALWAYS_OVERWRITE;
-
-        try {
-            task(item);
-            Desktop.getDesktop().open(temporary);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void setDuplicateAction(DuplicateAction duplicateAction) {
+        this.duplicateAction = duplicateAction;
     }
 
     public void addProcessors(ImageProcessor<?>... processors) {
         Collections.addAll(this.processors, processors);
-    }
-
-    public void setResizeParameters(ResizeParameters resizeParameters) {
-        processors.add(new ResizeProcessor(resizeParameters));
-    }
-
-    public void setRotateParameters(RotateParameters rotateParameters) {
-        processors.add(new RotateProcessor(rotateParameters));
-    }
-
-    public void setWatermarkParameters(WatermarkParameters watermarkParameters) {
-        processors.add(new WatermarkProcessor(watermarkParameters));
     }
 
     public List<CompletableFuture<String>> start() {
@@ -295,7 +237,7 @@ public class ImageProcessHandler {
             return;
         }
 
-        if( (duplicateAction == DuplicateAction.ADD || duplicateAction == DuplicateAction.ALWAYS_RENAME)
+        if( (duplicateAction == DuplicateAction.RENAME || duplicateAction == DuplicateAction.ALWAYS_RENAME)
                 && new File(newFilepath).exists()) {
             newFilepath = duplicateAddAction(newFilepath);
         }

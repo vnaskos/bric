@@ -1,7 +1,10 @@
 package org.bric.gui;
 
 import org.bric.core.input.model.ImportedImage;
+import org.bric.core.input.model.InputType;
+import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputParameters;
+import org.bric.core.model.output.OutputType;
 import org.bric.gui.input.InputTab;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.output.OutputTab;
@@ -10,18 +13,20 @@ import org.bric.gui.state.StateManager;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
-import org.bric.imageEditParameters.ResizeParameters;
-import org.bric.imageEditParameters.RotateParameters;
-import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.processor.*;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BricUI extends JFrame {
 
@@ -40,9 +45,6 @@ public class BricUI extends JFrame {
     private final RotateJPanel rotateTab;
     private final WatermarkJPanel watermarkTab;
 
-    /**
-     * Creates new form Main
-     */
     public BricUI() {
         Locale defaultLocale;
         if (Utils.prefs.getInt("locale", 0) == 0) {
@@ -231,10 +233,44 @@ public class BricUI extends JFrame {
     }
 
     private void previewButtonActionPerformed() {
-        ImageProcessHandler.preview(inputTab.getSelectedItem(),
+        if (inputTab.getSelectedItem().getType() == InputType.PDF) {
+            JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
+            return;
+        }
+
+        File temporary;
+        try {
+            temporary = File.createTempFile("preview", ".jpg");
+            temporary.deleteOnExit();
+        } catch (IOException ex) {
+            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+
+        OutputParameters outputParameters = new OutputParameters(
+                temporary.getAbsolutePath().replace(".jpg", ""),
+                OutputType.JPG, 1, 1);
+        FileNameService fileNameService = new FileNameService(
+                outputParameters.getOutputPath(), outputParameters.getOutputType(),
+                outputParameters.getNumberingStartIndex(), 1);
+        ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
+                Collections.singletonList(inputTab.getSelectedItem()));
+
+        handler.addProcessors(
                 new ResizeProcessor(resizeTab.getImageEditParameters()),
                 new RotateProcessor(rotateTab.getImageEditParameters()),
                 new WatermarkProcessor(watermarkTab.getImageEditParameters()));
+
+        handler.setDuplicateAction(DuplicateAction.ALWAYS_OVERWRITE);
+
+        CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[1]))
+                .thenAccept(v -> {
+                    try {
+                        Desktop.getDesktop().open(temporary);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     /**
@@ -278,17 +314,15 @@ public class BricUI extends JFrame {
         }
 
         OutputParameters outputParameters = outputTab.getImageEditParameters();
-        ResizeParameters resizeParameters = resizeTab.getImageEditParameters();
-        RotateParameters rotateParameters = rotateTab.getImageEditParameters();
-        WatermarkParameters watermarkParameters = watermarkTab.getImageEditParameters();
 
         FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
                 outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size());
         ImageProcessHandler mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
 
-        mainProcess.setResizeParameters(resizeParameters);
-        mainProcess.setRotateParameters(rotateParameters);
-        mainProcess.setWatermarkParameters(watermarkParameters);
+        mainProcess.addProcessors(
+                new ResizeProcessor(resizeTab.getImageEditParameters()),
+                new RotateProcessor(rotateTab.getImageEditParameters()),
+                new WatermarkProcessor(watermarkTab.getImageEditParameters()));
 
         ProgressBarFrame progress = new ProgressBarFrame();
         progress.setImagesCount(inputItems.size());
