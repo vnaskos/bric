@@ -65,7 +65,7 @@ public class ImageProcessHandler {
     public List<CompletableFuture<String>> start() {
         List<CompletableFuture<String>> futures = new ArrayList<>();
         if (outputParameters.getOutputType() == OutputType.PDF) {
-            futures.add(CompletableFuture.supplyAsync(() -> generatePdfFromPdf(inputQueue), Utils.getExecutorService()));
+            futures.add(CompletableFuture.supplyAsync(() -> mergeInputToSinglePdf(inputQueue), Utils.getExecutorService()));
         } else {
             for (ImportedImage item : inputQueue) {
                 futures.add(CompletableFuture.supplyAsync(() -> task(item), Utils.getExecutorService()));
@@ -77,7 +77,7 @@ public class ImageProcessHandler {
     private String task(final ImportedImage item) {
         if (item.getType() == InputType.PDF) {
             if (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
-                generatePdfFromPdf(Collections.singletonList(item));
+                mergeInputToSinglePdf(Collections.singletonList(item));
             } else {
                 generateImagesFromPdf(null, item);
             }
@@ -121,7 +121,7 @@ public class ImageProcessHandler {
         }
     }
 
-    public String generatePdfFromPdf(List<ImportedImage> input) {
+    public String mergeInputToSinglePdf(List<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
         if (input.isEmpty()) {
