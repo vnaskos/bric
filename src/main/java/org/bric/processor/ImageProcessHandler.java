@@ -81,7 +81,7 @@ public class ImageProcessHandler {
                 mergeInputToSinglePdf(Collections.singletonList(item));
             } else {
                 loadPdfPages(item.getPath(),
-                        page -> save(page, fileNameService.generateFilePath(item)));
+                        page -> save(applyProcessors(page), fileNameService.generateFilePath(item)));
             }
         } else {
             BufferedImage image = Utils.loadImage(item.getPath());
@@ -104,12 +104,9 @@ public class ImageProcessHandler {
 
     private void loadPdfPages(String pdfPath, Consumer<BufferedImage> consumer) {
         try (PDDocument doc = PDDocument.load(new File(pdfPath))) {
-
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
             for (int page = 0; page < doc.getNumberOfPages(); page++) {
-                BufferedImage image = pdfRenderer.renderImageWithDPI(page, 300);
-                image = applyProcessors(image);
-                consumer.accept(image);
+                consumer.accept(pdfRenderer.renderImageWithDPI(page, 300));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,7 +125,7 @@ public class ImageProcessHandler {
         for (ImportedImage importedImage : input) {
             if (importedImage.getType() == InputType.PDF) {
                 loadPdfPages(importedImage.getPath(),
-                        page -> addImageToPDF(document, page));
+                        page -> addImageToPDF(document, applyProcessors(page)));
             } else {
                 BufferedImage image = Utils.loadImage(importedImage.getPath());
                 image = applyProcessors(image);
