@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -79,7 +80,8 @@ public class ImageProcessHandler {
             if (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
                 mergeInputToSinglePdf(Collections.singletonList(item));
             } else {
-                generateImagesFromPdf(null, item);
+                loadPdfPages(item.getPath(),
+                        page -> save(page, fileNameService.generateFilePath(item)));
             }
         } else {
             BufferedImage image = Utils.loadImage(item.getPath());
@@ -100,19 +102,14 @@ public class ImageProcessHandler {
         return currentImage;
     }
 
-    private void generateImagesFromPdf(PDDocument document, ImportedImage importedImage) {
-        try (PDDocument doc = PDDocument.load(new File(importedImage.getPath()))) {
+    private void loadPdfPages(String pdfPath, Consumer<BufferedImage> consumer) {
+        try (PDDocument doc = PDDocument.load(new File(pdfPath))) {
 
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
             for (int page = 0; page < doc.getNumberOfPages(); page++) {
                 BufferedImage image = pdfRenderer.renderImageWithDPI(page, 300);
                 image = applyProcessors(image);
-                if (outputParameters.getOutputType() == OutputType.PDF ||
-                        (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST && importedImage.getType() == InputType.PDF)) {
-                    addImageToPDF(document, image);
-                } else {
-                    save(image, fileNameService.generateFilePath(importedImage));
-                }
+                consumer.accept(image);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,7 +127,8 @@ public class ImageProcessHandler {
 
         for (ImportedImage importedImage : input) {
             if (importedImage.getType() == InputType.PDF) {
-                generateImagesFromPdf(document, importedImage);
+                loadPdfPages(importedImage.getPath(),
+                        page -> addImageToPDF(document, page));
             } else {
                 BufferedImage image = Utils.loadImage(importedImage.getPath());
                 image = applyProcessors(image);
