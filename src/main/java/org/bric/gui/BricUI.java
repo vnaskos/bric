@@ -261,7 +261,7 @@ public class BricUI extends JFrame {
                 new RotateProcessor(rotateTab.getImageEditParameters()),
                 new WatermarkProcessor(watermarkTab.getImageEditParameters()));
 
-        handler.setDuplicateAction(DuplicateAction.ALWAYS_OVERWRITE);
+        fileNameService.setDuplicateAction(DuplicateAction.ALWAYS_OVERWRITE);
 
         CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[1]))
                 .thenAccept(v -> {
