@@ -1,5 +1,6 @@
 package org.bric.gui.inputOutput;
 
+import org.bric.gui.BricUI;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
@@ -25,6 +26,8 @@ public class ProgressBarFrame extends javax.swing.JFrame {
     private AtomicInteger errors;
     private long startTime;
     private int sleepValue;
+
+    private BricUI.CancelListener cancelListener;
     
     public ProgressBarFrame() {
         processed = new AtomicInteger(0);
@@ -33,7 +36,7 @@ public class ProgressBarFrame extends javax.swing.JFrame {
         sleepValue = Utils.prefs.getInt("sleepValue", 500);
         
         model = new DefaultListModel<>();
-        
+
         initComponents();
     }
     
@@ -149,6 +152,9 @@ public class ProgressBarFrame extends javax.swing.JFrame {
     }
 
     private void cancelButtonActionPerformed() {
+        if (cancelListener != null) {
+            cancelListener.canceled();
+        }
         this.dispose();
     }
 
@@ -207,11 +213,18 @@ public class ProgressBarFrame extends javax.swing.JFrame {
         } catch (InterruptedException ex) {
             Logger.getLogger(ProgressBarFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if (cancelListener != null) {
+            cancelListener.canceled();
+        }
         this.dispose();
     }
 
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    public void setCancelListener(BricUI.CancelListener cancelListener) {
+        this.cancelListener = cancelListener;
     }
 }

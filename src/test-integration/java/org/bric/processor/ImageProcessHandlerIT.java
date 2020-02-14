@@ -10,9 +10,11 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class ImageProcessHandlerIT {
 
@@ -24,90 +26,105 @@ public class ImageProcessHandlerIT {
     public Path outputPath;
 
     @Test
-    public void exportsImageToImage() throws InterruptedException {
+    public void exportsImageToImage() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(DUCK_JPG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.JPG, 1, 1);
 
-        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
 
-        Thread.sleep(1000);
-        Assertions.assertTrue(outputPath.resolve("out1.jpg").toFile().exists());
+        Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
+            CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
+            Assertions.assertTrue(outputPath.resolve("out1.jpg").toFile().exists());
+        });
     }
 
     @Test
-    public void exportsImageToPdf() throws InterruptedException {
+    public void exportsImageToPdf() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(DUCK_JPG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
 
-        Thread.sleep(1000);
-        Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
+        Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
+            CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
+            Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
+        });
     }
 
     @Test
-    public void exportsEachPdfPageToImage() throws InterruptedException {
+    public void exportsEachPdfPageToImage() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("page*").toString(), OutputType.JPG, 1, 1);
 
-        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
 
-        Thread.sleep(2000);
-        Assertions.assertTrue(outputPath.resolve("page1.jpg").toFile().exists());
-        Assertions.assertTrue(outputPath.resolve("page2.jpg").toFile().exists());
+        Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
+            CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
+            Assertions.assertTrue(outputPath.resolve("page1.jpg").toFile().exists());
+            Assertions.assertTrue(outputPath.resolve("page2.jpg").toFile().exists());
+        });
     }
 
     @Test
-    public void exportsEachPdfToItsOwnPdf() throws InterruptedException {
+    public void exportsEachPdfToItsOwnPdf() {
         List<ImportedImage> input = Arrays.asList(
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()),
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.SAME_AS_FIRST, 1, 1);
 
-        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
 
-        Thread.sleep(2000);
-        Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
-        Assertions.assertTrue(outputPath.resolve("out2.pdf").toFile().exists());
+        Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
+            CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
+            Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
+            Assertions.assertTrue(outputPath.resolve("out2.pdf").toFile().exists());
+        });
     }
 
     @Test
-    public void mergesImagesToASinglePdf() throws InterruptedException {
+    public void mergesImagesToASinglePdf() {
         List<ImportedImage> input = Arrays.asList(
                 new ImportedImage(file(DUCK_JPG).getAbsolutePath()),
                 new ImportedImage(file(DOG_JPEG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
 
-        Thread.sleep(1000);
-        Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
+
+        Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
+            CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
+            Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
+        });
     }
 
     @Test
-    public void mergesPdfPagesToASinglePdf() throws InterruptedException {
+    public void mergesPdfPagesToASinglePdf() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
 
-        Thread.sleep(1000);
-        Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
-        Assertions.assertFalse(outputPath.resolve("out2.pdf").toFile().exists());
+        Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
+            CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
+            Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
+            Assertions.assertFalse(outputPath.resolve("out2.pdf").toFile().exists());
+        });
     }
 
     @Test
-    public void mergesPdfAndImagesToASinglePdf() throws InterruptedException {
+    public void mergesPdfAndImagesToASinglePdf() {
         List<ImportedImage> input = Arrays.asList(
                 new ImportedImage(file(DUCK_JPG).getAbsolutePath()),
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        new ImageProcessHandler(getFileNameService(output, input), output, input).start();
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
 
-        Thread.sleep(1000);
-        Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
-        Assertions.assertFalse(outputPath.resolve("out2.pdf").toFile().exists());
+        Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
+            CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
+            Assertions.assertTrue(outputPath.resolve("out1.pdf").toFile().exists());
+            Assertions.assertFalse(outputPath.resolve("out2.pdf").toFile().exists());
+        });
     }
 
     private File file(String name) {

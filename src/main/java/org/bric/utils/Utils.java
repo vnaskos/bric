@@ -13,22 +13,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
 
 public class Utils {
 
+    private static final ExecutorService EXECUTOR_SERVICE =
+            Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
+
     public static final Locale GREEK = new Locale("el", "GR");
     
     public static final String FS = System.getProperty("file.separator");
-    public static final int REPLACE_ALL = 0,
-            REPLACE = 1,
-            SKIP_ALL = 2,
-            SKIP = 3,
-            NOT_SET = 4,
-            OVERWRITE = 5,
-            OVERWRITE_ALL = 6,
-            ADD = 1,
-            ADD_ALL = 0;
     
     public static Preferences prefs = Preferences.userRoot();
     
@@ -109,5 +105,9 @@ public class Utils {
         int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
         frame.setLocation(x, y);
+    }
+
+    public static ExecutorService getExecutorService() {
+        return EXECUTOR_SERVICE;
     }
 }

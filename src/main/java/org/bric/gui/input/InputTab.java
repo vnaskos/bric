@@ -2,6 +2,7 @@ package org.bric.gui.input;
 
 import org.bric.core.input.DirectoryScanner;
 import org.bric.core.input.model.ImportedImage;
+import org.bric.core.model.DuplicateAction;
 import org.bric.gui.BricUI;
 import org.bric.gui.inputOutput.ProgressBarFrame;
 import org.bric.gui.swing.ArrayListTransferHandler;
@@ -16,8 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,7 +29,7 @@ public class InputTab extends JPanel {
     private javax.swing.JLabel itemsCountLabel;
     private final InputDetailsPanel inputDetailsPanel;
 
-    private int duplicateAction = Utils.NOT_SET;
+    private DuplicateAction duplicateAction = DuplicateAction.NOT_SET;
     private String lastOpenedDirectory = "";
 
     public InputTab() {
@@ -173,7 +172,7 @@ public class InputTab extends JPanel {
         itemsCountLabel.setText(bundle.getString("BricUI.itemsCountLabel.text") + model.getSize());
 
         if (model.getSize() == 0) {
-            duplicateAction = Utils.NOT_SET;
+            duplicateAction = DuplicateAction.NOT_SET;
         }
     }
 
@@ -206,19 +205,12 @@ public class InputTab extends JPanel {
             return;
         }
 
-        ExecutorService executorService;
-        if (Utils.prefs.getInt("importNumThreads", 0) == 0) {
-            executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
-        } else {
-            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("importNumThreads", 1));
-        }
-
         final ProgressBarFrame importer = new ProgressBarFrame();
         importer.setImagesCount(imagesList.size());
         importer.setVisible(true);
 
         for (String s : imagesList) {
-            executorService.submit(importFile(importer, s));
+            Utils.getExecutorService().submit(importFile(importer, s));
         }
     }
 
@@ -228,8 +220,8 @@ public class InputTab extends JPanel {
                 duplicatePane(path);
             }
 
-            if (duplicateAction == Utils.SKIP ||
-                    duplicateAction == Utils.SKIP_ALL) {
+            if (duplicateAction == DuplicateAction.SKIP ||
+                    duplicateAction == DuplicateAction.ALWAYS_SKIP) {
                 progressBar.updateValue(true);
                 progressBar.showProgress(path);
                 return null;
@@ -265,14 +257,15 @@ public class InputTab extends JPanel {
 
     synchronized public void duplicatePane(String file) {
 
-        if (duplicateAction == Utils.NOT_SET || duplicateAction == Utils.REPLACE || duplicateAction == Utils.SKIP) {
+        if (duplicateAction == DuplicateAction.NOT_SET ||
+                duplicateAction == DuplicateAction.ADD ||
+                duplicateAction == DuplicateAction.SKIP) {
 
-            Object[] selectionValues = {bundle.getString("BricUI.duplicate.replaceAll"),
-                    bundle.getString("BricUI.duplicate.replace"),
-                    bundle.getString("BricUI.duplicate.skipAll"),
-                    bundle.getString("BricUI.duplicate.skip")};
-
-            String initialSelection = selectionValues[0].toString();
+            Object[] selectionValues = {
+                    DuplicateAction.ALWAYS_ADD,
+                    DuplicateAction.ADD,
+                    DuplicateAction.ALWAYS_SKIP,
+                    DuplicateAction.SKIP};
 
             Object selection;
 
@@ -280,34 +273,10 @@ public class InputTab extends JPanel {
                 selection = JOptionPane.showInputDialog(
                         null, String.format(bundle.getString("BricUI.duplicate.text"), "\n"+file+"\n"),
                         bundle.getString("BricUI.duplicate.title"), JOptionPane.QUESTION_MESSAGE,
-                        null, selectionValues, initialSelection);
+                        null, selectionValues, DuplicateAction.ALWAYS_ADD);
             } while(selection == null);
 
-            int answer = 0;
-            int i = 0;
-
-            for (Object value : selectionValues) {
-                if (selection == value.toString()) {
-                    answer = i;
-                }
-                i++;
-            }
-            switch (answer) {
-                case 0:
-                    duplicateAction = Utils.REPLACE_ALL;
-                    break;
-                case 1:
-                    duplicateAction = Utils.REPLACE;
-                    break;
-                case 2:
-                    duplicateAction = Utils.SKIP_ALL;
-                    break;
-                case 3:
-                    duplicateAction = Utils.SKIP;
-                    break;
-                default:
-                    duplicateAction = Utils.NOT_SET;
-            }
+            duplicateAction = (DuplicateAction) selection;
         }
     }
 }

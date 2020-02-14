@@ -11,12 +11,10 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.input.model.InputType;
+import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
-import org.bric.gui.inputOutput.ProgressBarFrame;
-import org.bric.imageEditParameters.ResizeParameters;
-import org.bric.imageEditParameters.RotateParameters;
-import org.bric.imageEditParameters.WatermarkParameters;
+import org.bric.gui.BricUI;
 import org.bric.utils.Utils;
 
 import javax.imageio.IIOImage;
@@ -25,32 +23,26 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Queue;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ImageProcessHandler {
 
-    private final Queue<ImportedImage> inputQueue;
+    private final List<ImportedImage> inputQueue;
     private final OutputParameters outputParameters;
     private final List<ImageProcessor<?>> processors;
 
     private final FileNameService fileNameService;
-    private ProgressBarFrame progressBar;
 
-    private int modelSize;
-    private int duplicateAction = Utils.NOT_SET;
+    private DuplicateAction duplicateAction = DuplicateAction.NOT_SET;
+    private BricUI.ProgressListener progressListener;
 
     public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
@@ -58,175 +50,91 @@ public class ImageProcessHandler {
 
         inputQueue = inputList.stream()
                 .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
-
-        modelSize = inputQueue.size();
+                .collect(Collectors.toList());
 
         this.fileNameService = fileNameService;
-
     }
 
-    public static void preview(ImportedImage imageToPreview, ImageProcessor<?>... processors) {
-        File temporary;
-        try {
-            temporary = File.createTempFile("preview", ".jpg");
-            temporary.deleteOnExit();
-        } catch (IOException ex) {
-            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        }
-
-        OutputParameters outputParameters = new OutputParameters(
-                temporary.getAbsolutePath().replace(".jpg", ""),
-                OutputType.JPG, 1, 1);
-        FileNameService fileNameService = new FileNameService(
-                outputParameters.getOutputPath(), outputParameters.getOutputType(),
-                outputParameters.getNumberingStartIndex(), 1);
-        ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
-                Collections.singletonList(imageToPreview));
-        handler.addProcessors(processors);
-        handler.preview(temporary);
-    }
-
-    private void preview(File temporary) {
-        final ImportedImage item = inputQueue.peek();
-        if (item == null) {
-            return;
-        }
-        if (item.getType() == InputType.PDF) {
-            JOptionPane.showMessageDialog(null, "PDF preview is not supported yet!");
-            return;
-        }
-
-        duplicateAction = Utils.OVERWRITE_ALL;
-        progressBar = new ProgressBarFrame();
-        progressBar.setVisible(true);
-        progressBar.setImagesCount(modelSize);
-
-        try {
-            task(inputQueue.poll()).call();
-            Desktop.getDesktop().open(temporary);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void setDuplicateAction(DuplicateAction duplicateAction) {
+        this.duplicateAction = duplicateAction;
     }
 
     public void addProcessors(ImageProcessor<?>... processors) {
         Collections.addAll(this.processors, processors);
     }
 
-    public void setResizeParameters(ResizeParameters resizeParameters) {
-        processors.add(new ResizeProcessor(resizeParameters));
-    }
-
-    public void setRotateParameters(RotateParameters rotateParameters) {
-        processors.add(new RotateProcessor(rotateParameters));
-    }
-
-    public void setWatermarkParameters(WatermarkParameters watermarkParameters) {
-        processors.add(new WatermarkProcessor(watermarkParameters));
-    }
-
-    public void start() {
-        progressBar = new ProgressBarFrame();
-        progressBar.setVisible(true);
-        progressBar.setImagesCount(modelSize);
-
+    public List<CompletableFuture<String>> start() {
+        List<CompletableFuture<String>> futures = new ArrayList<>();
         if (outputParameters.getOutputType() == OutputType.PDF) {
-            generatePDF(inputQueue);
+            futures.add(CompletableFuture.supplyAsync(() -> mergeInputToSinglePdf(inputQueue), Utils.getExecutorService()));
         } else {
-            ExecutorService executorService = getExecutorService();
-
-            while (!inputQueue.isEmpty()) {
-                executorService.submit(task(inputQueue.poll()));
+            for (ImportedImage item : inputQueue) {
+                futures.add(CompletableFuture.supplyAsync(() -> task(item), Utils.getExecutorService()));
             }
         }
+        return futures;
     }
 
-    private ExecutorService getExecutorService() {
-        ExecutorService executorService;
-        if (Utils.prefs.getInt("exportNumThreads", 0) == 0) {
-            executorService = Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
-        } else {
-            executorService = Executors.newWorkStealingPool(Utils.prefs.getInt("exportNumThreads", 1));
-        }
-        return executorService;
-    }
-
-    private Callable<Void> task(final ImportedImage item) {
-        return () -> {
-            if (!progressBar.isVisible()) {
-                return null;
-            }
-
-            if (item.getType() == InputType.PDF) {
-                if(outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
-                    generatePDF(new LinkedList<ImportedImage>() {
-                        {add(item);}
-                    });
-                } else {
-                    pdfProcess(null, item);
-                }
+    private String task(final ImportedImage item) {
+        if (item.getType() == InputType.PDF) {
+            if (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
+                mergeInputToSinglePdf(Collections.singletonList(item));
             } else {
-                bufferedImageProcess(null, item, null);
+                loadPdfPages(item.getPath(),
+                        page -> save(page, fileNameService.generateFilePath(item)));
             }
-
-            progressBar.showProgress(item.getPath());
-            progressBar.updateValue(true);
-
-            return null;
-        };
-    }
-
-    private void bufferedImageProcess(PDDocument doc, ImportedImage importedImage, BufferedImage currentImage) {
-        if (currentImage == null) {
-            currentImage = Utils.loadImage(importedImage.getPath());
+        } else {
+            BufferedImage image = Utils.loadImage(item.getPath());
+            image = applyProcessors(image);
+            save(image, fileNameService.generateFilePath(item));
         }
 
+        notifyFileProcessed(item);
+        return item.getPath();
+    }
+
+    private BufferedImage applyProcessors(BufferedImage currentImage) {
         for (ImageProcessor<?> processor : processors) {
             if (processor.isEnabled()) {
                 currentImage = processor.process(currentImage);
             }
         }
-
-        if (outputParameters.getOutputType() == OutputType.PDF ||
-                (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST && importedImage.getType() == InputType.PDF)) {
-            addImageToPDF(doc, currentImage);
-        } else {
-            save(currentImage, fileNameService.generateFilePath(importedImage));
-        }
+        return currentImage;
     }
 
-    private void pdfProcess(PDDocument document, ImportedImage importedImage) {
-        try (PDDocument doc = PDDocument.load(new File(importedImage.getPath()))) {
+    private void loadPdfPages(String pdfPath, Consumer<BufferedImage> consumer) {
+        try (PDDocument doc = PDDocument.load(new File(pdfPath))) {
 
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
             for (int page = 0; page < doc.getNumberOfPages(); page++) {
                 BufferedImage image = pdfRenderer.renderImageWithDPI(page, 300);
-                bufferedImageProcess(document, importedImage, image);
+                image = applyProcessors(image);
+                consumer.accept(image);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void generatePDF(Queue<ImportedImage> input) {
+    public String mergeInputToSinglePdf(List<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
-        final ImportedImage firstItem = input.peek();
-
-        if (firstItem == null) {
-            return;
+        if (input.isEmpty()) {
+            return "";
         }
+
+        final ImportedImage firstItem = input.get(0);
 
         for (ImportedImage importedImage : input) {
             if (importedImage.getType() == InputType.PDF) {
-                pdfProcess(document, importedImage);
+                loadPdfPages(importedImage.getPath(),
+                        page -> addImageToPDF(document, page));
             } else {
-                bufferedImageProcess(document, importedImage, null);
+                BufferedImage image = Utils.loadImage(importedImage.getPath());
+                image = applyProcessors(image);
+                addImageToPDF(document, image);
             }
-            progressBar.showProgress(importedImage.getPath());
-            progressBar.updateValue(true);
+            notifyFileProcessed(importedImage);
         }
 
         try {
@@ -240,6 +148,15 @@ public class ImageProcessHandler {
                 e.printStackTrace();
             }
         }
+
+        return firstItem.getPath();
+    }
+
+    private void notifyFileProcessed(ImportedImage importedImage) {
+        if (progressListener == null) {
+            return;
+        }
+        progressListener.finished(importedImage.getPath());
     }
 
     public void addImageToPDF(PDDocument doc, BufferedImage image) {
@@ -276,48 +193,26 @@ public class ImageProcessHandler {
 
     synchronized public void duplicatePane(String file) {
 
-        if (duplicateAction == Utils.NOT_SET || duplicateAction == Utils.OVERWRITE || duplicateAction == Utils.SKIP || duplicateAction == Utils.ADD) {
+        if (duplicateAction == DuplicateAction.NOT_SET ||
+                duplicateAction == DuplicateAction.OVERWRITE ||
+                duplicateAction == DuplicateAction.SKIP ||
+                duplicateAction == DuplicateAction.RENAME) {
 
-            Object[] selectionValues = {"Overwrite", "Overwrite All", "Skip", "Skip All", "Add", "Add All"};
-
-            String initialSelection = selectionValues[4].toString();
+            Object[] selectionValues = {
+                    DuplicateAction.OVERWRITE, DuplicateAction.ALWAYS_OVERWRITE,
+                    DuplicateAction.SKIP, DuplicateAction.ALWAYS_SKIP,
+                    DuplicateAction.RENAME, DuplicateAction.ALWAYS_RENAME};
 
             Object selection;
 
             do {
             selection = JOptionPane.showInputDialog(
                     null, String.format("This image\n%s\n already exists on the output folder", file),
-                    "Warning Duplicate", JOptionPane.QUESTION_MESSAGE, null, selectionValues, initialSelection);
-            }while(selection == null);
-            int answer = 0;
-            int i = 0;
+                    "Warning Duplicate", JOptionPane.QUESTION_MESSAGE,
+                    null, selectionValues, DuplicateAction.RENAME);
+            } while(selection == null);
 
-            for (Object value : selectionValues) {
-                if (selection == value.toString()) {
-                    answer = i;
-                }
-                i++;
-            }
-            
-            switch (answer) {
-                case 0:
-                    duplicateAction = Utils.OVERWRITE;
-                    break;
-                case 1:
-                    duplicateAction = Utils.OVERWRITE_ALL;
-                    break;
-                case 2:
-                    duplicateAction = Utils.SKIP;
-                    break;
-                case 3:
-                    duplicateAction = Utils.SKIP_ALL;
-                    break;
-                case 5:
-                    duplicateAction = Utils.ADD_ALL;
-                    break;
-                default:
-                    duplicateAction = Utils.ADD;
-            }
+            duplicateAction = (DuplicateAction) selection;
         }
     }
     
@@ -334,7 +229,7 @@ public class ImageProcessHandler {
         if (virtualFile.exists()) {
             duplicatePane(newFilepath);
         }
-        return duplicateAction == Utils.SKIP || duplicateAction == Utils.SKIP_ALL;
+        return duplicateAction == DuplicateAction.SKIP || duplicateAction == DuplicateAction.ALWAYS_SKIP;
     }
 
     private void save(BufferedImage imageForSave, String newFilepath) {
@@ -342,7 +237,8 @@ public class ImageProcessHandler {
             return;
         }
 
-        if( (duplicateAction == Utils.ADD || duplicateAction == Utils.ADD_ALL) && new File(newFilepath).exists()){
+        if( (duplicateAction == DuplicateAction.RENAME || duplicateAction == DuplicateAction.ALWAYS_RENAME)
+                && new File(newFilepath).exists()) {
             newFilepath = duplicateAddAction(newFilepath);
         }
         
@@ -388,5 +284,9 @@ public class ImageProcessHandler {
         } catch (IOException ex) {
             Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void setProgressListener(BricUI.ProgressListener progressListener) {
+        this.progressListener = progressListener;
     }
 }
