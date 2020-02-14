@@ -1,9 +1,9 @@
 package org.bric.gui.tabs;
 
 import com.jhlabs.image.RotateFilter;
+import org.bric.core.process.model.WatermarkParameters;
 import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.swing.JPlacer;
-import org.bric.imageEditParameters.WatermarkParameters;
 import org.bric.utils.Utils;
 import say.swing.JFontChooser;
 

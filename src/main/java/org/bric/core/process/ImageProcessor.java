@@ -1,4 +1,4 @@
-package org.bric.processor;
+package org.bric.core.process;
 
 import org.bric.core.model.TabParameters;
 

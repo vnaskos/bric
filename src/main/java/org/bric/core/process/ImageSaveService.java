@@ -3,7 +3,6 @@ package org.bric.core.process;
 import ij.ImagePlus;
 import ij.io.FileSaver;
 import org.bric.core.model.output.OutputType;
-import org.bric.processor.ImageProcessHandler;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;

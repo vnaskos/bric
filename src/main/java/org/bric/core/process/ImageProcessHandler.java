@@ -1,4 +1,4 @@
-package org.bric.processor;
+package org.bric.core.process;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -11,7 +11,6 @@ import org.bric.core.input.model.ImportedImage;
 import org.bric.core.input.model.InputType;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
-import org.bric.core.process.ImageSaveService;
 import org.bric.gui.BricUI;
 import org.bric.utils.Utils;
 

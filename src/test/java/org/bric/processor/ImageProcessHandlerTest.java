@@ -3,6 +3,8 @@ package org.bric.processor;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
+import org.bric.core.process.FileNameService;
+import org.bric.core.process.ImageProcessHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

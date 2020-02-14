@@ -1,18 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.bric.imageEditParameters;
+package org.bric.core.process.model;
 
 import org.bric.core.model.TabParameters;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-/**
- *
- * @author vasilis
- */
 public class WatermarkParameters implements TabParameters {
     private boolean enabled;
     private boolean custom;
