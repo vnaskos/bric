@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.input.model.InputType;
+import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
 import org.bric.gui.BricUI;
@@ -44,7 +45,7 @@ public class ImageProcessHandler {
 
     private final FileNameService fileNameService;
 
-    private int duplicateAction = Utils.NOT_SET;
+    private DuplicateAction duplicateAction = DuplicateAction.NOT_SET;
     private BricUI.ProgressListener progressListener;
 
     public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
@@ -93,10 +94,10 @@ public class ImageProcessHandler {
             return;
         }
 
-        duplicateAction = Utils.OVERWRITE_ALL;
+        duplicateAction = DuplicateAction.ALWAYS_OVERWRITE;
 
         try {
-            task(item);//.run();
+            task(item);
             Desktop.getDesktop().open(temporary);
         } catch (Exception e) {
             e.printStackTrace();
@@ -250,48 +251,26 @@ public class ImageProcessHandler {
 
     synchronized public void duplicatePane(String file) {
 
-        if (duplicateAction == Utils.NOT_SET || duplicateAction == Utils.OVERWRITE || duplicateAction == Utils.SKIP || duplicateAction == Utils.ADD) {
+        if (duplicateAction == DuplicateAction.NOT_SET ||
+                duplicateAction == DuplicateAction.OVERWRITE ||
+                duplicateAction == DuplicateAction.SKIP ||
+                duplicateAction == DuplicateAction.RENAME) {
 
-            Object[] selectionValues = {"Overwrite", "Overwrite All", "Skip", "Skip All", "Add", "Add All"};
-
-            String initialSelection = selectionValues[4].toString();
+            Object[] selectionValues = {
+                    DuplicateAction.OVERWRITE, DuplicateAction.ALWAYS_OVERWRITE,
+                    DuplicateAction.SKIP, DuplicateAction.ALWAYS_SKIP,
+                    DuplicateAction.RENAME, DuplicateAction.ALWAYS_RENAME};
 
             Object selection;
 
             do {
             selection = JOptionPane.showInputDialog(
                     null, String.format("This image\n%s\n already exists on the output folder", file),
-                    "Warning Duplicate", JOptionPane.QUESTION_MESSAGE, null, selectionValues, initialSelection);
-            }while(selection == null);
-            int answer = 0;
-            int i = 0;
+                    "Warning Duplicate", JOptionPane.QUESTION_MESSAGE,
+                    null, selectionValues, DuplicateAction.RENAME);
+            } while(selection == null);
 
-            for (Object value : selectionValues) {
-                if (selection == value.toString()) {
-                    answer = i;
-                }
-                i++;
-            }
-            
-            switch (answer) {
-                case 0:
-                    duplicateAction = Utils.OVERWRITE;
-                    break;
-                case 1:
-                    duplicateAction = Utils.OVERWRITE_ALL;
-                    break;
-                case 2:
-                    duplicateAction = Utils.SKIP;
-                    break;
-                case 3:
-                    duplicateAction = Utils.SKIP_ALL;
-                    break;
-                case 5:
-                    duplicateAction = Utils.ADD_ALL;
-                    break;
-                default:
-                    duplicateAction = Utils.ADD;
-            }
+            duplicateAction = (DuplicateAction) selection;
         }
     }
     
@@ -308,7 +287,7 @@ public class ImageProcessHandler {
         if (virtualFile.exists()) {
             duplicatePane(newFilepath);
         }
-        return duplicateAction == Utils.SKIP || duplicateAction == Utils.SKIP_ALL;
+        return duplicateAction == DuplicateAction.SKIP || duplicateAction == DuplicateAction.ALWAYS_SKIP;
     }
 
     private void save(BufferedImage imageForSave, String newFilepath) {
@@ -316,7 +295,8 @@ public class ImageProcessHandler {
             return;
         }
 
-        if( (duplicateAction == Utils.ADD || duplicateAction == Utils.ADD_ALL) && new File(newFilepath).exists()){
+        if( (duplicateAction == DuplicateAction.ADD || duplicateAction == DuplicateAction.ALWAYS_RENAME)
+                && new File(newFilepath).exists()) {
             newFilepath = duplicateAddAction(newFilepath);
         }
         

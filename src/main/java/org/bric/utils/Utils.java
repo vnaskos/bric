@@ -25,15 +25,6 @@ public class Utils {
     public static final Locale GREEK = new Locale("el", "GR");
     
     public static final String FS = System.getProperty("file.separator");
-    public static final int REPLACE_ALL = 0,
-            REPLACE = 1,
-            SKIP_ALL = 2,
-            SKIP = 3,
-            NOT_SET = 4,
-            OVERWRITE = 5,
-            OVERWRITE_ALL = 6,
-            ADD = 1,
-            ADD_ALL = 0;
     
     public static Preferences prefs = Preferences.userRoot();
     
