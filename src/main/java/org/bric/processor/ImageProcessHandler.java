@@ -65,7 +65,7 @@ public class ImageProcessHandler {
     public List<CompletableFuture<String>> start() {
         List<CompletableFuture<String>> futures = new ArrayList<>();
         if (outputParameters.getOutputType() == OutputType.PDF) {
-            futures.add(CompletableFuture.supplyAsync(() -> generatePDF(inputQueue), Utils.getExecutorService()));
+            futures.add(CompletableFuture.supplyAsync(() -> generatePdfFromPdf(inputQueue), Utils.getExecutorService()));
         } else {
             for (ImportedImage item : inputQueue) {
                 futures.add(CompletableFuture.supplyAsync(() -> task(item), Utils.getExecutorService()));
@@ -77,19 +77,19 @@ public class ImageProcessHandler {
     private String task(final ImportedImage item) {
         if (item.getType() == InputType.PDF) {
             if (outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
-                generatePDF(Collections.singletonList(item));
+                generatePdfFromPdf(Collections.singletonList(item));
             } else {
-                pdfProcess(null, item);
+                generateImagesFromPdf(null, item);
             }
         } else {
-            bufferedImageProcess(null, item, null);
+            generateFromImage(null, item, null);
         }
 
         notifyFileProcessed(item);
         return item.getPath();
     }
 
-    private void bufferedImageProcess(PDDocument doc, ImportedImage importedImage, BufferedImage currentImage) {
+    private void generateFromImage(PDDocument doc, ImportedImage importedImage, BufferedImage currentImage) {
         if (currentImage == null) {
             currentImage = Utils.loadImage(importedImage.getPath());
         }
@@ -108,20 +108,20 @@ public class ImageProcessHandler {
         }
     }
 
-    private void pdfProcess(PDDocument document, ImportedImage importedImage) {
+    private void generateImagesFromPdf(PDDocument document, ImportedImage importedImage) {
         try (PDDocument doc = PDDocument.load(new File(importedImage.getPath()))) {
 
             PDFRenderer pdfRenderer = new PDFRenderer(doc);
             for (int page = 0; page < doc.getNumberOfPages(); page++) {
                 BufferedImage image = pdfRenderer.renderImageWithDPI(page, 300);
-                bufferedImageProcess(document, importedImage, image);
+                generateFromImage(document, importedImage, image);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public String generatePDF(List<ImportedImage> input) {
+    public String generatePdfFromPdf(List<ImportedImage> input) {
         PDDocument document = new PDDocument();
 
         if (input.isEmpty()) {
@@ -132,9 +132,9 @@ public class ImageProcessHandler {
 
         for (ImportedImage importedImage : input) {
             if (importedImage.getType() == InputType.PDF) {
-                pdfProcess(document, importedImage);
+                generateImagesFromPdf(document, importedImage);
             } else {
-                bufferedImageProcess(document, importedImage, null);
+                generateFromImage(document, importedImage, null);
             }
             notifyFileProcessed(importedImage);
         }
