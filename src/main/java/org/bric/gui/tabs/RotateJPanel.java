@@ -1,8 +1,8 @@
 package org.bric.gui.tabs;
 
+import org.bric.core.process.model.RotateParameters;
 import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.swing.JRotator;
-import org.bric.imageEditParameters.RotateParameters;
 
 import java.util.Properties;
 import java.util.Random;

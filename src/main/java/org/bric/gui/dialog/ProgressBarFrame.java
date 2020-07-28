@@ -1,4 +1,4 @@
-package org.bric.gui.inputOutput;
+package org.bric.gui.dialog;
 
 import org.bric.gui.BricUI;
 import org.bric.utils.Utils;

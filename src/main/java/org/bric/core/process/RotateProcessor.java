@@ -1,8 +1,8 @@
-package org.bric.processor;
+package org.bric.core.process;
 
 import com.jhlabs.image.FlipFilter;
 import com.jhlabs.image.RotateFilter;
-import org.bric.imageEditParameters.RotateParameters;
+import org.bric.core.process.model.RotateParameters;
 
 import java.awt.image.BufferedImage;
 import java.util.Random;

@@ -1,8 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.bric.gui.inputOutput;
+package org.bric.gui.dialog;
 
 import javax.swing.*;
 import java.io.BufferedWriter;
@@ -10,10 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
-/**
- *
- * @author Vasilis
- */
 public class ErrorsPanel extends javax.swing.JFrame {
     
     DefaultListModel model;

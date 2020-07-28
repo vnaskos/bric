@@ -5,15 +5,15 @@ import org.bric.core.input.model.InputType;
 import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
+import org.bric.core.process.*;
+import org.bric.gui.dialog.PreferencesFrame;
+import org.bric.gui.dialog.ProgressBarFrame;
 import org.bric.gui.input.InputTab;
-import org.bric.gui.inputOutput.ProgressBarFrame;
-import org.bric.gui.output.OutputTab;
-import org.bric.gui.preferences.PreferencesFrame;
 import org.bric.gui.state.StateManager;
+import org.bric.gui.tabs.OutputTab;
 import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
-import org.bric.processor.*;
 import org.bric.utils.Utils;
 
 import javax.swing.*;
@@ -261,7 +261,7 @@ public class BricUI extends JFrame {
                 new RotateProcessor(rotateTab.getImageEditParameters()),
                 new WatermarkProcessor(watermarkTab.getImageEditParameters()));
 
-        handler.setDuplicateAction(DuplicateAction.ALWAYS_OVERWRITE);
+        fileNameService.setDuplicateAction(DuplicateAction.ALWAYS_OVERWRITE);
 
         CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[1]))
                 .thenAccept(v -> {

@@ -1,6 +1,6 @@
-package org.bric.processor;
+package org.bric.core.process;
 
-import org.bric.imageEditParameters.WatermarkParameters;
+import org.bric.core.process.model.WatermarkParameters;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

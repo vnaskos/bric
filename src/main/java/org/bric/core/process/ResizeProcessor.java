@@ -1,7 +1,7 @@
-package org.bric.processor;
+package org.bric.core.process;
 
 import com.mortennobel.imagescaling.*;
-import org.bric.imageEditParameters.ResizeParameters;
+import org.bric.core.process.model.ResizeParameters;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

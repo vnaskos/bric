@@ -1,15 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.bric.imageEditParameters;
+package org.bric.core.process.model;
 
 import org.bric.core.model.TabParameters;
 
-/**
- *
- * @author vasilis
- */
 public class RotateParameters implements TabParameters {
     private boolean enabled;
     private boolean custom;

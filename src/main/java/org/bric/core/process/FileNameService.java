@@ -1,9 +1,11 @@
-package org.bric.processor;
+package org.bric.core.process;
 
 import org.bric.core.input.model.ImportedImage;
+import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputType;
 import org.bric.utils.Utils;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -12,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileNameService {
+
+    private DuplicateAction duplicateAction = DuplicateAction.NOT_SET;
 
     private final String outputFilepath;
     private final OutputType outputType;
@@ -42,6 +46,10 @@ public class FileNameService {
         }
     }
 
+    public void setDuplicateAction(DuplicateAction duplicateAction) {
+        this.duplicateAction = duplicateAction;
+    }
+
     public String generateFilePath(ImportedImage currentImage) {
         String generatedFilepath = outputFilepath;
 
@@ -65,6 +73,24 @@ public class FileNameService {
         }
 
         return generatedFilepath;
+    }
+
+    public String preventNamingCollision(String filepath) {
+        File fileToBeSaved = new File(filepath);
+        if (fileToBeSaved.exists()) {
+            duplicatePane(filepath);
+        }
+
+        if (duplicateAction == DuplicateAction.SKIP || duplicateAction == DuplicateAction.ALWAYS_SKIP) {
+            return null;
+        }
+
+        if( (duplicateAction == DuplicateAction.RENAME || duplicateAction == DuplicateAction.ALWAYS_RENAME)
+                && new File(filepath).exists()) {
+            return duplicateAddAction(filepath);
+        }
+
+        return filepath;
     }
 
     private String getOutputExtension(ImportedImage currentImage) {
@@ -114,7 +140,7 @@ public class FileNameService {
     }
 
     @Deprecated
-    public static String createRegex(String s) {
+    private static String createRegex(String s) {
         StringBuilder b = new StringBuilder();
         for(int i=0; i<s.length(); ++i) {
             char ch = s.charAt(i);
@@ -127,5 +153,52 @@ public class FileNameService {
         }
         b.append("\\.(jpg|jpeg|png|gif|tif|tiff|bmp|pdf|wbmp|pbm|pgm|ppm|pnm|psd|JPG|JPEG|PNG|GIF|TIF|TIFF|BMP|PDF|WBMP|PBM|PGM|PPM|PNM|PSD)");
         return b.toString().replaceAll("#", "[0-9]+");
+    }
+
+    private String applySpecialFileMask(String filepath, String extension){
+        int index = numberingIndex.get();
+        String filepathBackup = filepath;
+        do {
+            filepath = filepathBackup;
+            filepath = filepath.replaceAll("#", Integer.toString(index));
+            index++;
+        } while (new File(filepath + '.' + extension).exists());
+        return filepath;
+    }
+
+    synchronized private void duplicatePane(String file) {
+        if (duplicateAction == DuplicateAction.NOT_SET ||
+                duplicateAction == DuplicateAction.OVERWRITE ||
+                duplicateAction == DuplicateAction.SKIP ||
+                duplicateAction == DuplicateAction.RENAME) {
+
+            Object[] selectionValues = {
+                    DuplicateAction.OVERWRITE, DuplicateAction.ALWAYS_OVERWRITE,
+                    DuplicateAction.SKIP, DuplicateAction.ALWAYS_SKIP,
+                    DuplicateAction.RENAME, DuplicateAction.ALWAYS_RENAME};
+
+            Object selection;
+
+            do {
+                selection = JOptionPane.showInputDialog(
+                        null, String.format("This image\n%s\n already exists on the output folder", file),
+                        "Warning Duplicate", JOptionPane.QUESTION_MESSAGE,
+                        null, selectionValues, DuplicateAction.RENAME);
+            } while(selection == null);
+
+            duplicateAction = (DuplicateAction) selection;
+        }
+    }
+
+    private String duplicateAddAction(String filename) {
+        String file = filename.substring(0, filename.lastIndexOf('.'));
+        file += "(#)";
+        String extension = getExtension(filename);
+        file = applySpecialFileMask(file, extension);
+        return file + "." + extension;
+    }
+
+    private String getExtension(String filename) {
+        return filename.substring(filename.lastIndexOf(".") + 1);
     }
 }
