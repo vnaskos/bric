@@ -5,6 +5,10 @@ Bric is a cross-platform batch image editor. Its key features are convert, resiz
 
 *Note*: PDF files are handled as a sequence of images
 
+## Project status
+
+The development started back in 2011 and the project was maintened for several years, gaining popularity on [sourceforge](https://sourceforge.net/projects/bric/). The original name was BIRSN and was quickly renamed to its current easier pronounceable name. As of 2020 the project is back in active (slow paced) development.
+
 ## Running
 
 How to get the latest version and run the program on your machine.
