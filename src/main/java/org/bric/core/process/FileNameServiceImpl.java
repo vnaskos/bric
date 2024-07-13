@@ -58,7 +58,7 @@ public class FileNameServiceImpl implements FileNameService {
         generatedFilepath = ensureFilepathContainsSlashIfEndsWithPathModifier(generatedFilepath);
         generatedFilepath = ensureFilepathContainsFilename(generatedFilepath);
 
-        generatedFilepath = generatedFilepath.replace("*", Integer.toString(numberingIndex.getAndIncrement()));
+        generatedFilepath = generatedFilepath.replace(FilePathModifier.NUMBERING.modifier, Integer.toString(numberingIndex.getAndIncrement()));
 
         Calendar cal = Calendar.getInstance();
         generatedFilepath = generatedFilepath.replace("%D", cal.get(Calendar.DATE) + "");
