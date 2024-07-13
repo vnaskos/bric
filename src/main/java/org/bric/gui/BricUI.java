@@ -67,10 +67,10 @@ public class BricUI extends JFrame {
         stateManager = new StateManager(outputTab, resizeTab, rotateTab, watermarkTab);
 
         initComponents();
-        
+
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
     }
-    
+
     private void initComponents() {
         JPanel toolBar = new JPanel();
         alwaysOnTopButton = new javax.swing.JToggleButton();
@@ -250,7 +250,7 @@ public class BricUI extends JFrame {
         OutputParameters outputParameters = new OutputParameters(
                 temporary.getAbsolutePath().replace(".jpg", ""),
                 OutputType.JPG, 1, 1);
-        FileNameService fileNameService = new FileNameService(
+        FileNameService fileNameService = new FileNameServiceImpl(
                 outputParameters.getOutputPath(), outputParameters.getOutputType(),
                 outputParameters.getNumberingStartIndex(), 1);
         ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
@@ -307,7 +307,7 @@ public class BricUI extends JFrame {
             bricUI.setVisible(true);
         });
     }
-    
+
     public void startProcess(List<ImportedImage> inputItems) {
         if (inputItems == null || inputItems.isEmpty()) {
             return;
@@ -315,7 +315,7 @@ public class BricUI extends JFrame {
 
         OutputParameters outputParameters = outputTab.getImageEditParameters();
 
-        FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
+        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputParameters.getOutputPath(),
                 outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size());
         ImageProcessHandler mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
 

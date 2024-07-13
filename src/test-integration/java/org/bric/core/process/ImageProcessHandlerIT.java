@@ -132,8 +132,8 @@ public class ImageProcessHandlerIT {
         return new File(url.getFile());
     }
 
-    private FileNameService getFileNameService(OutputParameters output, List<ImportedImage> input) {
-        return new FileNameService(output.getOutputPath(), output.getOutputType(),
+    private FileNameServiceImpl getFileNameService(OutputParameters output, List<ImportedImage> input) {
+        return new FileNameServiceImpl(output.getOutputPath(), output.getOutputType(),
                 output.getNumberingStartIndex(), input.size());
     }
 

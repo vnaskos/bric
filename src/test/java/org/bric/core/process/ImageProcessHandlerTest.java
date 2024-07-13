@@ -18,7 +18,7 @@ public class ImageProcessHandlerTest {
     public void startProcess_ShouldFilterOutNullInputs_WhenOutputImageInputContainsOnlyNull() {
         List<ImportedImage> input = Arrays.asList(null, null);
         OutputParameters output = new OutputParameters(null, OutputType.JPG, ANY_NUMBERING, ANY_QUALITY);
-        FileNameService fakeFileNameService = Mockito.mock(FileNameService.class);
+        FileNameServiceImpl fakeFileNameService = Mockito.mock(FileNameServiceImpl.class);
 
         new ImageProcessHandler(fakeFileNameService, output, input).start();
 
@@ -29,7 +29,7 @@ public class ImageProcessHandlerTest {
     public void startProcess_ShouldFilterOutNullInputs_WhenOutputPdfAndInputContainsOnlyNull() {
         List<ImportedImage> input = Arrays.asList(null, null);
         OutputParameters output = new OutputParameters(null, OutputType.PDF, ANY_NUMBERING, ANY_QUALITY);
-        FileNameService fakeFileNameService = Mockito.mock(FileNameService.class);
+        FileNameServiceImpl fakeFileNameService = Mockito.mock(FileNameServiceImpl.class);
 
         new ImageProcessHandler(fakeFileNameService, output, input).start();
 
