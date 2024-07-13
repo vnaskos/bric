@@ -67,18 +67,6 @@ class FileNameServiceImplTest {
     }
 
     @Test
-    void generateFilepath_GivenOutputPathWithoutFilenameMask_ShouldPlaceOriginalImageName() {
-        String outputFilepath = "/test/";
-        ImportedImage imageNamedHouses = new ImportedImage("/path/houses.png");
-        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
-            A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
-
-        String actual = fileNameService.generateFilePath(imageNamedHouses);
-
-        Assertions.assertEquals("/test/houses.jpg", actual);
-    }
-
-    @Test
     void generateFilepath_GivenOriginalDirectoryModifier_ShouldReturnOriginalImagePathAndNameWithOutputExtension() {
         String outputFilepath = "^P";
         FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
@@ -150,6 +138,30 @@ class FileNameServiceImplTest {
         String actual = fileNameService.generateFilePath(A_JPG_IMAGE);
 
         Assertions.assertEquals(expectedPath, actual);
+    }
+
+    @Test
+    void generateFilepath_GivenOriginalFilenameModifier_ShouldAppendOriginalFilename() {
+        String outputFilepath = "%F";
+        ImportedImage housesJpg = new ImportedImage("/path/houses.png");
+        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
+            A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
+
+        String actual = fileNameService.generateFilePath(housesJpg);
+
+        Assertions.assertEquals("houses.jpg", actual);
+    }
+
+    @Test
+    void generateFilepath_WithoutFilename_ShouldPlaceOriginalImageName() {
+        String outputFilepath = "/test/";
+        ImportedImage housesJpg = new ImportedImage("/path/houses.png");
+        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
+            A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
+
+        String actual = fileNameService.generateFilePath(housesJpg);
+
+        Assertions.assertEquals("/test/houses.jpg", actual);
     }
 
     @Test
