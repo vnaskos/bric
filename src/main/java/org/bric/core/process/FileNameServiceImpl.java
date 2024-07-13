@@ -67,7 +67,7 @@ public class FileNameServiceImpl implements FileNameService {
         generatedFilepath = generatedFilepath.replace(FilePathModifier.YEAR.modifier, String.valueOf(dateProvider.year()));
 
         generatedFilepath = generatedFilepath.replace(FilePathModifier.ORIGINAL_FILENAME.modifier, currentImage.getName());
-        generatedFilepath = generatedFilepath.replace("^P", currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));
+        generatedFilepath = generatedFilepath.replace(FilePathModifier.ORIGINAL_FILEPATH.modifier, currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));
 
         generatedFilepath += '.' + getOutputExtension(currentImage);
 

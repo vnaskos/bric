@@ -6,7 +6,8 @@ public enum FilePathModifier {
     DAY("%D"),
     MONTH("%M"),
     YEAR("%Y"),
-    ORIGINAL_FILENAME("%F");
+    ORIGINAL_FILENAME("%F"),
+    ORIGINAL_FILEPATH("^P");
 
     public final String modifier;
 

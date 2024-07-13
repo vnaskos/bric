@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -64,28 +63,6 @@ class FileNameServiceImplTest {
         String actual = fileNameService.generateFilePath(A_JPG_IMAGE);
 
         Assertions.assertTrue(actual.endsWith("123_12.jpg"));
-    }
-
-    @Test
-    void generateFilepath_GivenOriginalDirectoryModifier_ShouldReturnOriginalImagePathAndNameWithOutputExtension() {
-        String outputFilepath = "^P";
-        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
-            A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
-
-        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
-
-        Assertions.assertEquals("/blue/trees/img.jpg", actual);
-    }
-
-    @Test
-    void generateFilepath_GivenOriginalDirectoryModifierAndSlash_ShouldReturnOriginalImagePathAndNameWithOutputExtension() {
-        String outputFilepath = "^P/";
-        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
-            A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
-
-        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
-
-        Assertions.assertEquals("/blue/trees/img.jpg", actual);
     }
 
     @ParameterizedTest
@@ -153,6 +130,29 @@ class FileNameServiceImplTest {
     }
 
     @Test
+    void generateFilepath_GivenOriginalFilepathModifier_ShouldPrependOriginalFilepath() {
+        String outputFilepath = "^P/test";
+        int anInitialNumberingValue = 12;
+        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
+            anInitialNumberingValue, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
+
+        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
+
+        Assertions.assertEquals("/blue/trees/test.jpg", actual);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"^P", "^P/"})
+    void generateFilepath_GivenOriginalFilepathModifierWithoutFilename_ShouldPrependOriginalFilepathAndFilename(String outputFilepath) {
+        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
+            A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
+
+        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
+
+        Assertions.assertEquals("/blue/trees/img.jpg", actual);
+    }
+
+    @Test
     void generateFilepath_WithoutFilename_ShouldPlaceOriginalImageName() {
         String outputFilepath = "/test/";
         ImportedImage housesJpg = new ImportedImage("/path/houses.png");
@@ -162,30 +162,6 @@ class FileNameServiceImplTest {
         String actual = fileNameService.generateFilePath(housesJpg);
 
         Assertions.assertEquals("/test/houses.jpg", actual);
-    }
-
-    @Test
-    void generateFilepath_GivenOriginalDirectoryAndNumberingModifier_ShouldReturnOriginalImagePathWithNumberingAndOutputExtension() {
-        String outputFilepath = "^P*";
-        int anInitialNumberingValue = 12;
-        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
-            anInitialNumberingValue, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
-
-        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
-
-        Assertions.assertEquals("/blue/trees12.jpg", actual);
-    }
-
-    @Test
-    void generateFilepath_GivenOriginalDirectoryAndSlashAndNumberingModifier_ShouldReturnOriginalImagePathWithNumberingAndOutputExtension() {
-        String outputFilepath = "^P/*";
-        int anInitialNumberingValue = 12;
-        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.JPG,
-            anInitialNumberingValue, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
-
-        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
-
-        Assertions.assertEquals("/blue/trees/12.jpg", actual);
     }
 
     @Test
