@@ -29,15 +29,16 @@ class FileNameServiceImplTest {
         Assertions.assertEquals("/test/123.jpg", actual);
     }
 
-    @Test
-    void generateFilepath_GivenSameAsFirstOutputType_ShouldOnlyAppendInitialExtension() {
+    @ParameterizedTest
+    @CsvSource({"/img.jpg,/test/123.jpg", "/img.png,/test/123.png", "/img.pdf,/test/123.pdf"})
+    void generateFilepath_GivenSameAsFirstOutputType_ShouldOnlyAppendInitialExtension(String imagePath, String expectedPath) {
         String outputFilepath = "/test/123";
         FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputFilepath, OutputType.SAME_AS_FIRST,
             A_NUMBERING_VALUE, A_COUPLE_OF_ITEMS, new CalendarDateProvider());
 
-        String actual = fileNameService.generateFilePath(A_JPG_IMAGE);
+        String actual = fileNameService.generateFilePath(new ImportedImage(imagePath));
 
-        Assertions.assertEquals("/test/123.jpg", actual);
+        Assertions.assertEquals(expectedPath, actual);
     }
 
     @Test
