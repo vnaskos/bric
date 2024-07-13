@@ -252,7 +252,7 @@ public class BricUI extends JFrame {
                 OutputType.JPG, 1, 1);
         FileNameService fileNameService = new FileNameServiceImpl(
                 outputParameters.getOutputPath(), outputParameters.getOutputType(),
-                outputParameters.getNumberingStartIndex(), 1);
+                outputParameters.getNumberingStartIndex(), 1, new CalendarDateProvider());
         ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
                 Collections.singletonList(inputTab.getSelectedItem()));
 
@@ -316,7 +316,7 @@ public class BricUI extends JFrame {
         OutputParameters outputParameters = outputTab.getImageEditParameters();
 
         FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputParameters.getOutputPath(),
-                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size());
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size(), new CalendarDateProvider());
         ImageProcessHandler mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
 
         mainProcess.addProcessors(

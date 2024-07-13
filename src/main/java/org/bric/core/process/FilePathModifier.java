@@ -2,7 +2,10 @@ package org.bric.core.process;
 
 public enum FilePathModifier {
 
-    NUMBERING("*");
+    NUMBERING("*"),
+    DAY("%D"),
+    MONTH("%M"),
+    YEAR("%Y");
 
     public final String modifier;
 

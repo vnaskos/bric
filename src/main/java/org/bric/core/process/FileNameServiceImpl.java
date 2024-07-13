@@ -20,13 +20,15 @@ public class FileNameServiceImpl implements FileNameService {
     private final String outputFilepath;
     private final OutputType outputType;
     private final AtomicInteger numberingIndex;
+    private final DateProvider dateProvider;
 
     private Queue<Integer> availableNumberingIndices;
 
-    public FileNameServiceImpl(String outputFilepath, OutputType outputType, int initialNumberingIndex, int totalItems) {
+    public FileNameServiceImpl(String outputFilepath, OutputType outputType, int initialNumberingIndex, int totalItems, DateProvider dateProvider) {
         this.outputFilepath = outputFilepath;
         this.outputType =  outputType;
         this.numberingIndex = new AtomicInteger(initialNumberingIndex);
+        this.dateProvider = dateProvider;
 
         initNumsStack(numberingIndex.get(), totalItems);
     }
@@ -60,10 +62,9 @@ public class FileNameServiceImpl implements FileNameService {
 
         generatedFilepath = generatedFilepath.replace(FilePathModifier.NUMBERING.modifier, Integer.toString(numberingIndex.getAndIncrement()));
 
-        Calendar cal = Calendar.getInstance();
-        generatedFilepath = generatedFilepath.replace("%D", cal.get(Calendar.DATE) + "");
-        generatedFilepath = generatedFilepath.replace("%M", (cal.get(Calendar.MONTH) + 1) + "");
-        generatedFilepath = generatedFilepath.replace("%Y", cal.get(Calendar.YEAR) + "");
+        generatedFilepath = generatedFilepath.replace(FilePathModifier.DAY.modifier, String.valueOf(dateProvider.day()));
+        generatedFilepath = generatedFilepath.replace(FilePathModifier.MONTH.modifier, String.valueOf(dateProvider.month()));
+        generatedFilepath = generatedFilepath.replace(FilePathModifier.YEAR.modifier, String.valueOf(dateProvider.year()));
 
         generatedFilepath = generatedFilepath.replace("%F", currentImage.getName());
         generatedFilepath = generatedFilepath.replace("^P", currentImage.getPath().substring(0, currentImage.getPath().lastIndexOf(Utils.FS)));

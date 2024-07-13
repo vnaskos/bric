@@ -134,7 +134,7 @@ public class ImageProcessHandlerIT {
 
     private FileNameServiceImpl getFileNameService(OutputParameters output, List<ImportedImage> input) {
         return new FileNameServiceImpl(output.getOutputPath(), output.getOutputType(),
-                output.getNumberingStartIndex(), input.size());
+                output.getNumberingStartIndex(), input.size(), new CalendarDateProvider());
     }
 
 }
