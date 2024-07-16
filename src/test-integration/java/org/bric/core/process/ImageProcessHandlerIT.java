@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class ImageProcessHandlerIT {
+class ImageProcessHandlerIT {
 
     private static final String DUCK_JPG = "duck.jpg";
     private static final String DOG_JPEG = "dog.jpeg";
@@ -26,11 +26,11 @@ public class ImageProcessHandlerIT {
     public Path outputPath;
 
     @Test
-    public void exportsImageToImage() {
+    void exportsImageToImage() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(DUCK_JPG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.JPG, 1, 1);
 
-        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output), output, input);
 
         Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
             CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
@@ -39,11 +39,11 @@ public class ImageProcessHandlerIT {
     }
 
     @Test
-    public void exportsImageToPdf() {
+    void exportsImageToPdf() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(DUCK_JPG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output), output, input);
 
         Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
             CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
@@ -52,11 +52,11 @@ public class ImageProcessHandlerIT {
     }
 
     @Test
-    public void exportsEachPdfPageToImage() {
+    void exportsEachPdfPageToImage() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("page*").toString(), OutputType.JPG, 1, 1);
 
-        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output), output, input);
 
         Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
             CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
@@ -66,13 +66,13 @@ public class ImageProcessHandlerIT {
     }
 
     @Test
-    public void exportsEachPdfToItsOwnPdf() {
+    void exportsEachPdfToItsOwnPdf() {
         List<ImportedImage> input = Arrays.asList(
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()),
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.SAME_AS_FIRST, 1, 1);
 
-        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output), output, input);
 
         Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
             CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
@@ -82,13 +82,13 @@ public class ImageProcessHandlerIT {
     }
 
     @Test
-    public void mergesImagesToASinglePdf() {
+    void mergesImagesToASinglePdf() {
         List<ImportedImage> input = Arrays.asList(
                 new ImportedImage(file(DUCK_JPG).getAbsolutePath()),
                 new ImportedImage(file(DOG_JPEG).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output), output, input);
 
 
         Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
@@ -98,11 +98,11 @@ public class ImageProcessHandlerIT {
     }
 
     @Test
-    public void mergesPdfPagesToASinglePdf() {
+    void mergesPdfPagesToASinglePdf() {
         List<ImportedImage> input = Collections.singletonList(new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output), output, input);
 
         Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
             CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
@@ -112,13 +112,13 @@ public class ImageProcessHandlerIT {
     }
 
     @Test
-    public void mergesPdfAndImagesToASinglePdf() {
+    void mergesPdfAndImagesToASinglePdf() {
         List<ImportedImage> input = Arrays.asList(
                 new ImportedImage(file(DUCK_JPG).getAbsolutePath()),
                 new ImportedImage(file(TWO_PAGE_PDF).getAbsolutePath()));
         OutputParameters output = new OutputParameters(outputPath.resolve("out*").toString(), OutputType.PDF, 1, 1);
 
-        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output, input), output, input);
+        ImageProcessHandler handler = new ImageProcessHandler(getFileNameService(output), output, input);
 
         Assertions.assertTimeout(Duration.ofSeconds(3), () -> {
             CompletableFuture.allOf(handler.start().toArray(new CompletableFuture[0])).get();
@@ -132,9 +132,9 @@ public class ImageProcessHandlerIT {
         return new File(url.getFile());
     }
 
-    private FileNameServiceImpl getFileNameService(OutputParameters output, List<ImportedImage> input) {
+    private FileNameServiceImpl getFileNameService(OutputParameters output) {
         return new FileNameServiceImpl(output.getOutputPath(), output.getOutputType(),
-                output.getNumberingStartIndex(), input.size(), new CalendarDateProvider());
+                output.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider());
     }
 
 }
