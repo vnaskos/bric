@@ -1,9 +1,9 @@
 package org.bric.gui.input;
 
-import org.bric.core.input.DirectoryScanner;
 import org.bric.core.input.model.GenerationMethod;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.DuplicateAction;
+import org.bric.core.process.FileService;
 import org.bric.gui.dialog.ProgressBarFrame;
 import org.bric.gui.swing.ArrayListTransferHandler;
 import org.bric.utils.Utils;
@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 
 public class InputTab extends JPanel {
 
-    private final ResourceBundle bundle;
+    private final transient FileService fileService;
+    private final transient ResourceBundle bundle;
     private final ListModel<ImportedImage> model;
     private final JList<ImportedImage> inputList;
     private final JLabel itemsCountLabel;
@@ -31,7 +32,9 @@ public class InputTab extends JPanel {
     private DuplicateAction duplicateAction = DuplicateAction.NOT_SET;
     private String lastOpenedDirectory = "";
 
-    public InputTab() {
+    public InputTab(FileService fileService) {
+        this.fileService = fileService;
+
         bundle = ResourceBundle.getBundle("lang/gui/BricUI");
 
         JScrollPane inputListScrollPane = new JScrollPane();
@@ -247,7 +250,7 @@ public class InputTab extends JPanel {
 
         List<String> imagePaths = new ArrayList<>();
         for (File source : chooser.getSelectedFiles()) {
-            imagePaths.addAll(DirectoryScanner.listFiles(source));
+            imagePaths.addAll(fileService.listFiles(source));
         }
         return imagePaths;
     }

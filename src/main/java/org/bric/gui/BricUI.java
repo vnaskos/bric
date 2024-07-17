@@ -59,7 +59,7 @@ public class BricUI extends JFrame {
         preferencesFrame = new PreferencesFrame();
         aboutFrame = new About();
 
-        inputTab = new InputTab();
+        inputTab = new InputTab(new DefaultFileService());
         outputTab = new OutputTab();
         resizeTab = new ResizeJPanel();
         rotateTab = new RotateJPanel();
