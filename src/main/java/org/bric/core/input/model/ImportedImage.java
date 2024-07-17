@@ -1,5 +1,7 @@
 package org.bric.core.input.model;
 
+import org.bric.utils.Utils;
+
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -62,7 +64,13 @@ public class ImportedImage {
     }
 
     public String getName() {
-        return getMetadata().map(Metadata::getName).orElse(path);
+        String name = path.substring(path.lastIndexOf(Utils.FS) + 1);
+
+        if(name.contains(".")) {
+            name = name.substring(0, name.lastIndexOf("."));
+        }
+
+        return name;
     }
 
     public String getDimensions() {

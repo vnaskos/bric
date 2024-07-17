@@ -11,18 +11,12 @@ import java.util.Iterator;
 
 public class Metadata {
 
-    private final String name;
     private final String dimensions;
     private final long size;
 
-    public Metadata(String name, String dimensions, long size) {
-        this.name = name;
+    public Metadata(String dimensions, long size) {
         this.dimensions = dimensions;
         this.size = size;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getDimensions() {
@@ -34,11 +28,6 @@ public class Metadata {
     }
 
     public static Metadata generate(ImportedImage image) {
-        String name = image.getPath().substring(image.getPath().lastIndexOf(Utils.FS)+1);
-        if(name.contains(".")) {
-            name = name.substring(0, name.lastIndexOf("."));
-        }
-
         String dimensions = "unknown";
         if (image.getType() != InputType.PDF) {
             dimensions = getImageDimensions(image.getPath());
@@ -49,7 +38,7 @@ public class Metadata {
 
         long size = getFileSize(image.getPath());
 
-        return new Metadata(name, dimensions, size);
+        return new Metadata(dimensions, size);
     }
 
     private static long getFileSize(String filepath) {
