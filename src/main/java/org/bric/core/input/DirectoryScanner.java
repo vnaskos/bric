@@ -9,6 +9,10 @@ import java.util.List;
 
 public class DirectoryScanner {
 
+    private DirectoryScanner() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static List<String> listFiles(File source) {
         if (source.isFile()) {
             return Collections.singletonList(source.getAbsolutePath());

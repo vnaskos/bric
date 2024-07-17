@@ -4,7 +4,6 @@ import org.bric.core.input.DirectoryScanner;
 import org.bric.core.input.model.GenerationMethod;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.DuplicateAction;
-import org.bric.gui.BricUI;
 import org.bric.gui.dialog.ProgressBarFrame;
 import org.bric.gui.swing.ArrayListTransferHandler;
 import org.bric.utils.Utils;
@@ -16,18 +15,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InputTab extends JPanel {
 
-    private ResourceBundle bundle;
-
+    private final ResourceBundle bundle;
     private final ListModel<ImportedImage> model;
-    private javax.swing.JList<ImportedImage> inputList;
-    private javax.swing.JLabel itemsCountLabel;
+    private final JList<ImportedImage> inputList;
+    private final JLabel itemsCountLabel;
     private final InputDetailsPanel inputDetailsPanel;
 
     private DuplicateAction duplicateAction = DuplicateAction.NOT_SET;
@@ -42,31 +40,31 @@ public class InputTab extends JPanel {
         JButton addButton = new JButton();
         JButton removeButton = new JButton();
         JButton clearButton = new JButton();
-        itemsCountLabel = new javax.swing.JLabel();
+        itemsCountLabel = new JLabel();
         inputDetailsPanel = new InputDetailsPanel();
 
         this.setMinimumSize(new java.awt.Dimension(355, 480));
 
-        addButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/add.png"))); // NOI18N
+        addButton.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/resource/icons/add.png")))); // NOI18N
         addButton.setToolTipText(bundle.getString("BricUI.addButton.toolTipText")); // NOI18N
         addButton.setBorderPainted(false);
         addButton.setContentAreaFilled(false);
         addButton.setDoubleBuffered(true);
-        addButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/add_p.png"))); // NOI18N
+        addButton.setRolloverIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/resource/icons/add_p.png")))); // NOI18N
         addButton.addActionListener(evt -> importImages());
 
-        removeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/remove.png"))); // NOI18N
+        removeButton.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/resource/icons/remove.png")))); // NOI18N
         removeButton.setToolTipText(bundle.getString("BricUI.removeButton.toolTipText")); // NOI18N
         removeButton.setBorderPainted(false);
         removeButton.setContentAreaFilled(false);
-        removeButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/remove_p.png"))); // NOI18N
+        removeButton.setRolloverIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/resource/icons/remove_p.png")))); // NOI18N
         removeButton.addActionListener(evt -> removeButtonActionPerformed());
 
-        clearButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/error.png"))); // NOI18N
+        clearButton.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/resource/icons/error.png")))); // NOI18N
         clearButton.setToolTipText(bundle.getString("BricUI.clearButton.toolTipText")); // NOI18N
         clearButton.setBorderPainted(false);
         clearButton.setContentAreaFilled(false);
-        clearButton.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/icons/error_p.png"))); // NOI18N
+        clearButton.setRolloverIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/resource/icons/error_p.png")))); // NOI18N
         clearButton.addActionListener(evt -> clearButtonActionPerformed());
 
         itemsCountLabel.setFont(new java.awt.Font("DejaVu Sans Light", Font.PLAIN, 14)); // NOI18N
@@ -76,6 +74,7 @@ public class InputTab extends JPanel {
         inputList.setDragEnabled(true);
         inputList.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         inputList.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 inputListMouseClicked(evt);
             }
@@ -138,7 +137,7 @@ public class InputTab extends JPanel {
                 ImportedImage image = model.get(inputList.getSelectedIndex());
                 Desktop.getDesktop().open(new File(image.getPath()));
             } catch (IOException ex) {
-                Logger.getLogger(BricUI.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(InputTab.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -200,9 +199,9 @@ public class InputTab extends JPanel {
     }
 
     public void importImages(){
-        final java.util.List<String> imagesList = readImages();
+        final List<String> imagesList = readImages();
 
-        if(imagesList.isEmpty()){
+        if (imagesList.isEmpty()){
             return;
         }
 
@@ -237,7 +236,7 @@ public class InputTab extends JPanel {
         progressBar.showProgress(path);
     }
 
-    public java.util.List<String> readImages(){
+    private java.util.List<String> readImages(){
         JFileChooser chooser = new JFileChooser(lastOpenedDirectory);
         Utils.setFileChooserProperties(chooser);
         //Open the dialog
@@ -253,8 +252,7 @@ public class InputTab extends JPanel {
         return imagePaths;
     }
 
-    synchronized public void duplicatePane(String file) {
-
+    public synchronized void duplicatePane(String file) {
         if (duplicateAction == DuplicateAction.NOT_SET ||
                 duplicateAction == DuplicateAction.ADD ||
                 duplicateAction == DuplicateAction.SKIP) {

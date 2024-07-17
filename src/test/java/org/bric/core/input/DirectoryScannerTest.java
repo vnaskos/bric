@@ -16,13 +16,13 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DirectoryScannerTest {
+class DirectoryScannerTest {
 
     private static final String DUCK_JPG = "duck.jpg";
     private static final String DOG_JPEG = "dog.jpeg";
 
     @Test
-    public void listFiles_ShouldReturnEmpty_WhenInvalidSourceFile() {
+    void listFiles_ShouldReturnEmpty_WhenInvalidSourceFile() {
         File nonExistingFile = new File("/does/not/exist");
 
         List<String> scannedFiles = DirectoryScanner.listFiles(nonExistingFile);
@@ -31,7 +31,7 @@ public class DirectoryScannerTest {
     }
 
     @Test
-    public void listFiles_ShouldReturnSingleFile_WhenSourceIsNotDirectory() {
+    void listFiles_ShouldReturnSingleFile_WhenSourceIsNotDirectory() {
         File anImageFile = file(DUCK_JPG);
 
         List<String> scannedFiles = DirectoryScanner.listFiles(anImageFile);
@@ -41,7 +41,7 @@ public class DirectoryScannerTest {
     }
 
     @Test
-    public void listFiles_ShouldReturnFiles_WhenSourceIsDirectory(@TempDir Path tempDir) {
+    void listFiles_ShouldReturnFiles_WhenSourceIsDirectory(@TempDir Path tempDir) {
         File duck = copyFile(DUCK_JPG, tempDir);
         File dog = copyFile(DOG_JPEG, tempDir);
 
@@ -52,7 +52,7 @@ public class DirectoryScannerTest {
     }
 
     @Test
-    public void listFiles_ShouldReturnFilesRecursively_WhenSourceDirectoryHasSubdirectories(@TempDir Path tempDir) {
+    void listFiles_ShouldReturnFilesRecursively_WhenSourceDirectoryHasSubdirectories(@TempDir Path tempDir) {
         File duck = copyFile(DUCK_JPG, tempDir);
         File dog = copyFile(DOG_JPEG, tempDir.resolve("subdir"));
 
@@ -63,7 +63,7 @@ public class DirectoryScannerTest {
     }
 
     @Test
-    public void listFiles_ShouldReturnOnlySupportedFiles_WhenDirectoryHasMixedContent(@TempDir Path tempDir) throws IOException {
+    void listFiles_ShouldReturnOnlySupportedFiles_WhenDirectoryHasMixedContent(@TempDir Path tempDir) throws IOException {
         File duck = copyFile(DUCK_JPG, tempDir);
         File notSupported = tempDir.resolve("not-supported-file.unsupported").toFile();
         Files.write(notSupported.toPath(), Collections::emptyListIterator);
