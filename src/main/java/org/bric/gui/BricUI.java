@@ -59,7 +59,7 @@ public class BricUI extends JFrame {
         preferencesFrame = new PreferencesFrame();
         aboutFrame = new About();
 
-        inputTab = new InputTab();
+        inputTab = new InputTab(new DefaultFileService());
         outputTab = new OutputTab();
         resizeTab = new ResizeJPanel();
         rotateTab = new RotateJPanel();
@@ -67,10 +67,10 @@ public class BricUI extends JFrame {
         stateManager = new StateManager(outputTab, resizeTab, rotateTab, watermarkTab);
 
         initComponents();
-        
+
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
     }
-    
+
     private void initComponents() {
         JPanel toolBar = new JPanel();
         alwaysOnTopButton = new javax.swing.JToggleButton();
@@ -250,9 +250,9 @@ public class BricUI extends JFrame {
         OutputParameters outputParameters = new OutputParameters(
                 temporary.getAbsolutePath().replace(".jpg", ""),
                 OutputType.JPG, 1, 1);
-        FileNameService fileNameService = new FileNameService(
+        FileNameService fileNameService = new FileNameServiceImpl(
                 outputParameters.getOutputPath(), outputParameters.getOutputType(),
-                outputParameters.getNumberingStartIndex(), 1);
+                outputParameters.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider());
         ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
                 Collections.singletonList(inputTab.getSelectedItem()));
 
@@ -307,7 +307,7 @@ public class BricUI extends JFrame {
             bricUI.setVisible(true);
         });
     }
-    
+
     public void startProcess(List<ImportedImage> inputItems) {
         if (inputItems == null || inputItems.isEmpty()) {
             return;
@@ -315,8 +315,8 @@ public class BricUI extends JFrame {
 
         OutputParameters outputParameters = outputTab.getImageEditParameters();
 
-        FileNameService fileNameService = new FileNameService(outputParameters.getOutputPath(),
-                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), inputItems.size());
+        FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputParameters.getOutputPath(),
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider());
         ImageProcessHandler mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
 
         mainProcess.addProcessors(
