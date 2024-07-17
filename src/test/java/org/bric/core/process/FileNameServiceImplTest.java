@@ -8,11 +8,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
+import static org.bric.core.test.ImportedImageTestFactory.anImage;
+
 class FileNameServiceImplTest {
 
     private static final int A_NUMBERING_VALUE = 20;
-    private static final ImportedImage A_JPG_IMAGE = new ImportedImage("/an/image/path/imported-image.jpg");
-    private static final ImportedImage IMAGE_UNDER_BLUE_TREES_DIR = new ImportedImage("/blue/trees/img.png");
+    private static final ImportedImage A_JPG_IMAGE = anImage();
     private final FileService fakeFileService = Mockito.mock(FileService.class);
     private final DateProvider fakeDateProvider = Mockito.mock(DateProvider.class);
 
@@ -32,7 +33,7 @@ class FileNameServiceImplTest {
         String outputFilepath = "/test/123";
         FileNameServiceImpl fileNameService = createFileNameService(outputFilepath, OutputType.SAME_AS_FIRST, A_NUMBERING_VALUE);
 
-        String actual = fileNameService.generateFilePath(new ImportedImage(imagePath));
+        String actual = fileNameService.generateFilePath(anImage(imagePath));
 
         Assertions.assertEquals(expectedPath, actual);
     }
@@ -40,7 +41,7 @@ class FileNameServiceImplTest {
     @Test
     void generateFilepath_GivenSameAsFirstOutputTypeWithUnsupportedExtension_ShouldAppendDefaultExtension() {
         String outputFilepath = "/test/123";
-        ImportedImage anUnsupportedOutputExtensionImage = new ImportedImage("/image/path/img.psd");
+        ImportedImage anUnsupportedOutputExtensionImage = anImage("/image/path/img.psd");
         FileNameServiceImpl fileNameService = createFileNameService(outputFilepath, OutputType.SAME_AS_FIRST, A_NUMBERING_VALUE);
 
         String actual = fileNameService.generateFilePath(anUnsupportedOutputExtensionImage);
@@ -112,7 +113,7 @@ class FileNameServiceImplTest {
     @Test
     void generateFilepath_GivenOriginalFilenameModifier_ShouldAppendOriginalFilename() {
         String outputFilepath = "%F";
-        ImportedImage housesJpg = new ImportedImage("/path/houses.png");
+        ImportedImage housesJpg = anImage("/path/houses.png");
         FileNameServiceImpl fileNameService = createFileNameService(outputFilepath, OutputType.JPG, A_NUMBERING_VALUE);
 
         String actual = fileNameService.generateFilePath(housesJpg);
@@ -123,10 +124,10 @@ class FileNameServiceImplTest {
     @Test
     void generateFilepath_GivenOriginalFilepathModifier_ShouldPrependOriginalFilepath() {
         String outputFilepath = "^P/test";
-        int anInitialNumberingValue = 12;
-        FileNameServiceImpl fileNameService = createFileNameService(outputFilepath, OutputType.JPG, anInitialNumberingValue);
+        ImportedImage anImageUnderBlueTreesDir = anImage("/blue/trees/test.jpg");
+        FileNameServiceImpl fileNameService = createFileNameService(outputFilepath, OutputType.JPG, A_NUMBERING_VALUE);
 
-        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
+        String actual = fileNameService.generateFilePath(anImageUnderBlueTreesDir);
 
         Assertions.assertEquals("/blue/trees/test.jpg", actual);
     }
@@ -134,16 +135,18 @@ class FileNameServiceImplTest {
     @ParameterizedTest
     @CsvSource({"^P", "^P/"})
     void generateFilepath_GivenOriginalFilepathModifierWithoutFilename_ShouldPrependOriginalFilepathAndFilename(String outputFilepath) {
+        ImportedImage anImageUnderBlueTreesDir = anImage("/blue/trees/img.jpg");
         FileNameServiceImpl fileNameService = createFileNameService(outputFilepath, OutputType.JPG, A_NUMBERING_VALUE);
 
-        String actual = fileNameService.generateFilePath(IMAGE_UNDER_BLUE_TREES_DIR);
+        String actual = fileNameService.generateFilePath(anImageUnderBlueTreesDir);
 
         Assertions.assertEquals("/blue/trees/img.jpg", actual);
     }
 
+
     @Test
     void generateFilepath_WithoutFilename_ShouldPlaceOriginalImageName() {
-        ImportedImage housesJpg = new ImportedImage("/path/houses.png");
+        ImportedImage housesJpg = anImage("/path/houses.png");
         String outputFilepath = "/test/";
         FileNameServiceImpl fileNameService = createFileNameService(outputFilepath, OutputType.JPG, A_NUMBERING_VALUE);
 

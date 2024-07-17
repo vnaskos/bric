@@ -1,6 +1,7 @@
 package org.bric.gui.input;
 
 import org.bric.core.input.DirectoryScanner;
+import org.bric.core.input.model.GenerationMethod;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.DuplicateAction;
 import org.bric.gui.BricUI;
@@ -24,7 +25,7 @@ public class InputTab extends JPanel {
 
     private ResourceBundle bundle;
 
-    private ListModel<ImportedImage> model;
+    private final ListModel<ImportedImage> model;
     private javax.swing.JList<ImportedImage> inputList;
     private javax.swing.JLabel itemsCountLabel;
     private final InputDetailsPanel inputDetailsPanel;
@@ -210,33 +211,30 @@ public class InputTab extends JPanel {
         importer.setVisible(true);
 
         for (String s : imagesList) {
-            Utils.getExecutorService().submit(importFile(importer, s));
+            Utils.getExecutorService().submit(() -> importFile(importer, s));
         }
     }
 
-    private Callable<Void> importFile(final ProgressBarFrame progressBar, final String path) {
-        return () -> {
-            if (model.contains(img -> img.getPath().equals(path))) {
-                duplicatePane(path);
-            }
+    private void importFile(final ProgressBarFrame progressBar, final String path) {
+        if (model.contains(img -> img.getPath().equals(path))) {
+            duplicatePane(path);
+        }
 
-            if (duplicateAction == DuplicateAction.SKIP ||
-                    duplicateAction == DuplicateAction.ALWAYS_SKIP) {
-                progressBar.updateValue(true);
-                progressBar.showProgress(path);
-                return null;
-            }
-
-            ImportedImage im = new ImportedImage(path);
-
-            if (im.isNotCorrupted()) {
-                addToModel(im);
-            }
-
-            progressBar.updateValue(im.isNotCorrupted());
+        if (duplicateAction == DuplicateAction.SKIP ||
+                duplicateAction == DuplicateAction.ALWAYS_SKIP) {
+            progressBar.updateValue(true);
             progressBar.showProgress(path);
-            return null;
-        };
+            return;
+        }
+
+        ImportedImage im = new ImportedImage(path, GenerationMethod::thumbnail, GenerationMethod::metadata);
+
+        if (im.isNotCorrupted()) {
+            addToModel(im);
+        }
+
+        progressBar.updateValue(im.isNotCorrupted());
+        progressBar.showProgress(path);
     }
 
     public java.util.List<String> readImages(){

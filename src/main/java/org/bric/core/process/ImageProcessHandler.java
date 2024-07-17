@@ -178,7 +178,7 @@ public class ImageProcessHandler {
                         nonCollidingFilename,
                         outputParameters.getQuality(),
                         outputParameters.getOutputType() == OutputType.SAME_AS_FIRST
-                                ? OutputType.valueOf(item.getType().name.toUpperCase())
+                                ? OutputType.valueOf(item.getType().type.toUpperCase())
                                 : outputParameters.getOutputType()));
     }
 

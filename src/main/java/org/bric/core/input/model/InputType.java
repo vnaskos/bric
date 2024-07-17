@@ -17,13 +17,17 @@ public enum InputType {
     WBMP("wbmp"),
     PDF("pdf");
 
-    public final String name;
+    public final String type;
 
-    InputType(String name) {
-        this.name = name;
+    InputType(String type) {
+        this.type = type;
     }
 
     public static InputType from(String filepath) {
+        if (filepath == null) {
+            throw new IllegalArgumentException("Null filepath is not allowed");
+        }
+
         String extension = filepath.substring(filepath.lastIndexOf('.')+1);
 
         return InputType.valueOf(extension.toUpperCase());
@@ -40,6 +44,6 @@ public enum InputType {
 
     @Override
     public String toString() {
-        return name;
+        return type;
     }
 }

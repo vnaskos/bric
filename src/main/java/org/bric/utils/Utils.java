@@ -21,11 +21,11 @@ public class Utils {
             Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors());
 
     public static final Locale GREEK = new Locale("el", "GR");
-    
+
     public static final String FS = System.getProperty("file.separator");
-    
+
     public static Preferences prefs = Preferences.userRoot();
-    
+
     public static void setFileChooserProperties(JFileChooser chooser) {
         chooser.setMultiSelectionEnabled(true);
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -53,17 +53,17 @@ public class Utils {
     private static FileNameExtensionFilter extensionFilter(String description, InputType... types) {
         return new FileNameExtensionFilter(description,
                 Arrays.stream(types)
-                      .map(t -> t.name.toUpperCase())
+                      .map(t -> t.type.toUpperCase())
                       .toArray(String[]::new));
     }
-    
+
     public static void outOfMemoryErrorMessage(){
-        JOptionPane.showMessageDialog(null, 
+        JOptionPane.showMessageDialog(null,
                 "Out of memory!\nRerun the program with -Xmx argument, using more than " + Runtime.getRuntime().maxMemory()/1000000 + "m",
                 "Out of memory error.",
                 JOptionPane.ERROR_MESSAGE);
     }
-    
+
     public static BufferedImage loadImage(String filename) {
         BufferedImage image = librarySwitch(filename, 1);
         if(image == null){
@@ -71,7 +71,7 @@ public class Utils {
         }
         return image;
     }
-    
+
     public static BufferedImage librarySwitch(String filename, int library) {
         try {
             switch (library){
@@ -79,7 +79,7 @@ public class Utils {
                     return ImageIO.read(new File(filename));
                 } case 2:{
                     return IJ.openImage(filename).getBufferedImage();
-                } 
+                }
             }
         } catch (Exception ex) {
             return null;
