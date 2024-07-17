@@ -5,8 +5,7 @@ import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputType;
 import org.bric.utils.Utils;
 
-import javax.swing.*;
-import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileNameServiceImpl implements FileNameService {
@@ -18,13 +17,15 @@ public class FileNameServiceImpl implements FileNameService {
     private final AtomicInteger numberingIndex;
     private final FileService fileService;
     private final DateProvider dateProvider;
+    private final NamingCollisionResolver namingCollisionResolver;
 
-    public FileNameServiceImpl(String outputFilepath, OutputType outputType, int initialNumberingIndex, FileService fileService, DateProvider dateProvider) {
+    public FileNameServiceImpl(String outputFilepath, OutputType outputType, int initialNumberingIndex, FileService fileService, DateProvider dateProvider, NamingCollisionResolver namingCollisionResolver) {
         this.outputFilepath = outputFilepath;
         this.outputType =  outputType;
         this.numberingIndex = new AtomicInteger(initialNumberingIndex);
         this.fileService = fileService;
         this.dateProvider = dateProvider;
+        this.namingCollisionResolver = namingCollisionResolver;
     }
 
     @Override
@@ -55,24 +56,22 @@ public class FileNameServiceImpl implements FileNameService {
 
     @Override
     public String preventNamingCollision(String filepath) {
-        File fileToBeSaved = new File(filepath);
-        if (fileToBeSaved.exists()) {
-            duplicatePane(filepath);
+        if (fileService.exists(filepath)) {
+            resolveNamingCollision(filepath);
         }
 
         if (duplicateAction == DuplicateAction.SKIP || duplicateAction == DuplicateAction.ALWAYS_SKIP) {
             return null;
         }
 
-        if( (duplicateAction == DuplicateAction.RENAME || duplicateAction == DuplicateAction.ALWAYS_RENAME)
-                && new File(filepath).exists()) {
+        if (duplicateAction == DuplicateAction.RENAME || duplicateAction == DuplicateAction.ALWAYS_RENAME) {
             return duplicateAddAction(filepath);
         }
 
         return filepath;
     }
 
-    public String getNextAvailableFilepath(String filepathTemplate) {
+    private String getNextAvailableFilepath(String filepathTemplate) {
         String candidate;
 
         do {
@@ -106,27 +105,19 @@ public class FileNameServiceImpl implements FileNameService {
         return filepath;
     }
 
-    private synchronized void duplicatePane(String file) {
+    private synchronized void resolveNamingCollision(String file) {
         if (duplicateAction == DuplicateAction.NOT_SET ||
                 duplicateAction == DuplicateAction.OVERWRITE ||
                 duplicateAction == DuplicateAction.SKIP ||
                 duplicateAction == DuplicateAction.RENAME) {
 
-            Object[] selectionValues = {
-                    DuplicateAction.OVERWRITE, DuplicateAction.ALWAYS_OVERWRITE,
-                    DuplicateAction.SKIP, DuplicateAction.ALWAYS_SKIP,
-                    DuplicateAction.RENAME, DuplicateAction.ALWAYS_RENAME};
-
-            Object selection;
+            DuplicateAction selection;
 
             do {
-                selection = JOptionPane.showInputDialog(
-                        null, String.format("This image%n%s%n already exists on the output folder", file),
-                        "Warning Duplicate", JOptionPane.QUESTION_MESSAGE,
-                        null, selectionValues, DuplicateAction.RENAME);
-            } while(selection == null);
+                selection = namingCollisionResolver.resolve(file);
+            } while(selection == null || !Arrays.asList(NamingCollisionResolver.availableActions).contains(selection));
 
-            duplicateAction = (DuplicateAction) selection;
+            duplicateAction = selection;
         }
     }
 

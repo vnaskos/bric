@@ -6,6 +6,7 @@ import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
 import org.bric.core.process.*;
+import org.bric.gui.dialog.DialogNamingCollisionResolver;
 import org.bric.gui.dialog.PreferencesFrame;
 import org.bric.gui.dialog.ProgressBarFrame;
 import org.bric.gui.input.InputTab;
@@ -252,7 +253,7 @@ public class BricUI extends JFrame {
                 OutputType.JPG, 1, 1);
         FileNameService fileNameService = new FileNameServiceImpl(
                 outputParameters.getOutputPath(), outputParameters.getOutputType(),
-                outputParameters.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider());
+                outputParameters.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider(), new DialogNamingCollisionResolver());
         ImageProcessHandler handler = new ImageProcessHandler(fileNameService, outputParameters,
                 Collections.singletonList(inputTab.getSelectedItem()));
 
@@ -316,7 +317,7 @@ public class BricUI extends JFrame {
         OutputParameters outputParameters = outputTab.getImageEditParameters();
 
         FileNameServiceImpl fileNameService = new FileNameServiceImpl(outputParameters.getOutputPath(),
-                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider());
+                outputParameters.getOutputType(), outputParameters.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider(), new DialogNamingCollisionResolver());
         ImageProcessHandler mainProcess = new ImageProcessHandler(fileNameService, outputParameters, inputItems);
 
         mainProcess.addProcessors(

@@ -1,12 +1,17 @@
 package org.bric.core.process;
 
 import org.bric.core.input.model.ImportedImage;
+import org.bric.core.model.DuplicateAction;
 import org.bric.core.model.output.OutputType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+
+import java.util.stream.Stream;
 
 import static org.bric.core.test.ImportedImageTestFactory.anImage;
 
@@ -16,6 +21,7 @@ class FileNameServiceImplTest {
     private static final ImportedImage A_JPG_IMAGE = anImage();
     private final FileService fakeFileService = Mockito.mock(FileService.class);
     private final DateProvider fakeDateProvider = Mockito.mock(DateProvider.class);
+    private final NamingCollisionResolver fakeNamingCollisionResolver = Mockito.mock(NamingCollisionResolver.class);
 
     @Test
     void generateFilepath_GivenFixedPath_ShouldOnlyAppendExtension() {
@@ -166,13 +172,60 @@ class FileNameServiceImplTest {
         Assertions.assertEquals("/path/11_11.jpg", actual);
     }
 
+    @ParameterizedTest
+    @MethodSource("provideNamingCollisionCases")
+    void preventNamingCollision_GivenAction_ShouldResolveCollision(String outputFilepath, DuplicateAction action, String resolvedFilepath) {
+        Mockito.when(fakeFileService.exists(outputFilepath)).thenReturn(true);
+        Mockito.when(fakeNamingCollisionResolver.resolve(Mockito.anyString())).thenReturn(action);
+        FileNameServiceImpl fileNameService = createFileNameService("/tmp/%F", OutputType.JPG, 1);
+
+        String actual = fileNameService.preventNamingCollision(outputFilepath);
+
+        Assertions.assertEquals(resolvedFilepath, actual);
+    }
+
+    static Stream<Arguments> provideNamingCollisionCases() {
+        return Stream.of(
+            Arguments.of("/tmp/out.jpg", DuplicateAction.SKIP, null),
+            Arguments.of("/tmp/out.jpg", DuplicateAction.ALWAYS_SKIP, null),
+            Arguments.of("/tmp/out.jpg", DuplicateAction.RENAME, "/tmp/out(1).jpg"),
+            Arguments.of("/tmp/out.jpg", DuplicateAction.ALWAYS_RENAME, "/tmp/out(1).jpg"),
+            Arguments.of("/tmp/out.jpg", DuplicateAction.OVERWRITE, "/tmp/out.jpg"),
+            Arguments.of("/tmp/out.jpg", DuplicateAction.ALWAYS_OVERWRITE, "/tmp/out.jpg")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNamingCollisionInvalidCases")
+    void preventNamingCollision_GivenInvalidAction_ShouldTryAgainUntilValidAction(DuplicateAction invalidAction) {
+        Mockito.when(fakeFileService.exists("/tmp/out.jpg")).thenReturn(true);
+        Mockito.when(fakeNamingCollisionResolver.resolve(Mockito.anyString()))
+            .thenReturn(invalidAction)
+            .thenReturn(DuplicateAction.SKIP);
+        FileNameServiceImpl fileNameService = createFileNameService("/tmp/%F", OutputType.JPG, 1);
+
+        String actual = fileNameService.preventNamingCollision("/tmp/out.jpg");
+
+        Assertions.assertNull(actual);
+    }
+
+    static Stream<Arguments> provideNamingCollisionInvalidCases() {
+        return Stream.of(
+            Arguments.of((DuplicateAction) null),
+            Arguments.of(DuplicateAction.NOT_SET),
+            Arguments.of(DuplicateAction.ADD),
+            Arguments.of(DuplicateAction.ALWAYS_ADD)
+        );
+    }
+
     private FileNameServiceImpl createFileNameService(String outputFilepath, OutputType outputType, int initialNumbering) {
         return new FileNameServiceImpl(
             outputFilepath,
             outputType,
             initialNumbering,
             fakeFileService,
-            fakeDateProvider);
+            fakeDateProvider,
+            fakeNamingCollisionResolver);
     }
 
 }

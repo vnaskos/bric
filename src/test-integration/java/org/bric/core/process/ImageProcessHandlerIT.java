@@ -4,6 +4,7 @@ import org.bric.core.input.model.ImportedImage;
 import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
 import org.bric.core.test.ImportedImageTestFactory;
+import org.bric.gui.dialog.DialogNamingCollisionResolver;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -132,7 +133,7 @@ class ImageProcessHandlerIT {
 
     private FileNameServiceImpl getFileNameService(OutputParameters output) {
         return new FileNameServiceImpl(output.getOutputPath(), output.getOutputType(),
-                output.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider());
+                output.getNumberingStartIndex(), new DefaultFileService(), new CalendarDateProvider(), new DialogNamingCollisionResolver());
     }
 
 }
