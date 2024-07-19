@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bric.gui.swing;
 
 import javax.imageio.ImageIO;
@@ -12,113 +8,97 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author vasilis
- */
 public class JRotator extends JComponent implements MouseListener, MouseMotionListener {
-    
-    private static final int IMAGE_WIDTH = 240;//square
-    private static final int IMAGE_HEIGHT = 240;
-    private static final double SCALE_CONSTANT = (IMAGE_WIDTH*190)/280;
-    private static boolean enabled = true;
-    
-    private double radAngle;
-    private Image mainImage;
-    private Image backgroundEnabled;
-    private Image backgroundDisabled;
-    
-    private String mainImagePath = "/resource/rotate/mainImage.png";
-    
-    private Image doubleBufferedImage;
-    private Graphics dbg;
-    
+
+    private static final int COMPONENT_DEFAULT_WIDTH = 240;
+    private static final int COMPONENT_DEFAULT_HEIGHT = 240;
+
+    private static final double X_AXIS_CENTER = COMPONENT_DEFAULT_WIDTH / 2.0;
+    private static final double Y_AXIS_CENTER = COMPONENT_DEFAULT_HEIGHT / 2.0;
+
+    private final transient Image enabledBackground;
+    private final transient Image disabledBackground;
+    private final transient Image controllerImage;
+
+    private double angleInRadians;
+
     public JRotator() {
-        initialize();
-        mainImage = scaleImage(mainImagePath);
+        setSize(COMPONENT_DEFAULT_WIDTH, COMPONENT_DEFAULT_HEIGHT);
+
+        enabledBackground = scale("/resource/rotate/background.png", 1);
+        disabledBackground = scale("/resource/rotate/backgroundDisabled.png", 1);
+        controllerImage = scale("/resource/rotate/mainImage.png", 0.5);
+
+        addListeners();
     }
-    
-    private void initialize(){
+
+    private void addListeners() {
         addMouseMotionListener(this);
         addMouseListener(this);
-        this.setSize(IMAGE_WIDTH, IMAGE_HEIGHT);
-        try {
-            backgroundEnabled = scaleBackground(ImageIO.read(getClass().getResource("/resource/rotate/background.png")));
-            backgroundDisabled = scaleBackground(ImageIO.read(getClass().getResource("/resource/rotate/backgroundDisabled.png")));
-        } catch (IOException ex) {
-            Logger.getLogger(JRotator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        //setEnabled(this.isEnabled());
     }
-    
 
-    private Image scaleImage(String image){
-        BufferedImage scaledImage = null;
+    private Image scale(String image, double scaleFactor) {
         try {
-            scaledImage = ImageIO.read(getClass().getResource(image));
-            double xScale = 0;
-            double yScale = 0;
-            try{
-                xScale = (scaledImage.getWidth()*SCALE_CONSTANT)/scaledImage.getHeight();
-                yScale = (scaledImage.getHeight()*SCALE_CONSTANT)/scaledImage.getWidth();
-            }catch(Exception e){
-                
-            }
-            if(scaledImage.getWidth() <= scaledImage.getHeight()){
-                return scaledImage.getScaledInstance((int) xScale, -1, Image.SCALE_SMOOTH);
-            }else{
-                return scaledImage.getScaledInstance(-1, (int) yScale, Image.SCALE_SMOOTH);
+            BufferedImage originalImage = ImageIO.read(Objects.requireNonNull(getClass().getResource(image)));
+            double xScale = COMPONENT_DEFAULT_WIDTH * scaleFactor;
+            double yScale = COMPONENT_DEFAULT_HEIGHT * scaleFactor;
+
+            if (originalImage.getWidth() <= originalImage.getHeight()) {
+                return originalImage.getScaledInstance((int) xScale, -1, Image.SCALE_SMOOTH);
+            } else {
+                return originalImage.getScaledInstance(-1, (int) yScale, Image.SCALE_SMOOTH);
             }
         } catch (IOException ex) {
             Logger.getLogger(JRotator.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return scaledImage;
+        return null;
     }
-    
-    private Image scaleBackground(Image image){
-        return image.getScaledInstance(IMAGE_WIDTH, IMAGE_HEIGHT, Image.SCALE_SMOOTH);
-    }
-    
+
     @Override
-    public void paintComponent(Graphics g){
-        doubleBufferedImage = createImage (this.getSize().width, this.getSize().height);	
-        dbg = doubleBufferedImage.getGraphics ();
-        int w = (int) this.getWidth();
-        int h = (int) this.getHeight();
+    public void paintComponent(Graphics g) {
+        Image doubleBufferedImage = createImage(this.getSize().width, this.getSize().height);
+        Graphics dbg = doubleBufferedImage.getGraphics();
 
-        Graphics2D g2 = (Graphics2D) dbg;
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        //G2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        
-        if(this.isEnabled()) {
-            g2.drawImage(backgroundEnabled, 0,0,this);
-        } else {
-            g2.drawImage(backgroundDisabled, 0,0,this);
-        }
-        g2.rotate(radAngle, w/2, h/2);
-        g2.drawImage(mainImage, (IMAGE_WIDTH/2)-(mainImage.getWidth(this) /2), (IMAGE_HEIGHT/2)-(mainImage.getHeight(this)/2), this);
-        g2.rotate(-radAngle, w/2, h/2);
+        Graphics2D g2d = (Graphics2D) dbg;
+        g2d.setRenderingHint(
+            RenderingHints.KEY_RENDERING,
+            RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(
+            RenderingHints.KEY_INTERPOLATION,
+            RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-        g2.dispose();
-	
-	g.drawImage (doubleBufferedImage, 0, 0, this);
+        g2d.drawImage(isEnabled() ? enabledBackground : disabledBackground, 0, 0, this);
+
+        double xAxisControllerCenter = controllerImage.getWidth(this) / 2.0;
+        double yAxisControllerCenter = controllerImage.getHeight(this) / 2.0;
+
+        g2d.rotate(angleInRadians, X_AXIS_CENTER, Y_AXIS_CENTER);
+        g2d.translate(X_AXIS_CENTER - xAxisControllerCenter, Y_AXIS_CENTER - yAxisControllerCenter);
+        g2d.drawImage(controllerImage, 0, 0, this);
+
+        g2d.dispose();
+        g.drawImage(doubleBufferedImage, 0, 0, this);
     }
-    
-    public void setAngle(int angle){
-        radAngle = (angle*Math.PI)/180;
+
+    public void setAngle(int angle) {
+        angleInRadians = Math.toRadians(angle);
         repaint();
     }
-    
-    public int getAngle(){
-        return (int) ((180*radAngle)/Math.PI);
+
+    public int getAngle() {
+        return (int) ((180 * angleInRadians) / Math.PI);
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent me) {
+        // Do nothing
     }
 
     @Override
@@ -133,10 +113,12 @@ public class JRotator extends JComponent implements MouseListener, MouseMotionLi
 
     @Override
     public void mouseEntered(MouseEvent me) {
+        // Do nothing
     }
 
     @Override
     public void mouseExited(MouseEvent me) {
+        // Do nothing
     }
 
     @Override
@@ -146,44 +128,53 @@ public class JRotator extends JComponent implements MouseListener, MouseMotionLi
 
     @Override
     public void mouseMoved(MouseEvent me) {
+        // Do nothing
     }
-    
-    @Override
-    public void setEnabled(boolean value){
-        enabled = value;
-        super.setEnabled(value);
-    }
-    
-    public void updateAngle(MouseEvent evt){
-        if(!enabled){
-           return; 
+
+    private void updateAngle(MouseEvent evt) {
+        if (!isEnabled()) {
+            return;
         }
-        double Xd = evt.getX();
-        double Yd = evt.getY();
-//        double Xd = evt.getX()-120;
-//        double Yd = evt.getY()-120;
-//        radAngle = Math.atan2(Yd,Xd);
-        
-        if(Xd < 120 && Yd < 120){ // 1o tetartimorio
-            Yd = 120 - Yd;
-            Xd = -(120 - Xd);
-        } else if(Xd >= 120 && Yd < 120){ // 2o teartimorio
-            Yd = 120 - Yd;
-            Xd = Xd - 120;
-        } else if(Xd >= 120 && Yd >= 120){ // 3o teartimorio
-            Yd = -(Yd - 120);
-            Xd = Xd - 120;
-        } else if(Xd < 120 && Yd >= 120){ // 4o teartimorio
-            Yd = -(Yd - 120);
-            Xd = -(120 - Xd);
+
+        double mouseX = evt.getX();
+        double mouseY = evt.getY();
+
+        if (isTopLeftQuadrant(mouseX, mouseY)) {
+            mouseX = -(X_AXIS_CENTER - mouseX);
+            mouseY = Y_AXIS_CENTER - mouseY;
+        } else if (isTopRightQuadrant(mouseX, mouseY)) {
+            mouseX = mouseX - X_AXIS_CENTER;
+            mouseY = Y_AXIS_CENTER - mouseY;
+        } else if (isBottomRightQuadrant(mouseX, mouseY)) {
+            mouseX = mouseX - X_AXIS_CENTER;
+            mouseY = -(mouseY - Y_AXIS_CENTER);
+        } else if (isBottomLeftQuadrant(mouseX, mouseY)) {
+            mouseX = -(X_AXIS_CENTER - mouseX);
+            mouseY = -(mouseY - Y_AXIS_CENTER);
         }
-        
-        radAngle = Math.atan2(Xd, Yd);
-        
-        if(((180/Math.PI)*radAngle) < 0){
-            radAngle = radAngle+(2*Math.PI);
+
+        angleInRadians = Math.atan2(mouseX, mouseY);
+
+        if (angleInRadians < 0) {
+            angleInRadians = angleInRadians + (2 * Math.PI);
         }
+
         repaint();
     }
-    
+
+    private static boolean isTopLeftQuadrant(final double mouseX, final double mouseY) {
+        return mouseX < X_AXIS_CENTER && mouseY < Y_AXIS_CENTER;
+    }
+
+    private static boolean isBottomLeftQuadrant(final double mouseX, final double mouseY) {
+        return mouseX < X_AXIS_CENTER && mouseY >= Y_AXIS_CENTER;
+    }
+
+    private static boolean isBottomRightQuadrant(final double mouseX, final double mouseY) {
+        return mouseX >= X_AXIS_CENTER && mouseY >= Y_AXIS_CENTER;
+    }
+
+    private static boolean isTopRightQuadrant(final double mouseX, final double mouseY) {
+        return mouseX >= X_AXIS_CENTER && mouseY < Y_AXIS_CENTER;
+    }
 }
