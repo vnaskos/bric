@@ -64,7 +64,7 @@ public class BricUI extends JFrame {
         outputTab = new OutputTab();
         resizeTab = new ResizeJPanel();
         rotateTab = new RotateJPanel();
-        watermarkTab = new WatermarkJPanel();
+        watermarkTab = new WatermarkJPanel(new DefaultImageService());
         stateManager = new StateManager(outputTab, resizeTab, rotateTab, watermarkTab);
 
         initComponents();

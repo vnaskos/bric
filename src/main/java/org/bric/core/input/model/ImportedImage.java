@@ -1,5 +1,6 @@
 package org.bric.core.input.model;
 
+import org.bric.core.process.DefaultImageService;
 import org.bric.core.process.PdfboxPdfService;
 import org.bric.utils.Utils;
 
@@ -35,7 +36,7 @@ public class ImportedImage {
     }
 
     private void generateThumbnail() {
-        this.thumbnail = Thumbnail.generate(new PdfboxPdfService(), this);
+        this.thumbnail = Thumbnail.generate(new DefaultImageService(), new PdfboxPdfService(), this);
     }
 
     public Optional<BufferedImage> getThumbnail() {
@@ -46,7 +47,7 @@ public class ImportedImage {
     }
 
     public void generateMetadata() {
-        this.metadata = Metadata.generate(this);
+        this.metadata = Metadata.generate(new DefaultImageService(), this);
     }
 
     public Optional<Metadata> getMetadata() {

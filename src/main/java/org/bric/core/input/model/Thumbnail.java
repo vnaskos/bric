@@ -1,7 +1,7 @@
 package org.bric.core.input.model;
 
+import org.bric.core.process.ImageService;
 import org.bric.core.process.PdfService;
-import org.bric.utils.Utils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -21,13 +21,13 @@ public class Thumbnail {
         return image;
     }
 
-    public static Thumbnail generate(PdfService pdfService, ImportedImage importedImage) {
+    public static Thumbnail generate(ImageService imageService, PdfService pdfService, ImportedImage importedImage) {
         try {
             BufferedImage image;
             if (importedImage.getType() == InputType.PDF) {
                 image = pdfService.readAsImages(importedImage.getPath(), 0, 1).get(0);
             } else {
-                image = Utils.loadImage(importedImage.getPath());
+                image = imageService.load(importedImage.getPath());
             }
             BufferedImage scaledImage = scaleImage(image);
             return new Thumbnail(scaledImage);

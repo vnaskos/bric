@@ -1,8 +1,10 @@
 package org.bric.core.process;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileSaver;
 import org.bric.core.model.output.OutputType;
+import org.bric.utils.Utils;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -17,10 +19,21 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ImageSaveService implements SaveService<BufferedImage, ImageSaveService.Parameters> {
+public class DefaultImageService implements ImageService {
 
     @Override
-    public void save(Supplier<BufferedImage> supplier, ImageSaveService.Parameters parameters) {
+    public BufferedImage load(final String fullPath) {
+        BufferedImage image = librarySwitch(fullPath, 1);
+
+        if (image == null) {
+            return librarySwitch(fullPath, 2);
+        }
+
+        return image;
+    }
+
+    @Override
+    public void save(Supplier<BufferedImage> supplier, ImageSaveParameters parameters) {
         if (parameters.outputType == OutputType.JPG || parameters.outputType == OutputType.JPEG) {
             saveJPG(supplier.get(), parameters.filepath, parameters.quality);
         } else {
@@ -83,15 +96,21 @@ public class ImageSaveService implements SaveService<BufferedImage, ImageSaveSer
         }
     }
 
-    public static class Parameters implements SaveService.Parameters {
-        public final String filepath;
-        public final Float quality;
-        public final OutputType outputType;
-
-        public Parameters(String filepath, Float quality, OutputType outputType) {
-            this.filepath = filepath;
-            this.quality = quality;
-            this.outputType = outputType;
+    private BufferedImage librarySwitch(String filename, int library) {
+        try {
+            if (library == 1) {
+                return ImageIO.read(new File(filename));
+            } else if (library == 2) {
+                return IJ.openImage(filename).getBufferedImage();
+            }
+        } catch (Exception ex) {
+            return null;
+        } catch (OutOfMemoryError ex) {
+            if (library == 2) {
+                Utils.outOfMemoryErrorMessage();
+            }
+            return null;
         }
+        return null;
     }
 }

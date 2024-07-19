@@ -24,18 +24,19 @@ public class ImageProcessHandler {
     private final List<ImageProcessor<?>> processors;
 
     private final FileNameService fileNameService;
-    private final ImageSaveService imageSaveService;
+    private final ImageService imageService;
     private final PdfService pdfService;
 
     private BricUI.ProgressListener progressListener;
 
     public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
-        this(fileNameService, new ImageSaveService(), outputParameters, new PdfboxPdfService(), inputList);
+        this(fileNameService, outputParameters, new DefaultImageService(), new PdfboxPdfService(), inputList);
     }
 
-    public ImageProcessHandler(FileNameService fileNameService, ImageSaveService imageSaveService,
-                               OutputParameters outputParameters, PdfService pdfService, List<ImportedImage> inputList) {
+    public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, ImageService imageService, PdfService pdfService,
+                               List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
+        this.imageService = imageService;
         this.pdfService = pdfService;
         this.processors = new ArrayList<>();
 
@@ -44,7 +45,6 @@ public class ImageProcessHandler {
                 .collect(Collectors.toList());
 
         this.fileNameService = fileNameService;
-        this.imageSaveService = imageSaveService;
     }
 
     public void addProcessors(ImageProcessor<?>... processors) {
@@ -71,7 +71,7 @@ public class ImageProcessHandler {
                 .map(this::applyProcessors)
                 .forEach(image -> saveImage(item, image));
         } else {
-            saveImage(item, applyProcessors(Utils.loadImage(item.getPath())));
+            saveImage(item, applyProcessors(imageService.load(item.getPath())));
         }
 
         notifyFileProcessed(item);
@@ -85,7 +85,7 @@ public class ImageProcessHandler {
                     .map(this::applyProcessors)
                     .forEach(images::add);
             } else {
-                BufferedImage image = Utils.loadImage(importedImage.getPath());
+                BufferedImage image = imageService.load(importedImage.getPath());
                 images.add(applyProcessors(image));
             }
             notifyFileProcessed(importedImage);
@@ -121,9 +121,9 @@ public class ImageProcessHandler {
             return;
         }
 
-        imageSaveService.save(
+        imageService.save(
                 () -> image,
-                new ImageSaveService.Parameters(
+                new ImageSaveParameters(
                         nonCollidingFilename,
                         outputParameters.getQuality(),
                         outputParameters.getOutputType() == OutputType.SAME_AS_FIRST

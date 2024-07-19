@@ -1,6 +1,7 @@
 package org.bric.gui.tabs;
 
 import com.jhlabs.image.RotateFilter;
+import org.bric.core.process.ImageService;
 import org.bric.core.process.model.WatermarkParameters;
 import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.swing.JPlacer;
@@ -16,17 +17,19 @@ import java.util.ResourceBundle;
 public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab, StatefulComponent {
 
     static ResourceBundle bundle;
-    
+    private final ImageService imageService;
+
     private Color color, defaultColor;
     private String plainText;
     private Font defaultFont, currentFont;
 
     private String lastOpenedDirectory = "";
-    
+
     /**
      * Creates new form WatermarkPanelNew
      */
-    public WatermarkJPanel() {
+    public WatermarkJPanel(ImageService imageService) {
+        this.imageService = imageService;
         bundle = ResourceBundle.getBundle("lang/gui/tabs/WatermarkJPanel");
         initComponents();
         defaultColor = rotateLabel.getForeground();
@@ -416,7 +419,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     private void editorTextPaneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editorTextPaneKeyTyped
 
     }//GEN-LAST:event_editorTextPaneKeyTyped
-    
+
     private void setEditorMode(){
         plainText = editorTextPane.getText();
         if(modeComboBox.getSelectedIndex() == 0){
@@ -448,7 +451,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
             editorJLabel.setText(bundle.getString("WatermarkJPanel.editorJLabel.text.image"));
         }
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
     private javax.swing.JButton colorButton;
@@ -495,19 +498,19 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         watermarkParameters.setComponentHeight(watermarkPlacer.getHeight());
         watermarkParameters.setCenterX(watermarkPlacer.getLabelCenterX());
         watermarkParameters.setCenterY(watermarkPlacer.getLabelCenterY());
-        
+
         BufferedImage watermarkImage = computeWatermarkBufferedImage();
-        
+
         watermarkParameters.setWatermarkImage(watermarkImage);
         watermarkParameters.setWatermarkWidth(watermarkImage.getWidth());
         watermarkParameters.setWatermarkHeight(watermarkImage.getHeight());
         return watermarkParameters;
     }
-    
+
     private BufferedImage computeWatermarkBufferedImage(){
         CellRendererPane crp = new CellRendererPane();
         BufferedImage watermark;
-        
+
         if(modeComboBox.getSelectedIndex() != 2){
             JTextPane pane = new JTextPane();
             pane.setContentType("text/html");
@@ -528,15 +531,15 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
 
             g.dispose();
         } else {
-            watermark = Utils.loadImage(watermarkImageText.getText());
+            watermark = imageService.load(watermarkImageText.getText());
         }
-        
+
         float angle = (float) (((360-rotateSlider.getValue())*Math.PI)/180);
         RotateFilter rotateFilter = new RotateFilter(angle);
-        
+
         return rotateFilter.filter(watermark, null);
     }
-    
+
     private AlphaComposite makeComposite(float alpha) {
         int type = AlphaComposite.SRC_OVER;
         return (AlphaComposite.getInstance(type, alpha));

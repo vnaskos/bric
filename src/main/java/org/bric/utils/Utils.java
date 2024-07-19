@@ -1,14 +1,10 @@
 package org.bric.utils;
 
-import ij.IJ;
 import org.bric.core.input.model.InputType;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -62,34 +58,6 @@ public class Utils {
                 "Out of memory!\nRerun the program with -Xmx argument, using more than " + Runtime.getRuntime().maxMemory()/1000000 + "m",
                 "Out of memory error.",
                 JOptionPane.ERROR_MESSAGE);
-    }
-
-    public static BufferedImage loadImage(String filename) {
-        BufferedImage image = librarySwitch(filename, 1);
-        if(image == null){
-            image = librarySwitch(filename, 2);
-        }
-        return image;
-    }
-
-    public static BufferedImage librarySwitch(String filename, int library) {
-        try {
-            switch (library){
-                case 1:{
-                    return ImageIO.read(new File(filename));
-                } case 2:{
-                    return IJ.openImage(filename).getBufferedImage();
-                }
-            }
-        } catch (Exception ex) {
-            return null;
-        } catch (OutOfMemoryError ex) {
-            if(library == 2) {
-                outOfMemoryErrorMessage();
-            }
-            return null;
-        }
-        return null;
     }
 
     public static void centerWindow(Window frame) {

@@ -1,5 +1,6 @@
 package org.bric.core.input.model;
 
+import org.bric.core.process.ImageService;
 import org.bric.utils.Utils;
 
 import javax.imageio.ImageIO;
@@ -27,10 +28,10 @@ public class Metadata {
         return size;
     }
 
-    public static Metadata generate(ImportedImage image) {
+    public static Metadata generate(ImageService imageService, ImportedImage image) {
         String dimensions = "unknown";
         if (image.getType() != InputType.PDF) {
-            dimensions = getImageDimensions(image.getPath());
+            dimensions = getImageDimensions(imageService, image.getPath());
             if (dimensions == null) {
                 image.setCorrupted();
             }
@@ -49,7 +50,7 @@ public class Metadata {
         }
     }
 
-    private static String getImageDimensions(String filepath) {
+    private static String getImageDimensions(ImageService imageService, String filepath) {
         String dimensions = null;
 
         try (ImageInputStream in = ImageIO.createImageInputStream(new File(filepath))) {
@@ -67,7 +68,7 @@ public class Metadata {
                 throw new Exception();
             }
         } catch (Exception e) {
-            BufferedImage importImage = Utils.loadImage(filepath);
+            BufferedImage importImage = imageService.load(filepath);
             if (importImage != null) {
                 dimensions = importImage.getWidth() + "x" + importImage.getHeight();
             }
