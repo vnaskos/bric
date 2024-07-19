@@ -1,5 +1,7 @@
 package org.bric.core.process;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -10,7 +12,6 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,10 @@ public class PdfboxPdfService implements PdfService {
     public List<BufferedImage> readAsImages(final String fullPath, final int startPage, final int endPage) {
         List<BufferedImage> images = new ArrayList<>();
 
-        try (PDDocument document = PDDocument.load(new File(fullPath))) {
+        try (PDDocument document = Loader.loadPDF(new RandomAccessReadBufferedFile(fullPath))) {
             PDFRenderer pdfRenderer = new PDFRenderer(document);
-            for (int page = startPage; page < Math.min(document.getNumberOfPages(), endPage); page++) {
+            int finalPage = Math.min(document.getNumberOfPages(), endPage);
+            for (int page = startPage; page < finalPage; page++) {
                 images.add(pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB));
             }
         } catch (IOException e) {
