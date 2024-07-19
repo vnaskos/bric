@@ -1,6 +1,7 @@
 package org.bric.core.process.model;
 
 import org.bric.core.model.TabParameters;
+import org.bric.core.model.WatermarkPattern;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,7 +9,7 @@ import java.awt.image.BufferedImage;
 public class WatermarkParameters implements TabParameters {
     private boolean enabled;
     private boolean custom;
-    private int pattern;    
+    private WatermarkPattern pattern;
     private boolean watermarkTextButton;
     private boolean watermarkImageButton;
     private String watermarkText;
@@ -97,11 +98,11 @@ public class WatermarkParameters implements TabParameters {
         this.enabled = enabled;
     }
 
-    public int getPattern() {
+    public WatermarkPattern getPattern() {
         return pattern;
     }
 
-    public void setPattern(int pattern) {
+    public void setPattern(WatermarkPattern pattern) {
         this.pattern = pattern;
     }
 
@@ -128,15 +129,15 @@ public class WatermarkParameters implements TabParameters {
     public void setWatermarkTextButton(boolean watermarkTextButton) {
         this.watermarkTextButton = watermarkTextButton;
     }
-    
+
     public void setWatermarkImage(BufferedImage watermark){
         this.watermarkImage = watermark;
     }
-    
+
     public BufferedImage getWatermarkImage(){
         return watermarkImage;
     }
-    
+
     public int getWatermarkHeight() {
         return watermarkHeight;
     }
@@ -152,7 +153,7 @@ public class WatermarkParameters implements TabParameters {
     public void setWatermarkWidth(int watermarkWidth) {
         this.watermarkWidth = watermarkWidth;
     }
-    
+
     public int getComponentHeight() {
         return componentHeight;
     }
@@ -168,11 +169,11 @@ public class WatermarkParameters implements TabParameters {
     public void setComponentWidth(int width) {
         this.componentWidth = width;
     }
-    
+
     public int getX(int width){
         return (int)( ( (double) width / (getComponentWidth()) ) * getCenterX());
     }
-    
+
     public int getY(int height){
         return (int) ( ( (double) height / getComponentHeight() ) * getCenterY());
     }

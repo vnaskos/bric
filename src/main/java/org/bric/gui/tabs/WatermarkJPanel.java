@@ -1,6 +1,7 @@
 package org.bric.gui.tabs;
 
 import com.jhlabs.image.RotateFilter;
+import org.bric.core.model.WatermarkPattern;
 import org.bric.core.process.ImageService;
 import org.bric.core.process.model.WatermarkParameters;
 import org.bric.gui.state.StatefulComponent;
@@ -17,7 +18,7 @@ import java.util.ResourceBundle;
 public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab, StatefulComponent {
 
     static ResourceBundle bundle;
-    private final ImageService imageService;
+    private final transient ImageService imageService;
 
     private Color color, defaultColor;
     private String plainText;
@@ -238,13 +239,9 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         rowsSlidder.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
         rowsSlidder.setEnabled(false);
 
-        patternComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Single", "Tiled" }));
+        patternComboBox.setModel(new DefaultComboBoxModel<WatermarkPattern>(new WatermarkPattern[] { WatermarkPattern.SINGLE, WatermarkPattern.TILED }));
         patternComboBox.setEnabled(false);
-        patternComboBox.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                patternComboBoxItemStateChanged(evt);
-            }
-        });
+        patternComboBox.addItemListener(this::patternComboBoxItemStateChanged);
 
         columnsLabel.setText(bundle.getString("WatermarkJPanel.coulumnsLabel.text")); // NOI18N
         columnsLabel.setToolTipText(bundle.getString("WatermarkJPanel.columnsLabel.toolTipText")); // NOI18N
@@ -467,7 +464,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     private javax.swing.JComboBox modeComboBox;
     private javax.swing.JSlider opacitySlider;
     private javax.swing.JLabel opcityLabel;
-    private javax.swing.JComboBox patternComboBox;
+    private JComboBox<WatermarkPattern> patternComboBox;
     private javax.swing.JLabel patternLabel;
     private javax.swing.JLabel rotateLabel;
     private javax.swing.JSlider rotateSlider;
@@ -487,7 +484,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
 
         watermarkParameters.setWatermarkText(editorTextPane.getText());
 
-        watermarkParameters.setPattern(patternComboBox.getSelectedIndex());
+        watermarkParameters.setPattern(getWatermarkPatternSelection());
         watermarkParameters.setTiledRows((Integer) rowsSlidder.getValue());
         watermarkParameters.setTiledColumns((Integer) coloumnsSpinner.getValue());
 
@@ -511,7 +508,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         CellRendererPane crp = new CellRendererPane();
         BufferedImage watermark;
 
-        if(modeComboBox.getSelectedIndex() != 2){
+        if (modeComboBox.getSelectedIndex() != 2){
             JTextPane pane = new JTextPane();
             pane.setContentType("text/html");
             pane.setText(editorTextPane.getText());
@@ -547,7 +544,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
 
     private void watermarkTabEnable() {
         boolean enable = watermarkEnableCheckBox.isSelected();
-        boolean tiled = patternComboBox.getSelectedIndex() == 1;
+        boolean tiled = patternComboBox.getSelectedItem() == WatermarkPattern.TILED;
 
         watermarkPlacer.setEnabled(enable);
         patternLabel.setEnabled(enable);
@@ -555,10 +552,10 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         opcityLabel.setEnabled(enable);
         opacitySlider.setEnabled(enable);
 
-        rowsLabel.setEnabled(enable & tiled);
-        rowsSlidder.setEnabled(enable & tiled);
-        columnsLabel.setEnabled(enable & tiled);
-        coloumnsSpinner.setEnabled(enable & tiled);
+        rowsLabel.setEnabled(enable && tiled);
+        rowsSlidder.setEnabled(enable && tiled);
+        columnsLabel.setEnabled(enable && tiled);
+        coloumnsSpinner.setEnabled(enable && tiled);
         rotateLabel.setEnabled(enable);
         rotateSlider.setEnabled(enable);
         for(Component comp : settingsPanel.getComponents()){
@@ -599,12 +596,12 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         this.opacitySlider.getModel().setValue(opacitySlider);
     }
 
-    public int getPatternComboBox() {
-        return patternComboBox.getSelectedIndex();
+    public WatermarkPattern getWatermarkPatternSelection() {
+        return (WatermarkPattern) patternComboBox.getSelectedItem();
     }
 
-    public void setPatternComboBox(int patternComboBox) {
-        this.patternComboBox.setSelectedIndex(patternComboBox);
+    public void setWatermarkPatternSelection(WatermarkPattern patternComboBox) {
+        this.patternComboBox.setSelectedItem(patternComboBox);
     }
 
     public String getRowsSlidder() {
@@ -637,7 +634,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         properties.setProperty("watermarkText", getEditorTextPane());
         properties.setProperty("watermarkMode", Integer.toString(getModeComboBox()));
         properties.setProperty("watermarkOpacity", getOpacitySlider());
-        properties.setProperty("watermarkPattern", Integer.toString(getPatternComboBox()));
+        properties.setProperty("watermarkPattern", getWatermarkPatternSelection().toString());
         properties.setProperty("watermarkRows", getRowsSlidder());
         properties.setProperty("watermarkEnable", getWatermarkEnableCheckBox() ? "1" : "0");
         properties.setProperty("watermarkImage", getWatermarkImageText());
@@ -650,7 +647,7 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         setEditorTextPane(properties.getProperty("watermarkText"));
         setModeComboBox(Integer.parseInt(properties.getProperty("watermarkMode")));
         setOpacitySlider(Integer.parseInt(properties.getProperty("watermarkOpacity")));
-        setPatternComboBox(Integer.parseInt(properties.getProperty("watermarkPattern")));
+        setWatermarkPatternSelection(WatermarkPattern.valueOf(properties.getProperty("watermarkPattern")));
         setRowsSlider(Integer.parseInt(properties.getProperty("watermarkRows")));
         setWatermarkEnableCheckBox(properties.getProperty("watermarkEnable").equals("1"));
         setWatermarkImageText(properties.getProperty("watermarkImage"));
