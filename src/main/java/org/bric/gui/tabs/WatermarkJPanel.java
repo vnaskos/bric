@@ -3,6 +3,7 @@ package org.bric.gui.tabs;
 import com.jhlabs.image.RotateFilter;
 import org.bric.core.model.WatermarkPattern;
 import org.bric.core.process.ImageService;
+import org.bric.core.process.WatermarkImageService;
 import org.bric.core.process.model.WatermarkParameters;
 import org.bric.gui.state.StatefulComponent;
 import org.bric.gui.swing.JPlacer;
@@ -15,10 +16,11 @@ import java.awt.image.BufferedImage;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab, StatefulComponent {
+public class WatermarkJPanel extends javax.swing.JPanel implements ImageEditTab, StatefulComponent {
 
     static ResourceBundle bundle;
     private final transient ImageService imageService;
+    private final WatermarkImageService watermarkImageService;
 
     private Color color, defaultColor;
     private String plainText;
@@ -29,8 +31,9 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
     /**
      * Creates new form WatermarkPanelNew
      */
-    public WatermarkJPanel(ImageService imageService) {
+    public WatermarkJPanel(ImageService imageService, WatermarkImageService watermarkImageService) {
         this.imageService = imageService;
+        this.watermarkImageService = watermarkImageService;
         bundle = ResourceBundle.getBundle("lang/gui/tabs/WatermarkJPanel");
         initComponents();
         defaultColor = rotateLabel.getForeground();
@@ -504,42 +507,23 @@ public class WatermarkJPanel extends javax.swing.JPanel  implements ImageEditTab
         return watermarkParameters;
     }
 
-    private BufferedImage computeWatermarkBufferedImage(){
-        CellRendererPane crp = new CellRendererPane();
+    private BufferedImage computeWatermarkBufferedImage() {
         BufferedImage watermark;
 
         if (modeComboBox.getSelectedIndex() != 2){
-            JTextPane pane = new JTextPane();
-            pane.setContentType("text/html");
-            pane.setText(editorTextPane.getText());
-            if(modeComboBox.getSelectedIndex() == 0){
-                pane.setForeground(editorTextPane.getForeground());
-                pane.setFont(editorTextPane.getFont());
-            }
-            pane.setBackground(new Color(255, 255, 255, 0));
-            Dimension dim = pane.getPreferredSize();
-
-            watermark = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g = watermark.createGraphics();
-
-            crp.paintComponent(g, pane, null, 0, 0, dim.width, dim.height);
-
-            g.setComposite(makeComposite(watermarkPlacer.getAlpha()));
-
-            g.dispose();
+            watermark = watermarkImageService.textToImage(
+                editorTextPane.getText(),
+                editorTextPane.getForeground(),
+                editorTextPane.getFont(),
+                watermarkPlacer.getAlpha(),
+                modeComboBox.getSelectedIndex() == 0);
         } else {
             watermark = imageService.load(watermarkImageText.getText());
         }
 
         float angle = (float) (((360-rotateSlider.getValue())*Math.PI)/180);
         RotateFilter rotateFilter = new RotateFilter(angle);
-
         return rotateFilter.filter(watermark, null);
-    }
-
-    private AlphaComposite makeComposite(float alpha) {
-        int type = AlphaComposite.SRC_OVER;
-        return (AlphaComposite.getInstance(type, alpha));
     }
 
     private void watermarkTabEnable() {
