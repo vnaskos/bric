@@ -1,6 +1,6 @@
 package org.bric.core.input.model;
 
-import org.bric.utils.PDFToImage;
+import org.bric.core.process.PdfService;
 import org.bric.utils.Utils;
 
 import java.awt.*;
@@ -21,11 +21,11 @@ public class Thumbnail {
         return image;
     }
 
-    public static Thumbnail generate(ImportedImage importedImage) {
+    public static Thumbnail generate(PdfService pdfService, ImportedImage importedImage) {
         try {
             BufferedImage image;
             if (importedImage.getType() == InputType.PDF) {
-                image = PDFToImage.getBImagesFromPDF(importedImage.getPath(), 0, 1).get(0);
+                image = pdfService.readAsImages(importedImage.getPath(), 0, 1).get(0);
             } else {
                 image = Utils.loadImage(importedImage.getPath());
             }
@@ -42,7 +42,7 @@ public class Thumbnail {
         int thumbHeight = DEFAULT_HEIGHT;
 
         if(image.getWidth(null) >= image.getHeight(null)){
-            thumbHeight = (thumbWidth * image.getHeight(null)) / image.getWidth(null); 
+            thumbHeight = (thumbWidth * image.getHeight(null)) / image.getWidth(null);
         } else {
             thumbWidth = (thumbHeight * image.getWidth(null)) / image.getHeight(null);
         }

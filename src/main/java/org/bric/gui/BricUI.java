@@ -333,7 +333,7 @@ public class BricUI extends JFrame {
             progress.updateValue(true);
         });
 
-        List<CompletableFuture<String>> processes = mainProcess.start();
+        List<CompletableFuture<Void>> processes = mainProcess.start();
 
         CompletableFuture.allOf(processes.toArray(new CompletableFuture[0]))
                 .thenAccept(v -> progress.dispose());

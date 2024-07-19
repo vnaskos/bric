@@ -1,12 +1,5 @@
 package org.bric.core.process;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.apache.pdfbox.rendering.PDFRenderer;
 import org.bric.core.input.model.ImportedImage;
 import org.bric.core.input.model.InputType;
 import org.bric.core.model.output.OutputParameters;
@@ -15,15 +8,14 @@ import org.bric.gui.BricUI;
 import org.bric.utils.Utils;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ImageProcessHandler {
 
@@ -33,17 +25,18 @@ public class ImageProcessHandler {
 
     private final FileNameService fileNameService;
     private final ImageSaveService imageSaveService;
+    private final PdfService pdfService;
 
     private BricUI.ProgressListener progressListener;
 
-    public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters,
-                               List<ImportedImage> inputList) {
-        this(fileNameService, new ImageSaveService(), outputParameters, inputList);
+    public ImageProcessHandler(FileNameService fileNameService, OutputParameters outputParameters, List<ImportedImage> inputList) {
+        this(fileNameService, new ImageSaveService(), outputParameters, new PdfboxPdfService(), inputList);
     }
 
     public ImageProcessHandler(FileNameService fileNameService, ImageSaveService imageSaveService,
-                               OutputParameters outputParameters, List<ImportedImage> inputList) {
+                               OutputParameters outputParameters, PdfService pdfService, List<ImportedImage> inputList) {
         this.outputParameters = outputParameters;
+        this.pdfService = pdfService;
         this.processors = new ArrayList<>();
 
         inputQueue = inputList.stream()
@@ -58,86 +51,59 @@ public class ImageProcessHandler {
         Collections.addAll(this.processors, processors);
     }
 
-    public List<CompletableFuture<String>> start() {
-        List<CompletableFuture<String>> futures = new ArrayList<>();
+    public List<CompletableFuture<Void>> start() {
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         if (outputParameters.getOutputType() == OutputType.PDF) {
-            futures.add(CompletableFuture.supplyAsync(() -> mergeInputToSinglePdf(inputQueue), Utils.getExecutorService()));
+            futures.add(CompletableFuture.runAsync(() -> mergeInputToSinglePdf(inputQueue), Utils.getExecutorService()));
         } else {
             for (ImportedImage item : inputQueue) {
-                futures.add(CompletableFuture.supplyAsync(() -> task(item), Utils.getExecutorService()));
+                futures.add(CompletableFuture.runAsync(() -> task(item), Utils.getExecutorService()));
             }
         }
         return futures;
     }
 
-    private String task(final ImportedImage item) {
+    private void task(final ImportedImage item) {
         if (item.getType() == InputType.PDF && outputParameters.getOutputType() == OutputType.SAME_AS_FIRST) {
             mergeInputToSinglePdf(Collections.singletonList(item));
         } else if (item.getType() == InputType.PDF) {
-            loadPdfPages(item.getPath(), page -> saveImage(item, applyProcessors(page)));
+            pdfService.readAsImages(item.getPath(), 0, Integer.MAX_VALUE).stream()
+                .map(this::applyProcessors)
+                .forEach(image -> saveImage(item, image));
         } else {
             saveImage(item, applyProcessors(Utils.loadImage(item.getPath())));
         }
 
         notifyFileProcessed(item);
-        return item.getPath();
+    }
+
+    private void mergeInputToSinglePdf(List<ImportedImage> inputList) {
+        Stream<BufferedImage> inputStream = inputList.stream().flatMap(importedImage -> {
+            List<BufferedImage> images = new ArrayList<>();
+            if (importedImage.getType() == InputType.PDF) {
+                pdfService.readAsImages(importedImage.getPath(), 0, Integer.MAX_VALUE).stream()
+                    .map(this::applyProcessors)
+                    .forEach(images::add);
+            } else {
+                BufferedImage image = Utils.loadImage(importedImage.getPath());
+                images.add(applyProcessors(image));
+            }
+            notifyFileProcessed(importedImage);
+            return images.stream();
+        });
+
+        pdfService.mergeToPdf(inputStream, fileNameService.generateFilePath(inputList.get(0)));
     }
 
     private BufferedImage applyProcessors(BufferedImage source) {
-        BufferedImage currentImage = source;
-        for (ImageProcessor<?> processor : processors) {
-            if (processor.isEnabled()) {
-                currentImage = processor.process(currentImage);
-            }
-        }
-        return currentImage;
-    }
+        Supplier<BufferedImage> resultSupplier = processors.stream()
+            .filter(ImageProcessor::isEnabled)
+            .reduce(
+                () -> source,
+                (supplier, processor) -> processor.process(supplier),
+                (s1, s2) -> s1);
 
-    private void loadPdfPages(String pdfPath, Consumer<BufferedImage> consumer) {
-        try (PDDocument doc = PDDocument.load(new File(pdfPath))) {
-            PDFRenderer pdfRenderer = new PDFRenderer(doc);
-            for (int page = 0; page < doc.getNumberOfPages(); page++) {
-                consumer.accept(pdfRenderer.renderImageWithDPI(page, 300));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String mergeInputToSinglePdf(List<ImportedImage> input) {
-        PDDocument document = new PDDocument();
-
-        if (input.isEmpty()) {
-            return "";
-        }
-
-        final ImportedImage firstItem = input.get(0);
-
-        for (ImportedImage importedImage : input) {
-            if (importedImage.getType() == InputType.PDF) {
-                loadPdfPages(importedImage.getPath(),
-                        page -> addImageToPDF(document, applyProcessors(page)));
-            } else {
-                BufferedImage image = Utils.loadImage(importedImage.getPath());
-                image = applyProcessors(image);
-                addImageToPDF(document, image);
-            }
-            notifyFileProcessed(importedImage);
-        }
-
-        try {
-            document.save(fileNameService.generateFilePath(firstItem));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                document.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return firstItem.getPath();
+        return resultSupplier.get();
     }
 
     private void notifyFileProcessed(ImportedImage importedImage) {
@@ -145,23 +111,6 @@ public class ImageProcessHandler {
             return;
         }
         progressListener.finished(importedImage.getPath());
-    }
-
-    public void addImageToPDF(PDDocument doc, BufferedImage image) {
-        try {
-            PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
-            doc.addPage(page);
-
-            PDImageXObject pdImage = LosslessFactory.createFromImage(doc, image);
-
-            PDPageContentStream contents = new PDPageContentStream(doc, page);
-
-            contents.drawImage(pdImage, 0, 0);
-
-            contents.close();
-        } catch (IOException e){
-            System.err.println("Exception while trying to create pdf document - " + e);
-        }
     }
 
     private void saveImage(ImportedImage item, BufferedImage image) {

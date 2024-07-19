@@ -1,5 +1,6 @@
 package org.bric.core.input.model;
 
+import org.bric.core.process.PdfboxPdfService;
 import org.bric.utils.Utils;
 
 import java.awt.image.BufferedImage;
@@ -34,7 +35,7 @@ public class ImportedImage {
     }
 
     private void generateThumbnail() {
-        this.thumbnail = Thumbnail.generate(this);
+        this.thumbnail = Thumbnail.generate(new PdfboxPdfService(), this);
     }
 
     public Optional<BufferedImage> getThumbnail() {
