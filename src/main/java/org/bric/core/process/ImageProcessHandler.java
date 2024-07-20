@@ -78,6 +78,12 @@ public class ImageProcessHandler {
     }
 
     private void mergeInputToSinglePdf(List<ImportedImage> inputList) {
+        String filePath = fileNameService.generateFilePath(inputList.get(0));
+        String nonCollidingFilename = fileNameService.preventNamingCollision(filePath);
+        if (nonCollidingFilename == null) {
+            return;
+        }
+
         Stream<BufferedImage> inputStream = inputList.stream().flatMap(importedImage -> {
             List<BufferedImage> images = new ArrayList<>();
             if (importedImage.getType() == InputType.PDF) {
@@ -92,7 +98,7 @@ public class ImageProcessHandler {
             return images.stream();
         });
 
-        pdfService.mergeToPdf(inputStream, fileNameService.generateFilePath(inputList.get(0)));
+        pdfService.mergeToPdf(inputStream, nonCollidingFilename);
     }
 
     private BufferedImage applyProcessors(BufferedImage source) {
