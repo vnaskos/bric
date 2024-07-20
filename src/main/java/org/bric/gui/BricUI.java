@@ -16,6 +16,8 @@ import org.bric.gui.tabs.ResizeJPanel;
 import org.bric.gui.tabs.RotateJPanel;
 import org.bric.gui.tabs.WatermarkJPanel;
 import org.bric.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,12 +28,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BricUI extends JFrame {
 
-    static ResourceBundle bundle;
+    private static final Logger logger = LoggerFactory.getLogger(BricUI.class);
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("lang/gui/BricUI");
 
     private javax.swing.JToggleButton alwaysOnTopButton;
 
@@ -47,15 +48,7 @@ public class BricUI extends JFrame {
     private final WatermarkJPanel watermarkTab;
 
     public BricUI() {
-        Locale defaultLocale;
-        if (Utils.prefs.getInt("locale", 0) == 0) {
-            defaultLocale = Locale.ENGLISH;
-        } else {
-            defaultLocale = Utils.GREEK;
-        }
-        Locale.setDefault(defaultLocale);
-
-        bundle = ResourceBundle.getBundle("lang/gui/BricUI");
+        setLanguage();
 
         preferencesFrame = new PreferencesFrame();
         aboutFrame = new About();
@@ -72,6 +65,17 @@ public class BricUI extends JFrame {
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/logo.png")));
     }
 
+    private static void setLanguage() {
+        Locale defaultLocale;
+        if (Utils.prefs.getInt("locale", 0) == 0) {
+            defaultLocale = Locale.ENGLISH;
+        } else {
+            defaultLocale = Utils.GREEK;
+        }
+        logger.info("Setting language to {}", defaultLocale);
+        Locale.setDefault(defaultLocale);
+    }
+
     private void initComponents() {
         JPanel toolBar = new JPanel();
         alwaysOnTopButton = new javax.swing.JToggleButton();
@@ -86,7 +90,6 @@ public class BricUI extends JFrame {
         JTabbedPane editPane = new JTabbedPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("lang/gui/BricUI"); // NOI18N
         setTitle(bundle.getString("BricUI.title")); // NOI18N
 
         toolBar.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -244,7 +247,7 @@ public class BricUI extends JFrame {
             temporary = File.createTempFile("preview", ".jpg");
             temporary.deleteOnExit();
         } catch (IOException ex) {
-            Logger.getLogger(ImageProcessHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Failed to create preview", ex);
             return;
         }
 
@@ -269,7 +272,7 @@ public class BricUI extends JFrame {
                     try {
                         Desktop.getDesktop().open(temporary);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        logger.error("Failed to open preview", e);
                     }
                 });
     }
@@ -278,6 +281,7 @@ public class BricUI extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        logger.info("Starting Bric UI");
         /*
          * Set the Nimbus look and feel
          */
@@ -295,7 +299,7 @@ public class BricUI extends JFrame {
                 }
             }
         } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException ex) {
-            java.util.logging.Logger.getLogger(BricUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error("Failed to set look and feel", ex);
         }
         //</editor-fold>
 

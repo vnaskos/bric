@@ -6,6 +6,8 @@ import org.bric.core.model.output.OutputParameters;
 import org.bric.core.model.output.OutputType;
 import org.bric.gui.BricUI;
 import org.bric.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ImageProcessHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ImageProcessHandler.class);
 
     private final List<ImportedImage> inputQueue;
     private final OutputParameters outputParameters;
@@ -41,8 +45,8 @@ public class ImageProcessHandler {
         this.processors = new ArrayList<>();
 
         inputQueue = inputList.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
 
         this.fileNameService = fileNameService;
     }
@@ -78,6 +82,8 @@ public class ImageProcessHandler {
     }
 
     private void mergeInputToSinglePdf(List<ImportedImage> inputList) {
+        logger.info("Merging {} files to PDF", inputList.size());
+
         String filePath = fileNameService.generateFilePath(inputList.get(0));
         String nonCollidingFilename = fileNameService.preventNamingCollision(filePath);
         if (nonCollidingFilename == null) {
@@ -85,7 +91,10 @@ public class ImageProcessHandler {
         }
 
         Stream<BufferedImage> inputStream = inputList.stream().flatMap(importedImage -> {
+            logger.info("Merging [{}]", importedImage.getPath());
+
             List<BufferedImage> images = new ArrayList<>();
+
             if (importedImage.getType() == InputType.PDF) {
                 pdfService.readAsImages(importedImage.getPath(), 0, Integer.MAX_VALUE).stream()
                     .map(this::applyProcessors)
@@ -128,13 +137,13 @@ public class ImageProcessHandler {
         }
 
         imageService.save(
-                () -> image,
-                new ImageSaveParameters(
-                        nonCollidingFilename,
-                        outputParameters.getQuality(),
-                        outputParameters.getOutputType() == OutputType.SAME_AS_FIRST
-                                ? OutputType.valueOf(item.getType().type.toUpperCase())
-                                : outputParameters.getOutputType()));
+            () -> image,
+            new ImageSaveParameters(
+                nonCollidingFilename,
+                outputParameters.getQuality(),
+                outputParameters.getOutputType() == OutputType.SAME_AS_FIRST
+                    ? OutputType.valueOf(item.getType().type.toUpperCase())
+                    : outputParameters.getOutputType()));
     }
 
     public void setProgressListener(BricUI.ProgressListener progressListener) {

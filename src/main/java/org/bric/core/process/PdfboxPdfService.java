@@ -10,6 +10,8 @@ import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -18,6 +20,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class PdfboxPdfService implements PdfService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PdfboxPdfService.class);
 
     @Override
     public List<BufferedImage> readAsImages(final String fullPath, final int startPage, final int endPage) {
@@ -30,7 +34,7 @@ public class PdfboxPdfService implements PdfService {
                 images.add(pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to read PDF [{}] pages [{}-{}] as images", fullPath, startPage, endPage, e);
         }
 
         return images;
@@ -42,7 +46,7 @@ public class PdfboxPdfService implements PdfService {
             input.forEach(i -> addImageToPDF(document, i));
             document.save(outputFullPath);
         }  catch (IOException e) {
-            System.out.println(e.getMessage());
+            logger.error("Failed to save PDF [{}]", outputFullPath, e);
         }
     }
 
@@ -59,7 +63,7 @@ public class PdfboxPdfService implements PdfService {
 
             contents.close();
         } catch (Exception e){
-            System.out.println("Exception while trying to create pdf document - " + e);
+            logger.error("Failed to convert image to PDF page", e);
         }
     }
 }
