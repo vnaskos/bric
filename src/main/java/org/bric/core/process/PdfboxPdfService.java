@@ -42,7 +42,7 @@ public class PdfboxPdfService implements PdfService {
             input.forEach(i -> addImageToPDF(document, i));
             document.save(outputFullPath);
         }  catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -58,8 +58,8 @@ public class PdfboxPdfService implements PdfService {
             contents.drawImage(pdImage, 0, 0);
 
             contents.close();
-        } catch (IOException e){
-            System.err.println("Exception while trying to create pdf document - " + e);
+        } catch (Exception e){
+            System.out.println("Exception while trying to create pdf document - " + e);
         }
     }
 }
