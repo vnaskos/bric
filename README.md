@@ -15,7 +15,7 @@ How to get the latest version and run the program on your machine.
 
 ### Prerequisites
 
-This project is written in Java and its executable is in jar format. In order to run the jar file you must have installed on your machine the [Java SE](https://www.oracle.com/java/technologies/javase-downloads.html) 8 or later.
+This project is written in Java and its executable is in jar format. In order to run the jar file you must have installed on your machine the [Java SE](https://adoptium.net/temurin/releases/?version=11) 9 or later.
 
 ### Run
 
