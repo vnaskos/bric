@@ -30,9 +30,14 @@ public class ListModel<E> extends AbstractListModel<E> {
     }
 
     public void remove(int[] indices) {
+        if (indices == null || indices.length == 0) {
+            return;
+        }
+
         for (int i=indices.length-1; i>=0; i--) {
             elements.remove(indices[i]);
         }
+
         fireIntervalRemoved(this, indices[0], indices[indices.length-1]);
     }
 
